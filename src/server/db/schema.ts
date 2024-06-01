@@ -18,7 +18,7 @@ import {
  */
 export const createTable = pgTableCreator((name) => `homelab-connector_${name}`);
 
-export const posts = createTable(
+export const immich = createTable(
   "post",
   {
     id: serial("id").primaryKey(),
