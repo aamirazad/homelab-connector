@@ -3,6 +3,7 @@ import "~/styles/globals.css";
 import { GeistSans } from "geist/font/sans";
 import { TopNav } from "./_components/topnav";
 import { ClerkProvider } from "@clerk/nextjs";
+import { ThemeProvider } from "./_components/theme-provider";
 
 export const metadata = {
   title: "Homelab Connector",
@@ -18,9 +19,11 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en" className={`${GeistSans.variable}`}>
-        <body className="bg-black text-white">
-          <TopNav />
-          {children}
+        <body className="">
+          <ThemeProvider attribute="class" defaultTheme="dark">
+            <TopNav />
+            {children}
+          </ThemeProvider>
         </body>
       </html>
     </ClerkProvider>
