@@ -5,8 +5,8 @@ import { buttonVariants } from "~/components/ui/button";
 
 export function TopNav() {
   return (
-    <nav className="flex flex-wrap w-full items-center justify-between p-4 text-xl">
-      <div className="flex w-64 rounded-bl-md rounded-tl-md bg-slate-900">
+    <nav className="m-4 flex h-10 flex-wrap items-center justify-between rounded-bl-md rounded-tl-md bg-slate-900 text-xl">
+      <div className="flex w-64">
         <Link
           href="/"
           className={`${buttonVariants({ variant: "link" })} text-xl font-bold text-slate-200`}
@@ -23,14 +23,16 @@ export function TopNav() {
         </Link>
         <Link
           href="immich"
-          className={`${buttonVariants({ variant: "link" })} text-slate-200 pointer-events-none`}
+          className={`${buttonVariants({ variant: "link" })} pointer-events-none text-slate-200`}
           style={{ opacity: 0.5 }}
           aria-disabled="true"
           tabIndex={-1}
         >
           Immich
         </Link>
-        <div className={`${buttonVariants({ variant: "link" })} text-slate-200` }>
+        <div
+          className={`${buttonVariants({ variant: "link" })} text-slate-200`}
+        >
           <SignedOut>
             <SignInButton />
           </SignedOut>
