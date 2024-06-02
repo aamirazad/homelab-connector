@@ -23,11 +23,14 @@ export function TopNav() {
         </Link>
         <Link
           href="immich"
-          className={`${buttonVariants({ variant: "link" })} text-slate-200`}
+          className={`${buttonVariants({ variant: "link" })} text-slate-200 pointer-events-none`}
+          style={{ opacity: 0.5 }}
+          aria-disabled="true"
+          tabIndex={-1}
         >
           Immich
         </Link>
-        <div className={`${buttonVariants({ variant: "link" })} text-slate-200`}>
+        <div className={`${buttonVariants({ variant: "link" })} text-slate-200` }>
           <SignedOut>
             <SignInButton />
           </SignedOut>
