@@ -5,8 +5,8 @@ import { buttonVariants } from "~/components/ui/button";
 
 export function TopNav() {
   return (
-    <nav className="flex w-full items-center justify-between p-4 text-xl">
-      <div className="flex w-full rounded-bl-md rounded-tl-md bg-slate-900">
+    <nav className="flex flex-wrap w-full items-center justify-between p-4 text-xl">
+      <div className="flex w-64 rounded-bl-md rounded-tl-md bg-slate-900">
         <Link
           href="/"
           className={`${buttonVariants({ variant: "link" })} text-xl font-bold text-slate-200`}
