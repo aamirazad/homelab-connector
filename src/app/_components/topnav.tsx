@@ -2,8 +2,10 @@
 import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 import { buttonVariants } from "~/components/ui/button";
+import Tooltip from "./tooltip";
 
 export function TopNav() {
+
   return (
     <nav className="m-4 flex h-10 flex-wrap items-center justify-between rounded-bl-md rounded-tl-md bg-slate-900 text-xl">
       <div className="flex w-64">
@@ -21,15 +23,17 @@ export function TopNav() {
         >
           Paperless-ngx
         </Link>
+        <Tooltip text="Comming soon!">
         <Link
-          href="immich"
+          href="/immich"
           className={`${buttonVariants({ variant: "link" })} pointer-events-none text-slate-200`}
           style={{ opacity: 0.5 }}
           aria-disabled="true"
           tabIndex={-1}
-        >
-          Immich
+          >
+            Immich
         </Link>
+      </Tooltip>
         <div
           className={`${buttonVariants({ variant: "link" })} text-slate-200`}
         >
