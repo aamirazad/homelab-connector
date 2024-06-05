@@ -1,6 +1,15 @@
 import { ExternalLink } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  QueryClient,
+  QueryClientProvider,
+} from '@tanstack/react-query'
+
+const queryClient = new QueryClient()
 
 type DataType = {
   data: {
@@ -40,7 +49,7 @@ type DataType = {
   };
 };
 
-export default function DocuemntsPage() {
+export default function DocumentsPage() {
   const searchParams = useSearchParams();
   const query = searchParams.get("query");
   const [results, setResults] = useState<DataType | null>(null);
