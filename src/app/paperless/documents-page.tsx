@@ -1,15 +1,13 @@
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, LoaderCircle } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import {
   useQuery,
-  useMutation,
-  useQueryClient,
-  QueryClient,
   QueryClientProvider,
-} from '@tanstack/react-query'
+  QueryClient,
+} from "@tanstack/react-query";
 
-const queryClient = new QueryClient()
+const queryClient = new QueryClient();
 
 type DataType = {
   data: {
@@ -49,51 +47,63 @@ type DataType = {
   };
 };
 
-export default function DocumentsPage() {
+function Documents() {
   const searchParams = useSearchParams();
   const query = searchParams.get("query");
-  const [results, setResults] = useState<DataType | null>(null);
-  const [loading, setLoading] = useState(true);
+  
+  const QueryResult = useQuery({
+    queryKey: ["key"],
+    queryFn: async () => {
+      const response = await fetch("/api/paperless?query=" + query);
+      const data = (await response.json()) as DataType;
+      console.log("data just got got");
+      return data;
+    },
+  });
 
-  if (query) {
-    useEffect(() => {
-      fetch("/api/paperless?query=" + query)
-        .then((response) => response.json())
-        .then((data) => {
-          setResults(data);
-          setLoading(false);
-        })
-        .catch((error) => {
-          console.error(error);
-          setLoading(false);
-        });
-    }, [query]);
-    if (loading) return <div className="my-6 text-lg">Loading...</div>;
-  }
+  useEffect(() => {
+    queryClient.refetchQueries();
+  }, [query]);
 
   return (
-    <div className="w-full">
-      <h1 className="my-6 mt-8 text-2xl font-bold">Search Results</h1>
-      {results ? (
-        <ul className="list-disc">
-          {results.data.documents.map((document, index) => (
-            <li className="underline" key={index}>
-              <a
-                rel="noopener noreferrer"
-                target="_blank"
-                className="text-blue-600 underline hover:text-blue-800"
-                href={`https://papers.aamira.me/api/documents/${document.id}/preview/#search="${query}"`}
-              >
-                {document.title}
-                <ExternalLink size={16} className="mx-1 inline-block" />
-              </a>
-            </li>
-          ))}
-        </ul>
+    <div>
+      {QueryResult.isLoading ? (
+        <div className="flex flex-row place-content-center gap-1">
+          <LoaderCircle className="animate-spin" />
+          Loading...
+        </div>
+      ) : QueryResult.data?.data ? (
+        <div className="flex flex-col gap-4">
+          <h1 className="text-2xl font-bold">Search Results</h1>
+          <ul className="list-disc">
+            {QueryResult.data.data.documents.map((document, index) => (
+              <li className="underline" key={index}>
+                <a
+                  rel="noopener noreferrer"
+                  target="_blank"
+                  className="text-blue-600 underline hover:text-blue-800"
+                  href={`https://papers.aamira.me/api/documents/${document.id}/preview/#search="${query}"`}
+                >
+                  {document.title}
+                  <ExternalLink size={16} className="mx-1 inline-block" />
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
       ) : (
-        // Render something else or nothing if data is null
-        <p>Start searching!</p>
+        <h1 className="text-2xl font-bold">Start searching!</h1>
       )}
+    </div>
+  );
+}
+
+export default function DocumentsPage() {
+  return (
+    <div className="w-full">
+      <QueryClientProvider client={queryClient}>
+        <Documents />
+      </QueryClientProvider>
     </div>
   );
 }
