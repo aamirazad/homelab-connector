@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
   const query = searchParams.get("query");
 
-  if (!query || query.length < 3) return Response.json({ error: 'Bad Request' }, { status: 400 });
+  if (!query || query == "null" || query.length < 3) return Response.json({ error: 'Bad Request' }, { status: 400 });
 
   const response = await fetch(
     "https://papers.aamira.me/api/search/?query=" + query,
