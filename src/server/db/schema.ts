@@ -3,10 +3,8 @@
 
 import { sql } from "drizzle-orm";
 import {
-  index,
   pgTableCreator,
   serial,
-  timestamp,
   varchar,
 } from "drizzle-orm/pg-core";
 
@@ -16,19 +14,14 @@ import {
  *
  * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
  */
-export const createTable = pgTableCreator((name) => `homelab-connector_${name}`);
-
-export const immich = createTable(
-  "post",
-  {
-    id: serial("id").primaryKey(),
-    name: varchar("name", { length: 256 }),
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
-    updatedAt: timestamp("updatedAt", { withTimezone: true }),
-  },
-  (example) => ({
-    nameIndex: index("name_idx").on(example.name),
-  })
+export const createTable = pgTableCreator(
+  (name) => `homelab-connector_${name}`,
 );
+
+export const users = createTable("users", {
+  id: serial("id").primaryKey(),
+  userId: varchar("userId", { length: 256 }).notNull(),
+  fullName: varchar("name", { length: 256 }),
+  paperlessURL: varchar("paperlessURL", { length: 256 }),
+  paperlessAPI: varchar("paperlessAPI", { length: 256 }),
+});
