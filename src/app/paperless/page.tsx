@@ -14,8 +14,10 @@ export default function PaperlessPage() {
           </div>
         </SignedOut>
         <SignedIn>
-          <DocumentsSearch />
-          <DocuemntsPage />
+          <div className="flex flex-col gap-8 w-full">
+            <DocumentsSearch />
+            <DocuemntsPage />
+          </div>
         </SignedIn>
       </div>
     </main>
