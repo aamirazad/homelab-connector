@@ -22,7 +22,9 @@ export default function RootLayout({
         <body className="">
           <ThemeProvider attribute="class" defaultTheme="dark">
             <TopNav />
-            {children}
+            <div className="flex flex-col items-center justify-center p-4 px-6">
+              {children}
+            </div>
           </ThemeProvider>
         </body>
       </html>

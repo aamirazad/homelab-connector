@@ -6,7 +6,7 @@ import DocuemntsPage from "./documents-page";
 
 export default function PaperlessPage() {
   return (
-    <main className="flex flex-col items-center justify-center p-4 px-6">
+    <main className="">
       <div className="flex w-96 flex-col items-center justify-center">
         <SignedOut>
           <div className="flex flex-col text-center text-2xl">

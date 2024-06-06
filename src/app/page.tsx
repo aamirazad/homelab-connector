@@ -3,8 +3,8 @@ import { ExternalLink } from "lucide-react";
 export default async function HomePage() {
 
   return (
-    <main className="p-4 px-6">
-      <div className="flex flex-col items-center justify-center">
+    <main className="">
+      <div className="">
         <div>Welcome to Homelab Connector</div>
         <div>
           Check out the{" "}
