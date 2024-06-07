@@ -17,7 +17,7 @@ export function TopNav() {
           Homelab Connector
         </Link>
       </div>
-      <div className="flex items-center divide-x divide-dotted rounded-br-md rounded-tr-md bg-slate-300 dark:bg-slate-700">
+      <div className="flex items-center divide-x divide-dotted rounded-br-md rounded-tr-md h-full bg-slate-300 dark:bg-slate-700">
         <Link href="paperless" className={buttonVariants({ variant: "link" })}>
           Paperless-ngx
         </Link>
