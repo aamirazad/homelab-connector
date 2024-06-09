@@ -13,9 +13,45 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useCallback } from "react";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { Dispatch, SetStateAction } from "react";
 
 function FullName() {
-  return <div>Hello Dathi</div>;
+  const formSchema = z.object({
+    FullName: z.string().min(3).max(256),
+  });
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      FullName: "",
+    },
+  });
+
+  function onSubmit(values: z.infer<typeof formSchema>) {
+    console.log(values["FullName"]);
+  }
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <FormField
+          control={form.control}
+          name="FullName"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Full Name</FormLabel>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+      </form>
+    </Form>
+  );
 }
 
 function PaperlessURL() {
@@ -36,7 +72,7 @@ export default function userSetup() {
   const [activeTab, setActiveTab] = useState(0);
 
   const formElements = [
-    <FullName />,
+    <FullName data={data} handleChange={handleChange} />,
     <PaperlessURL />,
     <PaperlessAPI />,
     // <PaperlessURL data={data} handleChange={handleChange} />,
@@ -47,13 +83,7 @@ export default function userSetup() {
     <div className="flex flex-col gap-6">
       <div>{formElements[activeTab]}</div>
       <div className="mx-auto flex flex-wrap gap-x-6">
-        <button
-          disabled={activeTab === 0 ? true : false}
-          onClick={() => setActiveTab((prev) => prev - 1)}
-          className={`rounded-xl bg-green-600 px-4 py-2 text-white ${activeTab === 0 ? "bg-slate-600 opacity-50" : "opacity-100"}`}
-        >
-          Back
-        </button>
+        x{" "}
         <button
           disabled={activeTab === formElements.length - 1 ? true : false}
           onClick={() => setActiveTab((prev) => prev + 1)}
