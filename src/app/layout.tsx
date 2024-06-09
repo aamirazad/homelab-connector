@@ -4,6 +4,7 @@ import { GeistSans } from "geist/font/sans";
 import { TopNav } from "./_components/topnav";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ThemeProvider } from "./_components/theme-provider";
+import { cn } from "~/lib/utils";
 
 export const metadata = {
   title: "Homelab Connector",
@@ -18,7 +19,14 @@ export default function RootLayout({
 }) {
   return (
     <ClerkProvider>
-      <html lang="en" className={`${GeistSans.variable}`}>
+      <html
+        suppressHydrationWarning
+        lang="en"
+        className={cn(
+          "min-h-screen bg-background font-sans antialiased",
+          GeistSans.variable,
+        )}
+      >
         <body className="">
           <ThemeProvider attribute="class" defaultTheme="dark">
             <TopNav />
