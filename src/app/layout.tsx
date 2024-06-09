@@ -1,10 +1,10 @@
-import "~/styles/globals.css";
+import "@/styles/globals.css";
 
 import { GeistSans } from "geist/font/sans";
-import { TopNav } from "./_components/topnav";
+import { TopNav } from "@/components/topnav";
 import { ClerkProvider } from "@clerk/nextjs";
-import { ThemeProvider } from "./_components/theme-provider";
-import { cn } from "~/lib/utils";
+import { ThemeProvider } from "@/components/theme-provider";
+import { cn } from "@/lib/utils";
 
 export const metadata = {
   title: "Homelab Connector",

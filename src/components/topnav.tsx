@@ -2,9 +2,9 @@
 
 import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import Link from "next/link";
-import { Button, buttonVariants } from "~/components/ui/button";
-import Tooltip from "./tooltip";
-import { ModeToggle } from "./mode-toggle";
+import { Button, buttonVariants } from "@/components/ui/button";
+import Tooltip from "@/components/tooltip";
+import { ModeToggle } from "@/components/mode-toggle";
 
 export function TopNav() {
   return (
@@ -17,7 +17,7 @@ export function TopNav() {
           Homelab Connector
         </Link>
       </div>
-      <div className="flex items-center divide-x divide-dotted rounded-br-md rounded-tr-md h-full bg-slate-300 dark:bg-slate-700">
+      <div className="flex h-full items-center divide-x divide-dotted rounded-br-md rounded-tr-md bg-slate-300 dark:bg-slate-700">
         <Link href="paperless" className={buttonVariants({ variant: "link" })}>
           Paperless-ngx
         </Link>
