@@ -19,7 +19,7 @@ import { useForm } from "react-hook-form";
 import { Dispatch, SetStateAction } from "react";
 import { useUser } from "@clerk/nextjs";
 import { redirect, usePathname } from "next/navigation";
-import { LoaderCircle } from "lucide-react";
+import LoadingSpinner from "@/components/loading-spinner";
 
 function FullName({
   setActiveTab,
@@ -31,12 +31,7 @@ function FullName({
 
   if (!isLoaded) {
     // Handle loading state however you like
-    return (
-      <div className="flex flex-row place-content-center gap-1">
-        <LoaderCircle className="animate-spin" />
-        Loading...
-      </div>
-    );
+    return <LoadingSpinner>Loading...</LoadingSpinner>;
   }
 
   if (!user) {
