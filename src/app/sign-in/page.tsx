@@ -1,5 +1,6 @@
 "use client";
 
+import LoadingSpinner from "@/components/loading-spinner";
 import { RedirectToSignIn, SignedIn, SignedOut } from "@clerk/nextjs";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -11,7 +12,7 @@ export default function SignIn() {
   return (
     <div className="text-xl">
       <SignedOut>
-        Signing you in...
+        <LoadingSpinner>Signing you in...</LoadingSpinner>
         <RedirectToSignIn signInForceRedirectUrl={redirect} />
       </SignedOut>
       <SignedIn>
