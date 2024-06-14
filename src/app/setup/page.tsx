@@ -14,16 +14,34 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useCallback } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { Dispatch, SetStateAction } from "react";
+import { useUser } from "@clerk/nextjs";
+import { redirect } from "next/navigation";
+import { LoaderCircle } from "lucide-react";
 
 function FullName({
   setActiveTab,
 }: {
   setActiveTab: Dispatch<SetStateAction<number>>;
 }) {
+  const { user, isLoaded } = useUser();
+
+  if (!isLoaded) {
+    // Handle loading state however you like
+    return (
+      <div className="flex flex-row place-content-center gap-1">
+        <LoaderCircle className="animate-spin" />
+        Loading...
+      </div>
+    );
+  }
+
+  if (!user) {
+    return redirect("/sign-in");
+  }
+
   const formSchema = z.object({
     FullName: z.string().min(1, {
       message: "Required.",
@@ -37,7 +55,7 @@ function FullName({
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values["FullName"]);
+    console.log(values["FullName"], user!.id);
     setActiveTab((prevTab) => prevTab + 1); // Increment activeTab
   }
 
@@ -69,19 +87,17 @@ function PaperlessURL({
   setActiveTab: Dispatch<SetStateAction<number>>;
 }) {
   const formSchema = z.object({
-    URL: z.string().min(1, {
-      message: "Required.",
-    }),
+    URL: z.string(),
   });
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      FullName: "",
+      URL: "",
     },
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values["FullName"]);
+    console.log(values["URL"]);
     setActiveTab((prevTab) => prevTab + 1); // Increment activeTab
   }
 
@@ -90,14 +106,14 @@ function PaperlessURL({
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
-          name="FullName"
+          name="URL"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Full Name</FormLabel>
+              <FormLabel>Paperless URL</FormLabel>
               <FormControl>
                 <Input {...field} />
               </FormControl>
-              <FormMessage />
+              <FormDescription>Leave empty to disable</FormDescription>
             </FormItem>
           )}
         />
@@ -116,7 +132,7 @@ export default function userSetup() {
 
   const formElements = [
     <FullName setActiveTab={setActiveTab} />,
-    <PaperlessURL />,
+    <PaperlessURL setActiveTab={setActiveTab} />,
     <PaperlessAPI />,
     // <PaperlessURL data={data} handleChange={handleChange} />,
     // <PaperlesssKey data={data} setData={setData} />,
