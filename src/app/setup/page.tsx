@@ -19,9 +19,15 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { Dispatch, SetStateAction } from "react";
 
-function FullName() {
+function FullName({
+  setActiveTab,
+}: {
+  setActiveTab: Dispatch<SetStateAction<number>>;
+}) {
   const formSchema = z.object({
-    FullName: z.string().min(3).max(256),
+    FullName: z.string().min(1, {
+      message: "Required.",
+    }),
   });
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -32,6 +38,7 @@ function FullName() {
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values["FullName"]);
+    setActiveTab((prevTab) => prevTab + 1); // Increment activeTab
   }
 
   return (
@@ -46,16 +53,58 @@ function FullName() {
               <FormControl>
                 <Input {...field} />
               </FormControl>
+              <FormMessage />
             </FormItem>
           )}
         />
+        <Button type="submit">Submit</Button>
       </form>
     </Form>
   );
 }
 
-function PaperlessURL() {
-  return <div>It's magic</div>;
+function PaperlessURL({
+  setActiveTab,
+}: {
+  setActiveTab: Dispatch<SetStateAction<number>>;
+}) {
+  const formSchema = z.object({
+    URL: z.string().min(1, {
+      message: "Required.",
+    }),
+  });
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      FullName: "",
+    },
+  });
+
+  function onSubmit(values: z.infer<typeof formSchema>) {
+    console.log(values["FullName"]);
+    setActiveTab((prevTab) => prevTab + 1); // Increment activeTab
+  }
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <FormField
+          control={form.control}
+          name="FullName"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Full Name</FormLabel>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button type="submit">Submit</Button>
+      </form>
+    </Form>
+  );
 }
 
 function PaperlessAPI() {
@@ -63,16 +112,10 @@ function PaperlessAPI() {
 }
 
 export default function userSetup() {
-  const handleChange = (event: { target: { key: string; value: string } }) => {
-    const { key, value } = event.target;
-    console.log(key, value);
-  };
-  1;
-
   const [activeTab, setActiveTab] = useState(0);
 
   const formElements = [
-    <FullName />,
+    <FullName setActiveTab={setActiveTab} />,
     <PaperlessURL />,
     <PaperlessAPI />,
     // <PaperlessURL data={data} handleChange={handleChange} />,
@@ -82,21 +125,6 @@ export default function userSetup() {
   return (
     <div className="flex flex-col gap-6">
       <div>{formElements[activeTab]}</div>
-      <div className="mx-auto flex flex-wrap gap-x-6">
-        x{" "}
-        <button
-          disabled={activeTab === formElements.length - 1 ? true : false}
-          onClick={() => setActiveTab((prev) => prev + 1)}
-          className={`rounded-xl bg-blue-800 px-4 py-2 text-white ${activeTab === formElements.length - 1 ? "bg-slate-600 opacity-50" : "opacity-100"}`}
-        >
-          Next
-        </button>
-        {activeTab === formElements.length - 1 ? (
-          <button className="rounded-xl bg-blue-600 px-4 py-2 text-white">
-            Submit
-          </button>
-        ) : null}
-      </div>
     </div>
   );
 }
