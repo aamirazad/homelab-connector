@@ -18,7 +18,7 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { Dispatch, SetStateAction } from "react";
 import { useUser } from "@clerk/nextjs";
-import { redirect } from "next/navigation";
+import { redirect, usePathname } from "next/navigation";
 import { LoaderCircle } from "lucide-react";
 
 function FullName({
@@ -27,6 +27,7 @@ function FullName({
   setActiveTab: Dispatch<SetStateAction<number>>;
 }) {
   const { user, isLoaded } = useUser();
+  const pathname = usePathname();
 
   if (!isLoaded) {
     // Handle loading state however you like
@@ -39,7 +40,7 @@ function FullName({
   }
 
   if (!user) {
-    return redirect("/sign-in");
+    return redirect("/sign-in?redirect=" + pathname);
   }
 
   const formSchema = z.object({
