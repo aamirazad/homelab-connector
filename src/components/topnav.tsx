@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Button, buttonVariants } from "@/components/ui/button";
 import Tooltip from "@/components/tooltip";
 import { ModeToggle } from "@/components/mode-toggle";
+import { Separator } from "@/components/ui/separator";
 
 export function TopNav() {
   return (
@@ -18,13 +19,14 @@ export function TopNav() {
             Homelab Connector
           </Link>
         </div>
-        <div className="flex h-full items-center divide-x divide-dotted rounded-br-md rounded-tr-md bg-slate-300 dark:bg-slate-700">
+        <div className="flex h-full items-center rounded-br-md rounded-tr-md bg-slate-300 dark:bg-slate-700">
           <Link
             href="paperless"
             className={buttonVariants({ variant: "link" })}
           >
             Paperless-ngx
           </Link>
+          <Separator orientation="vertical" />
           <div>
             <Tooltip text="Comming soon!">
               <Button
@@ -37,6 +39,7 @@ export function TopNav() {
               </Button>
             </Tooltip>
           </div>
+          <Separator orientation="vertical" />
           <div>
             <div className={buttonVariants({ variant: "link" })}>
               <SignedOut>
@@ -47,6 +50,7 @@ export function TopNav() {
               </SignedIn>
             </div>
           </div>
+          <Separator orientation="vertical" />
           <ModeToggle />
         </div>
       </div>
