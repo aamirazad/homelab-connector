@@ -1,12 +1,18 @@
+"use client";
+
 import { RedirectToSignIn, SignedIn, SignedOut } from "@clerk/nextjs";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
 export default function SignIn() {
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get("redirect");
+
   return (
     <div className="text-xl">
       <SignedOut>
         Signing you in...
-        <RedirectToSignIn />
+        <RedirectToSignIn signInForceRedirectUrl={redirect} />
       </SignedOut>
       <SignedIn>
         You are already signed in
