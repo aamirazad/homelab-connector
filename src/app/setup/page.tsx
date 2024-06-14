@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { db } from "~/server/db";
-import { Button } from "~/components/ui/button";
+import { db } from "@/server/db";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -11,8 +11,8 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "~/components/ui/form";
-import { Input } from "~/components/ui/input";
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useCallback } from "react";
 import { z } from "zod";
@@ -72,7 +72,7 @@ export default function userSetup() {
   const [activeTab, setActiveTab] = useState(0);
 
   const formElements = [
-    <FullName data={data} handleChange={handleChange} />,
+    <FullName />,
     <PaperlessURL />,
     <PaperlessAPI />,
     // <PaperlessURL data={data} handleChange={handleChange} />,
