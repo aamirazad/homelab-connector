@@ -1,0 +1,101 @@
+name-template: "v$RESOLVED_VERSION"
+tag-template: "v$RESOLVED_VERSION"
+autolabeler:
+  - label: "bug"
+    title:
+      - "/fix/i"
+  - label: "feature"
+    title:
+      - "/feat/i"
+  - label: "documentation"
+    title:
+      - "/docs/i"
+  - label: "ci"
+    title:
+      - "/ci/i"
+  - label: "style"
+    title:
+      - "/style/i"
+  - label: "refactor"
+    title:
+      - "/refactor/i"
+  - label: "performance"
+    title:
+      - "/perf/i"
+  - label: "test"
+    title:
+      - "/test/i"
+  - label: "chore"
+    title:
+      - "/chore/i"
+  - label: "breaking"
+    title:
+      - "/BREAKING CHANGE/i"
+      - '/\w+!:/i'
+  # Adding semantic versioning labels
+  - label: "major"
+    title:
+      - "/BREAKING CHANGE/i"
+      - '/\w+!:/i'
+  - label: "minor"
+    title:
+      - "/feat/i"
+  - label: "patch"
+    title:
+      - "/fix/i"
+categories:
+  - title: "Breaking Changes"
+    labels:
+      - "breaking-change"
+  - title: "Notable Changes"
+    labels:
+      - "notable"
+  - title: "Features"
+    labels:
+      - "enhancement"
+      - "feature"
+  - title: "Performance Improvements"
+    labels:
+      - "performance"
+  - title: "Bug Fixes"
+    labels:
+      - "bug"
+  - title: "Documentation"
+    labels:
+      - "documentation"
+  - title: "Style Improvements"
+    labels:
+      - "style"
+  - title: "Maintenance"
+    labels:
+      - "chore"
+      - "deployment"
+      - "translation"
+      - "ci"
+      - "refactor"
+  - title: "Dependencies"
+    collapse-after: 3
+    labels:
+      - "dependencies"
+  - title: "All App Changes"
+    collapse-after: 1
+exclude-labels:
+  - "skip-changelog"
+category-template: "### $TITLE"
+change-template: "- $TITLE @$AUTHOR ([#$NUMBER]($URL))"
+change-title-escapes: '\<*_&#@'
+template: |
+  ## v$RESOLVED_VERSION
+
+  $CHANGES
+version-resolver:
+  major:
+    labels:
+      - "major"
+  minor:
+    labels:
+      - "minor"
+  patch:
+    labels:
+      - "patch"
+  default: patch
