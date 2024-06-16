@@ -22,22 +22,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Install dependencies
-        uses: pnpm/action-setup@v4
-        with:
-          run_install: true
-
-      - name: Build project
-        run: SKIP_ENV_VALIDATION=1 pnpm run build
-
-      - name: Set up Git
-        run: |
-          git config user.name "Aamir Azad"
-          git config user.email "aamirmazad@gmail.com"
-
       - name: Get tag
         id: get_tag
         run: |
@@ -48,7 +32,6 @@ jobs:
       - name: Create release
         uses: softprops/action-gh-release@v2
         with:
-          files: ./build/*
           tag_name: ${{ steps.get_tag.outputs.version }}
           name: v${{ steps.get_tag.outputs.version }}
           # Automatically generate release notes based on commits
