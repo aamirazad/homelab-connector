@@ -1,5 +1,4 @@
 import OpenLinkInNewPage from "@/components/open-link-in-new-page";
-import { ExternalLink } from "lucide-react";
 
 export default async function HomePage() {
   return (
