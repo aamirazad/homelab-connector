@@ -43,7 +43,7 @@ jobs:
         run: |
           git branch --show-current
           git pull
-          echo "::set-output name=version::v$(npm pkg get version | tr -d '\"')"
+          echo "::set-output name=version::v$(pnpm pkg get version | tr -d '\"')"
 
       - name: Tag the commit
         run: |
