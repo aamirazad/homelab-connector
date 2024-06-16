@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { db } from "@/server/db";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -123,7 +122,7 @@ function PaperlessAPI() {
   return <div>PaperlessAPI</div>;
 }
 
-export default function userSetup() {
+export default async function userSetup() {
   const [activeTab, setActiveTab] = useState(0);
 
   const formElements = [
@@ -135,8 +134,8 @@ export default function userSetup() {
   ];
 
   return (
-    <div className="flex flex-col gap-6">
+    <main className="flex flex-col gap-6">
       <div>{formElements[activeTab]}</div>
-    </div>
+    </main>
   );
 }

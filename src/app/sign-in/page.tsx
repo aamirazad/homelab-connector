@@ -10,7 +10,7 @@ export default function SignIn() {
   const redirect = searchParams.get("redirect");
 
   return (
-    <div className="text-xl">
+    <main className="text-xl">
       <SignedOut>
         <LoadingSpinner>Signing you in...</LoadingSpinner>
         <RedirectToSignIn signInForceRedirectUrl={redirect} />
@@ -27,6 +27,6 @@ export default function SignIn() {
           </Link>
         </div>
       </SignedIn>
-    </div>
+    </main>
   );
 }
