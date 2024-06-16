@@ -1,0 +1,26 @@
+name: PR Tagger
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  pr_opened_or_reopened:
+    name: pr_opened_or_reopened
+    runs-on: ubuntu-latest
+    permissions:
+      # write permission is required for autolabeler
+      pull-requests: write
+    if: github.event_name == 'pull_request_target' && (github.event.action == 'opened' || github.event.action == 'reopened') && github.event.pull_request.user.login != 'dependabot'
+    steps:
+      - name: Label PR with release-drafter
+        uses: release-drafter/release-drafter@v6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
