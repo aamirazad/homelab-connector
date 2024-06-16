@@ -45,12 +45,6 @@ jobs:
           git pull
           echo "::set-output name=version::v$(pnpm pkg get version | tr -d '\"')"
 
-      - name: Tag the commit
-        run: |
-          next_version=${{ steps.get_tag.outputs.version }}
-          git tag -a "$next_version" -m "Version $next_version"
-          git push --follow-tags
-
       - name: Create release
         uses: softprops/action-gh-release@v2
         with:
