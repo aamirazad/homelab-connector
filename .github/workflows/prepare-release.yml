@@ -1,0 +1,68 @@
+name: Prepare new release
+
+on:
+  workflow_dispatch:
+    inputs:
+      versionBump:
+        description: "Bump version"
+        required: true
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "minor"
+          - "patch"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-root
+  cancel-in-progress: true
+
+jobs:
+  prepare_release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "16"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build project
+        run: npm run build
+
+      - name: Set up Git
+        run: |
+          git config user.name "Aamir Azad"
+          git config user.email "aamirmazad@gmail.com"
+
+      - name: Get tag
+        id: get_tag
+        run: |
+          git branch --show-current
+          git pull
+          echo "::set-output name=version::v$(npm pkg get version | tr -d '\"')"
+
+      - name: Tag the commit
+        run: |
+          next_version=${{ steps.get_tag.outputs.version }}
+          git tag -a "$next_version" -m "Version $next_version"
+          git push --follow-tags
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ./build/*
+          tag_name: ${{ steps.get_tag.outputs.version }}
+          name: v${{ steps.get_tag.outputs.version }}
+          # Automatically generate release notes based on commits
+          generate_release_notes: true
+          draft: true
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
