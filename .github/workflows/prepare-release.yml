@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       versionBump:
-        description: "Bump version"
+        description: "Type of version bump (major, minor, patch)"
         required: true
-        default: "false"
+        default: "patch"
         type: choice
         options:
           - "false"
@@ -29,9 +29,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "16"
+          cache: "pnpm"
+
+      - name: Install pnpm
+        run: npm install -g pnpm
 
       - name: Install dependencies
-        run: npm install
+        run: pnpm install
 
       - name: Build project
         run: npm run build
