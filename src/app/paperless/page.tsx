@@ -24,6 +24,8 @@ import {
 } from "@tanstack/react-query";
 import LoadingSpinner from "@/components/loading-spinner";
 
+const queryClient = new QueryClient();
+
 function DocumentsSearch() {
   const formSchema = z.object({
     query: z.string().min(3).max(256),
@@ -79,8 +81,6 @@ function DocumentsSearch() {
     </Form>
   );
 }
-
-const queryClient = new QueryClient();
 
 function DocumentsPage() {
   type DataType = {
