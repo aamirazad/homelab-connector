@@ -39,3 +39,13 @@ export async function setPaperlessToken(token: string, userId: string) {
     throw new Error("Database error");
   }
 }
+
+export async function getUserPreferences(userId: string) {
+  try {
+    await db.query.users.findFirst({
+      where: (model, { eq }) => eq(model.userId, userId),
+    });
+  } catch {
+    throw new Error("Database error");
+  }
+}

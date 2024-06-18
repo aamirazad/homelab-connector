@@ -22,6 +22,7 @@ import {
   setFullUserName,
   setPaperlessToken,
   setPaperlessURL,
+  getUserPreferences,
 } from "../actions";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
@@ -33,6 +34,7 @@ function FullName({
 }) {
   const { user, isLoaded } = useUser();
   const pathname = usePathname();
+
   const formSchema = z.object({
     FullName: z.string().min(1, {
       message: "Required.",
@@ -52,6 +54,10 @@ function FullName({
   if (!user) {
     return redirect("/sign-in?redirect=" + pathname);
   }
+
+  const preferences = async () => {
+    return await getUserPreferences(user?.id);
+  };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setActiveTab((prevTab) => prevTab + 1); // Increment activeTab
