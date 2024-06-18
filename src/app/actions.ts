@@ -25,12 +25,12 @@ export async function setPaperlessURL(url: string, userId: string) {
   } 
 }
 
-export async function setPaperlessAPI(api: string, userId: string) {
+export async function setPaperlessToken(token: string, userId: string) {
   try {
     await db
       .insert(users)
-      .values({ paperlessAPI: api, userId: userId })
-      .onConflictDoUpdate({ target: users.userId, set: { paperlessAPI: api } });
+      .values({ paperlessToken: token, userId: userId })
+      .onConflictDoUpdate({ target: users.userId, set: { paperlessToken: token } });
   } catch {
     throw new Error("Database error");
   } 

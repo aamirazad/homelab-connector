@@ -18,7 +18,7 @@ import { Dispatch, SetStateAction, useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import { redirect, usePathname } from "next/navigation";
 import LoadingSpinner from "@/components/loading-spinner";
-import { setFullUserName, setPaperlessURL } from "../actions";
+import { setFullUserName, setPaperlessToken, setPaperlessURL } from "../actions";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 
@@ -70,7 +70,7 @@ function FullName({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="w-64 space-y-4">
         <FormField
           control={form.control}
           name="FullName"
@@ -97,7 +97,6 @@ function PaperlessURL({
 }) {
   const { user, isLoaded } = useUser();
   const pathname = usePathname();
-
   const formSchema = z.object({
     URL: z.string(),
   });
@@ -130,7 +129,7 @@ function PaperlessURL({
     } catch {
       // Operation failed, show error toast
       toast("Uh oh! Something went wrong.", {
-        description: "Your PaperlessURL preferences were not saved.",
+        description: "Your Paperless URL preferences were not saved.",
         action: {
           label: "Go back",
           onClick: () => setActiveTab(1), // Go back to try again
@@ -141,7 +140,7 @@ function PaperlessURL({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="w-64 space-y-4">
         <FormField
           control={form.control}
           name="URL"
@@ -161,8 +160,74 @@ function PaperlessURL({
   );
 }
 
-function PaperlessKey() {
-  return <div>PaperlessKey</div>;
+function PaperlessToken({
+  setActiveTab,
+}: {
+  setActiveTab: Dispatch<SetStateAction<number>>;
+}) {
+  const { user, isLoaded } = useUser();
+  const pathname = usePathname();
+  const formSchema = z.object({
+    token: z.string(),
+  });
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      token: "",
+    },
+  });
+
+  if (!isLoaded) {
+    return <LoadingSpinner>Loading...</LoadingSpinner>;
+  }
+
+  if (!user) {
+    return redirect("/sign-in?redirect=" + pathname);
+  }
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setActiveTab((prevTab) => prevTab + 1); // Increment activeTab
+
+    try {
+      await setPaperlessToken(values["token"], user!.id);
+      // Operation succeeded, show success toast
+      toast("Your paperless token preferences was saved");
+    } catch {
+      // Operation failed, show error toast
+      toast("Uh oh! Something went wrong.", {
+        description: "Your Paperless token preferences were not saved.",
+        action: {
+          label: "Go back",
+          onClick: () => setActiveTab(1), // Go back to try again
+        },
+      });
+    }
+  }
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="w-64 space-y-4">
+        <FormField
+          control={form.control}
+          name="token"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Paperless API Token</FormLabel>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormDescription>
+                You can create (or re-create) an API token by opening the "My
+                Profile" link in the user dropdown found in the web UI and
+                clicking the circular arrow button.
+              </FormDescription>
+            </FormItem>
+          )}
+        />
+        <Button type="submit">Submit</Button>
+      </form>
+    </Form>
+  );
 }
 
 function Done() {
@@ -201,7 +266,7 @@ export default function Forms() {
   const formElements = [
     <FullName setActiveTab={setActiveTab} />,
     <PaperlessURL setActiveTab={setActiveTab} />,
-    <PaperlessKey />,
+    <PaperlessToken setActiveTab={setActiveTab} />,
     <Done />,
   ];
   return (
