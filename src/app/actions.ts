@@ -58,6 +58,16 @@ export async function setPaperlessToken(token: string) {
   }
 }
 
+export async function getUserPreferences(userId: string) {
+  try {
+    await db.query.users.findFirst({
+      where: (model, { eq }) => eq(model.userId, userId),
+    });
+  } catch {
+    throw new Error("Database error");
+  }
+}
+
 export async function getPaperlessDocuments(query: string) {
   const user = auth();
 
