@@ -19,6 +19,8 @@ import { useUser } from "@clerk/nextjs";
 import { redirect, usePathname } from "next/navigation";
 import LoadingSpinner from "@/components/loading-spinner";
 import { setFullUserName } from "../actions";
+import { Toaster } from "@/components/ui/sonner";
+import { toast } from "sonner";
 
 function FullName({
   setActiveTab,
@@ -27,7 +29,6 @@ function FullName({
 }) {
   const { user, isLoaded } = useUser();
   const pathname = usePathname();
-
   const formSchema = z.object({
     FullName: z.string().min(1, {
       message: "Required.",
@@ -49,8 +50,22 @@ function FullName({
   }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    setFullUserName(values["FullName"], user!.id);
     setActiveTab((prevTab) => prevTab + 1); // Increment activeTab
+    try {
+      await setFullUserName(values["FullName"], user!.id);
+      // Operation succeeded, show success toast
+      toast("Your name preferences was saved");
+      // Optionally, move to a new tab or take another action to indicate success
+    } catch {
+      // Operation failed, show error toast
+      toast("Uh oh! Something went wrong.", {
+        description: "Your name preferences were not saved.",
+        action: {
+          label: "Go back",
+          onClick: () => setActiveTab(0), // Go back to try again
+        },
+      });
+    }
   }
 
   return (
@@ -80,6 +95,9 @@ function PaperlessURL({
 }: {
   setActiveTab: Dispatch<SetStateAction<number>>;
 }) {
+  const { user, isLoaded } = useUser();
+  const pathname = usePathname();
+
   const formSchema = z.object({
     URL: z.string(),
   });
@@ -90,9 +108,31 @@ function PaperlessURL({
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values["URL"]);
+  if (!isLoaded) {
+    return <LoadingSpinner>Loading...</LoadingSpinner>;
+  }
+
+  if (!user) {
+    return redirect("/sign-in?redirect=" + pathname);
+  }
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     setActiveTab((prevTab) => prevTab + 1); // Increment activeTab
+    try {
+      await setPaperlessURL(values["URL"], user!.id);
+      // Operation succeeded, show success toast
+      toast("Your paperless URL preferences was saved");
+      // Optionally, move to a new tab or take another action to indicate success
+    } catch {
+      // Operation failed, show error toast
+      toast("Uh oh! Something went wrong.", {
+        description: "Your PaperlessURL preferences were not saved.",
+        action: {
+          label: "Go back",
+          onClick: () => setActiveTab(1), // Go back to try again
+        },
+      });
+    }
   }
 
   return (
@@ -121,6 +161,29 @@ function PaperlessKey() {
   return <div>PaperlessKey</div>;
 }
 
+interface ProgressIndicatorProps {
+  activeTab: number;
+  totalTabs: number;
+}
+
+const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
+  activeTab,
+  totalTabs,
+}) => {
+  return (
+    <div className="flex items-center justify-center p-5">
+      {Array.from({ length: totalTabs }, (_, index) => (
+        <span
+          key={index}
+          className={`mx-1 inline-block h-2.5 w-2.5 rounded-full ${
+            index === activeTab ? "bg-green-500" : "bg-gray-300"
+          }`}
+        ></span>
+      ))}
+    </div>
+  );
+};
+
 export default function Forms() {
   const [activeTab, setActiveTab] = useState(0);
 
@@ -129,5 +192,14 @@ export default function Forms() {
     <PaperlessURL setActiveTab={setActiveTab} />,
     <PaperlessKey />,
   ];
-  return formElements[activeTab];
+  return (
+    <>
+      {formElements[activeTab]}
+      <ProgressIndicator
+        activeTab={activeTab}
+        totalTabs={formElements.length}
+      />
+      <Toaster />
+    </>
+  );
 }

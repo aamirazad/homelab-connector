@@ -1,4 +1,3 @@
-import { getUsers } from "@/server/querys";
 import Forms from "./forms";
 
 export default async function userSetup() {
