@@ -11,6 +11,9 @@ importers:
       '@clerk/nextjs':
         specifier: ^5.1.5
         version: 5.1.5(next@14.2.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@clerk/themes':
+        specifier: ^2.1.9
+        version: 2.1.9
       '@hookform/resolvers':
         specifier: ^3.6.0
         version: 3.6.0(react-hook-form@7.51.5(react@18.3.1))
@@ -179,6 +182,10 @@ packages:
         optional: true
       react-dom:
         optional: true
+
+  '@clerk/themes@2.1.9':
+    resolution: {integrity: sha512-MAWwVSYlm+hsGlR7bxkY8Wo7eOeOk6qYjeHxNPbKKLM52+/dioOTsHOnhRck2qzFUquBmQ93nHGzvsvQSoCGaQ==}
+    engines: {node: '>=18.17.0'}
 
   '@clerk/types@4.6.0':
     resolution: {integrity: sha512-kowqVGqLfu0Zl2Pteum70MfkGHqBUoHHeR+u2+yWVl1lKHLCiyY1u8ntYBEIolAylBaQNDuRzxyMIDPSxjPE8g==}
@@ -2863,6 +2870,11 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
+  '@clerk/themes@2.1.9':
+    dependencies:
+      '@clerk/types': 4.6.0
+      tslib: 2.4.1
+
   '@clerk/types@4.6.0':
     dependencies:
       csstype: 3.1.1
@@ -4017,7 +4029,7 @@ snapshots:
   dot-case@3.0.4:
     dependencies:
       no-case: 3.0.4
-      tslib: 2.4.1
+      tslib: 2.6.3
 
   drizzle-kit@0.22.7:
     dependencies:
@@ -4762,7 +4774,7 @@ snapshots:
 
   lower-case@2.0.2:
     dependencies:
-      tslib: 2.4.1
+      tslib: 2.6.3
 
   lru-cache@10.2.2: {}
 
@@ -4842,7 +4854,7 @@ snapshots:
   no-case@3.0.4:
     dependencies:
       lower-case: 2.0.2
-      tslib: 2.4.1
+      tslib: 2.6.3
 
   node-gyp-build@4.8.1: {}
 
@@ -5211,7 +5223,7 @@ snapshots:
   snake-case@3.0.4:
     dependencies:
       dot-case: 3.0.4
-      tslib: 2.4.1
+      tslib: 2.6.3
 
   snakecase-keys@5.4.4:
     dependencies:

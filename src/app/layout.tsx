@@ -5,6 +5,7 @@ import { TopNav } from "@/components/topnav";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ThemeProvider } from "@/components/theme-provider";
 import { cn } from "@/lib/utils";
+import { dark } from "@clerk/themes";
 
 export const metadata = {
   title: "Homelab Connector",
@@ -18,7 +19,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ClerkProvider>
+    <ClerkProvider
+      appearance={{
+        baseTheme: dark,
+      }}
+    >
       <html
         suppressHydrationWarning
         lang="en"

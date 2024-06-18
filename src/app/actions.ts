@@ -2,6 +2,7 @@
 
 import { db } from "@/server/db";
 import { users } from "@/server/db/schema";
+import { currentUser } from "@clerk/nextjs/server";
 
 export async function setFullUserName(name: string, userId: string) {
   try {
@@ -22,7 +23,7 @@ export async function setPaperlessURL(url: string, userId: string) {
       .onConflictDoUpdate({ target: users.userId, set: { paperlessURL: url } });
   } catch {
     throw new Error("Database error");
-  } 
+  }
 }
 
 export async function setPaperlessToken(token: string, userId: string) {
@@ -30,8 +31,11 @@ export async function setPaperlessToken(token: string, userId: string) {
     await db
       .insert(users)
       .values({ paperlessToken: token, userId: userId })
-      .onConflictDoUpdate({ target: users.userId, set: { paperlessToken: token } });
+      .onConflictDoUpdate({
+        target: users.userId,
+        set: { paperlessToken: token },
+      });
   } catch {
     throw new Error("Database error");
-  } 
+  }
 }
