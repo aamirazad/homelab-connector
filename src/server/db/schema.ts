@@ -1,12 +1,7 @@
 // Example model schema from the Drizzle docs
 // https://orm.drizzle.team/docs/sql-schema-declaration
 
-import { sql } from "drizzle-orm";
-import {
-  pgTableCreator,
-  serial,
-  varchar,
-} from "drizzle-orm/pg-core";
+import { pgTableCreator, serial, varchar } from "drizzle-orm/pg-core";
 
 /**
  * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
@@ -20,8 +15,8 @@ export const createTable = pgTableCreator(
 
 export const users = createTable("users", {
   id: serial("id").primaryKey(),
-  userId: varchar("userId", { length: 256 }).notNull(),
-  fullName: varchar("name", { length: 256 }),
+  userId: varchar("userId", { length: 256 }).notNull().unique(),
+  fullName: varchar("fullName", { length: 256 }),
   paperlessURL: varchar("paperlessURL", { length: 256 }),
-  paperlessAPI: varchar("paperlessAPI", { length: 256 }),
+  paperlessToken: varchar("paperlessToken", { length: 256 }),
 });

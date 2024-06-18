@@ -15,13 +15,16 @@ import {
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useCallback } from "react";
-import { ExternalLink, LoaderCircle } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import { useEffect } from "react";
 import {
   useQuery,
   QueryClientProvider,
   QueryClient,
 } from "@tanstack/react-query";
+import LoadingSpinner from "@/components/loading-spinner";
+
+const queryClient = new QueryClient();
 
 function DocumentsSearch() {
   const formSchema = z.object({
@@ -78,8 +81,6 @@ function DocumentsSearch() {
     </Form>
   );
 }
-
-const queryClient = new QueryClient();
 
 function DocumentsPage() {
   type DataType = {
@@ -138,10 +139,7 @@ function DocumentsPage() {
   return (
     <div>
       {QueryResult.isLoading ? (
-        <div className="flex flex-row place-content-center gap-1">
-          <LoaderCircle className="animate-spin" />
-          Loading...
-        </div>
+        <LoadingSpinner>Loading...</LoadingSpinner>
       ) : QueryResult.data?.data ? (
         <div className="flex flex-col gap-4">
           <h1 className="text-2xl font-bold">Search Results</h1>
