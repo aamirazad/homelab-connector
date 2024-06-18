@@ -14,3 +14,24 @@ export async function setFullUserName(name: string, userId: string) {
   }
 }
 
+export async function setPaperlessURL(url: string, userId: string) {
+  try {
+    await db
+      .insert(users)
+      .values({ paperlessURL: url, userId: userId })
+      .onConflictDoUpdate({ target: users.userId, set: { paperlessURL: url } });
+  } catch {
+    throw new Error("Database error");
+  } 
+}
+
+export async function setPaperlessAPI(api: string, userId: string) {
+  try {
+    await db
+      .insert(users)
+      .values({ paperlessAPI: api, userId: userId })
+      .onConflictDoUpdate({ target: users.userId, set: { paperlessAPI: api } });
+  } catch {
+    throw new Error("Database error");
+  } 
+}
