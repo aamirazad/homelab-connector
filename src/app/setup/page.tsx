@@ -25,7 +25,6 @@ import {
 } from "../actions";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
-import { Check } from "lucide-react";
 
 function FullName({
   setActiveTab,

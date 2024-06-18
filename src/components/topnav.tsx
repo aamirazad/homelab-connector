@@ -1,11 +1,59 @@
 "use client";
 
-import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
+import { SignInButton, SignedIn, SignedOut, useClerk } from "@clerk/nextjs";
 import Link from "next/link";
 import { Button, buttonVariants } from "@/components/ui/button";
 import Tooltip from "@/components/tooltip";
 import { ModeToggle } from "@/components/mode-toggle";
 import { Separator } from "@/components/ui/separator";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import Image from "next/image";
+import { useUser } from "@clerk/nextjs";
+import { User } from "lucide-react";
+import { useRouter } from "next/navigation";
+
+function UserSettings() {
+  const { user } = useUser();
+  const { openUserProfile } = useClerk();
+  const router = useRouter();
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger className="size-8" asChild>
+        {user ? (
+          <Image
+            src={user.imageUrl}
+            width={32}
+            height={32}
+            alt="Avatar"
+            className="mt-1 overflow-hidden rounded-full"
+          />
+        ) : (
+          <User className="h-6 w-8" />
+        )}
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuLabel>My Account</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => openUserProfile()}>
+          Manage Account
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => router.push("/settings")}>
+          Settings
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem>Logout</DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
 
 export function TopNav() {
   return (
@@ -46,7 +94,7 @@ export function TopNav() {
                 <SignInButton />
               </SignedOut>
               <SignedIn>
-                <UserButton />
+                <UserSettings />
               </SignedIn>
             </div>
           </div>
