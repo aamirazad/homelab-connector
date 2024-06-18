@@ -267,7 +267,7 @@ const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
   );
 };
 
-export default function SetupPage() {
+export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState(0);
 
   const formElements = [
