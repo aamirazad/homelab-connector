@@ -18,40 +18,71 @@ import Image from "next/image";
 import { useUser } from "@clerk/nextjs";
 import { User } from "lucide-react";
 import { useRouter } from "next/navigation";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 function UserSettings() {
   const { user } = useUser();
-  const { openUserProfile } = useClerk();
+  const { openUserProfile, signOut } = useClerk();
   const router = useRouter();
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger className="size-8" asChild>
-        {user ? (
-          <Image
-            src={user.imageUrl}
-            width={32}
-            height={32}
-            alt="Avatar"
-            className="mt-1 overflow-hidden rounded-full"
-          />
-        ) : (
-          <User className="h-6 w-8" />
-        )}
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuLabel>My Account</DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => openUserProfile()}>
-          Manage Account
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => router.push("/settings")}>
-          Settings
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem>Logout</DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <AlertDialog>
+      <DropdownMenu>
+        <DropdownMenuTrigger className="size-8" asChild>
+          {user ? (
+            <Image
+              src={user.imageUrl}
+              width={32}
+              height={32}
+              alt="Avatar"
+              className="mt-1 overflow-hidden rounded-full"
+            />
+          ) : (
+            <User className="h-6 w-8" />
+          )}
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuLabel>My Account</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={() => openUserProfile()}>
+            Manage Account
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => router.push("/settings")}>
+            Settings
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <AlertDialogTrigger>
+            <DropdownMenuItem>Sign out</DropdownMenuItem>
+          </AlertDialogTrigger>
+        </DropdownMenuContent>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              Are you sure you want to sign out?
+            </AlertDialogTitle>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                signOut();
+              }}
+            >
+              Continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </DropdownMenu>
+    </AlertDialog>
   );
 }
 
