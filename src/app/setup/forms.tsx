@@ -18,7 +18,7 @@ import { Dispatch, SetStateAction, useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import { redirect, usePathname } from "next/navigation";
 import LoadingSpinner from "@/components/loading-spinner";
-import { setFullUserName } from "../actions";
+import { setFullUserName, setPaperlessURL } from "../actions";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 
@@ -117,7 +117,11 @@ function PaperlessURL({
   }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    setActiveTab((prevTab) => prevTab + 1); // Increment activeTab
+    if (values["URL"] == "") {
+      setActiveTab((prevTab) => prevTab + 2); // Skip api key form
+    } else {
+      setActiveTab((prevTab) => prevTab + 1); // Increment activeTab
+    }
     try {
       await setPaperlessURL(values["URL"], user!.id);
       // Operation succeeded, show success toast
@@ -161,22 +165,29 @@ function PaperlessKey() {
   return <div>PaperlessKey</div>;
 }
 
+function Done() {
+  return <>All done!</>;
+}
+
 interface ProgressIndicatorProps {
   activeTab: number;
   totalTabs: number;
+  setActiveTab: (tabIndex: number) => void;
 }
 
 const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
   activeTab,
   totalTabs,
+  setActiveTab,
 }) => {
   return (
     <div className="flex items-center justify-center p-5">
-      {Array.from({ length: totalTabs }, (_, index) => (
+      {Array.from({ length: totalTabs - 1 }, (_, index) => (
         <span
+          onClick={() => setActiveTab(index)}
           key={index}
-          className={`mx-1 inline-block h-2.5 w-2.5 rounded-full ${
-            index === activeTab ? "bg-green-500" : "bg-gray-300"
+          className={`mx-1.5 inline-block h-3 w-3 cursor-pointer rounded-full transition delay-75 hover:scale-125 hover:bg-blue-300 ${
+            index === activeTab ? "bg-blue-500" : "bg-gray-300"
           }`}
         ></span>
       ))}
@@ -191,6 +202,7 @@ export default function Forms() {
     <FullName setActiveTab={setActiveTab} />,
     <PaperlessURL setActiveTab={setActiveTab} />,
     <PaperlessKey />,
+    <Done />,
   ];
   return (
     <>
@@ -198,6 +210,7 @@ export default function Forms() {
       <ProgressIndicator
         activeTab={activeTab}
         totalTabs={formElements.length}
+        setActiveTab={setActiveTab}
       />
       <Toaster />
     </>
