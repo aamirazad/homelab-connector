@@ -18,9 +18,14 @@ import { Dispatch, SetStateAction, useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import { redirect, usePathname } from "next/navigation";
 import LoadingSpinner from "@/components/loading-spinner";
-import { setFullUserName, setPaperlessToken, setPaperlessURL } from "../actions";
+import {
+  setFullUserName,
+  setPaperlessToken,
+  setPaperlessURL,
+} from "../actions";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
+import { Check } from "lucide-react";
 
 function FullName({
   setActiveTab,
@@ -231,7 +236,10 @@ function PaperlessToken({
 }
 
 function Done() {
-  return <>All done!</>;
+  setTimeout(function () {
+    redirect("/");
+  }, 3000);
+  return <>All done! Redirecting home..</>;
 }
 
 interface ProgressIndicatorProps {
