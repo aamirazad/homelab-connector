@@ -89,7 +89,6 @@ function DocumentsPage() {
 
   const QueryResult = useQuery({
     queryKey: ["key", query],
-    queryKey: ["key", query],
     queryFn: async () => {
       const response = await fetch("/api/paperless?query=" + query);
       const data = await response.json() as PaperlessDocumentsType;
