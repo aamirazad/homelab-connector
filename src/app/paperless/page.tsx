@@ -23,7 +23,7 @@ import {
   QueryClient,
 } from "@tanstack/react-query";
 import LoadingSpinner from "@/components/loading-spinner";
-import { PaperlessDocumentsType } from "@/types";
+import type { PaperlessDocumentsType } from "@/types";
 
 const queryClient = new QueryClient();
 
@@ -34,7 +34,7 @@ function DocumentsSearch() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const givenQuery = searchParams.get("query") || "";
+  const givenQuery = searchParams.get("query") ?? "";
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -54,9 +54,9 @@ function DocumentsSearch() {
   );
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    if (values["query"])
+    if (values.query)
       router.replace(
-        pathname + "?" + createQueryString("query", values["query"]),
+        pathname + "?" + createQueryString("query", values.query),
       );
   }
 
@@ -91,7 +91,7 @@ function DocumentsPage() {
     queryKey: ["key", query],
     queryFn: async () => {
       const response = await fetch("/api/paperless?query=" + query);
-      const data = (await response.json()) as PaperlessDocumentsType;
+      const data = await response.json() as PaperlessDocumentsType;
       return data;
     },
   });
