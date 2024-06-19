@@ -43,6 +43,7 @@ function UserSettings() {
               src={user.imageUrl}
               width={32}
               height={32}
+              priority={true}
               alt="Avatar"
               className="mt-1 overflow-hidden rounded-full"
             />
@@ -73,8 +74,8 @@ function UserSettings() {
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => {
-                signOut();
+              onClick={async () => {
+                await signOut();
               }}
             >
               Continue
