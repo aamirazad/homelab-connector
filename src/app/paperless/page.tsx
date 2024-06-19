@@ -98,10 +98,7 @@ function DocumentsPage() {
 
   useEffect(() => {
     void queryClient.refetchQueries();
-    void queryClient.refetchQueries();
   }, [query]);
-
-  console.log(QueryResult.isLoading);
 
   console.log(QueryResult.isLoading);
 
