@@ -35,8 +35,7 @@ function DocumentsSearch() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const givenQuery = searchParams.get("query") || "";
-  // 1. Define your form.
+  const givenQuery = searchParams.get("query") ?? "";
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -55,10 +54,8 @@ function DocumentsSearch() {
   );
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    if (values["query"])
-      router.replace(
-        pathname + "?" + createQueryString("query", values["query"]),
-      );
+    if (values.query)
+      router.replace(pathname + "?" + createQueryString("query", values.query));
   }
 
   return (
@@ -86,8 +83,8 @@ function DocumentsSearch() {
 
 function DocumentsPage() {
   const searchParams = useSearchParams();
-  const query = searchParams.get("query") || "";
-  
+  const query = searchParams.get("query") ?? "";
+
   const QueryResult = useQuery({
     queryKey: ["key", query],
     queryFn: async () => {

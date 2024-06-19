@@ -14,15 +14,12 @@ import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
-import { Dispatch, SetStateAction, useState } from "react";
+import type { Dispatch, SetStateAction } from "react";
+import { useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import { redirect, usePathname } from "next/navigation";
 import LoadingSpinner from "@/components/loading-spinner";
-import {
-  setFullUserName,
-  setPaperlessToken,
-  setPaperlessURL,
-} from "../actions";
+import { setUserProperty } from "../actions";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 
@@ -56,7 +53,7 @@ function FullName({
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setActiveTab((prevTab) => prevTab + 1); // Increment activeTab
     try {
-      await setFullUserName(values["FullName"], user!.id);
+      await setUserProperty("fullName", values.FullName);
       // Operation succeeded, show success toast
       toast("Your name preferences was saved");
       // Optionally, move to a new tab or take another action to indicate success
@@ -120,13 +117,13 @@ function PaperlessURL({
   }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    if (values["URL"] == "") {
+    if (values.URL == "") {
       setActiveTab((prevTab) => prevTab + 2); // Skip api key form
     } else {
       setActiveTab((prevTab) => prevTab + 1); // Increment activeTab
     }
     try {
-      await setPaperlessURL(values["URL"], user!.id);
+      await setUserProperty("paperlessURL", values.URL);
       // Operation succeeded, show success toast
       toast("Your paperless URL preferences was saved");
       // Optionally, move to a new tab or take another action to indicate success
@@ -193,7 +190,7 @@ function PaperlessToken({
     setActiveTab((prevTab) => prevTab + 1); // Increment activeTab
 
     try {
-      await setPaperlessToken(values["token"], user!.id);
+      await setUserProperty("paperlessToken", values.token);
       // Operation succeeded, show success toast
       toast("Your paperless token preferences was saved");
     } catch {
@@ -221,8 +218,8 @@ function PaperlessToken({
                 <Input {...field} />
               </FormControl>
               <FormDescription>
-                You can create (or re-create) an API token by opening the "My
-                Profile" link in the user dropdown found in the web UI and
+                You can create (or re-create) an API token by opening the &quot;My
+                Profile&quot; link in the user dropdown found in the web UI and
                 clicking the circular arrow button.
               </FormDescription>
             </FormItem>
@@ -271,10 +268,10 @@ export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState(0);
 
   const formElements = [
-    <FullName setActiveTab={setActiveTab} />,
-    <PaperlessURL setActiveTab={setActiveTab} />,
-    <PaperlessToken setActiveTab={setActiveTab} />,
-    <Done />,
+    <FullName key="fullname" setActiveTab={setActiveTab} />,
+    <PaperlessURL key="paperlessurl" setActiveTab={setActiveTab} />,
+    <PaperlessToken key="paperlesstoken" setActiveTab={setActiveTab} />,
+    <Done key="done" />,
   ];
   return (
     <>

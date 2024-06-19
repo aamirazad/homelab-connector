@@ -20,3 +20,5 @@ export const users = createTable("users", {
   paperlessURL: varchar("paperlessURL", { length: 256 }),
   paperlessToken: varchar("paperlessToken", { length: 256 }),
 });
+
+export type UsersTableType = typeof users.$inferSelect;

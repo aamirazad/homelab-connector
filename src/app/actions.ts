@@ -1,28 +1,20 @@
 "use server";
 
 import { db } from "@/server/db";
-import { users } from "@/server/db/schema";
+import { UsersTableType, users } from "@/server/db/schema";
 import type { PaperlessDocumentsType } from "@/types";
 import { auth } from "@clerk/nextjs/server";
-
-export async function setFullUserName(name: string) {
-  const { userId } = auth();
-
-  if (!userId) {
-    throw new Error("Not authenticated");
-  }
-
-  try {
-    await db
-      .insert(users)
-      .values({ fullName: name, userId: userId })
-      .onConflictDoUpdate({ target: users.userId, set: { fullName: name } });
-  } catch {
-    throw new Error("Database error");
-  }
+interface User {
+  userId: string;
+  fullName?: string;
+  paperlessURL?: string;
+  paperlessToken?: string;
 }
 
-export async function setPaperlessURL(url: string) {
+export async function setUserProperty<K extends keyof User>(
+  propertyName: K,
+  value: UsersTableType[K],
+) {
   const { userId } = auth();
 
   if (!userId) {
@@ -32,48 +24,42 @@ export async function setPaperlessURL(url: string) {
   try {
     await db
       .insert(users)
-      .values({ paperlessURL: url, userId: userId })
-      .onConflictDoUpdate({ target: users.userId, set: { paperlessURL: url } });
-  } catch {
-    throw new Error("Database error");
-  }
-}
-
-export async function setPaperlessToken(token: string) {
-  const { userId } = auth();
-
-  if (!userId) {
-    throw new Error("Not authenticated");
-  }
-
-  try {
-    await db
-      .insert(users)
-      .values({ paperlessToken: token, userId: userId })
+      .values({ [propertyName]: value, userId: userId })
       .onConflictDoUpdate({
         target: users.userId,
-        set: { paperlessToken: token },
+        set: { [propertyName]: value },
       });
   } catch {
     throw new Error("Database error");
   }
 }
 
-export async function getPaperlessDocuments(query: string) {
-  const user = auth();
+export async function getUserData() {
+  const { userId } = auth();
 
-  if (!user.userId)
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  if (!userId) {
+    throw new Error("Not authenticated");
+  }
 
   const userData = await db.query.users.findFirst({
-    where: (model, { eq }) => eq(model.userId, user.userId),
+    where: (model, { eq }) => eq(model.userId, userId),
   });
+
+  return userData;
+}
+
+export async function getPaperlessDocuments(query: string) {
+  const { userId } = auth();
+
+  if (!userId) return Response.json({ error: "Unauthorized" }, { status: 401 });
+
+  const userData = await getUserData();
 
   if (!query || query == "null" || query.length < 3 || !userData)
     return Response.json({ error: "Bad Request" }, { status: 400 });
 
   const response = await fetch(
-    `${userData.paperlessURL}/api/search/?query=${query}` + query,
+    `${userData.paperlessURL}/api/search/?query=${query}`,
     {
       method: "GET",
       headers: {
