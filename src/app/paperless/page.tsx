@@ -23,6 +23,7 @@ import {
   QueryClient,
 } from "@tanstack/react-query";
 import LoadingSpinner from "@/components/loading-spinner";
+import { PaperlessDocumentsType } from "@/types";
 
 const queryClient = new QueryClient();
 
@@ -83,63 +84,30 @@ function DocumentsSearch() {
 }
 
 function DocumentsPage() {
-  type DataType = {
-    data: {
-      total: number;
-      documents: {
-        added: string;
-        archive_serial_number: string;
-        archived_file_name: string;
-        content: string;
-        correspondent: string;
-        created: string;
-        created_date: string;
-        custom_fields: [];
-        document_type: number;
-        id: number;
-        is_shared_by_requester: boolean;
-        modified: string;
-        notes: [];
-        original_file_name: string;
-        owner: number;
-        storage_path: number;
-        tags: [];
-        title: string;
-        user_can_change: boolean;
-      }[];
-      saved_views: [];
-      correspondents: [];
-      document_types: [];
-      storage_paths: [];
-      tags: [];
-      users: [];
-      groups: [];
-      mail_accounts: [];
-      mail_rules: [];
-      custom_fields: [];
-      workflows: [];
-    };
-  };
   const searchParams = useSearchParams();
   const query = searchParams.get("query");
 
   const QueryResult = useQuery({
-    queryKey: ["key"],
+    queryKey: ["key", query],
     queryFn: async () => {
       const response = await fetch("/api/paperless?query=" + query);
-      const data = (await response.json()) as DataType;
+      const data = (await response.json()) as PaperlessDocumentsType;
       return data;
     },
   });
 
   useEffect(() => {
-    queryClient.refetchQueries();
+    void queryClient.refetchQueries();
   }, [query]);
+
+  console.log(QueryResult.isLoading);
 
   return (
     <div>
       {QueryResult.isLoading ? (
         <LoadingSpinner>Loading...</LoadingSpinner>
+      ) : QueryResult.data === null ? ( // Check if QueryResult.data is null
+        <h1 className="text-2xl font-bold">Connection failed!</h1>
       ) : QueryResult.data?.data ? (
         <div className="flex flex-col gap-4">
           <h1 className="text-2xl font-bold">Search Results</h1>
