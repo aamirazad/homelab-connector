@@ -2,6 +2,7 @@
 
 import { db } from "@/server/db";
 import { users } from "@/server/db/schema";
+import type { PaperlessDocumentsType } from "@/types";
 import { auth } from "@clerk/nextjs/server";
 
 export async function setFullUserName(name: string) {
@@ -71,7 +72,6 @@ export async function getPaperlessDocuments(query: string) {
   if (!query || query == "null" || query.length < 3 || !userData)
     return Response.json({ error: "Bad Request" }, { status: 400 });
 
-
   const response = await fetch(
     `${userData.paperlessURL}/api/search/?query=${query}` + query,
     {
@@ -83,7 +83,7 @@ export async function getPaperlessDocuments(query: string) {
     },
   );
 
-  const data = await response.json();
+  const data = (await response.json()) as PaperlessDocumentsType;
 
   return Response.json({ data });
 }

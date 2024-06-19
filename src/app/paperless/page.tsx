@@ -23,7 +23,8 @@ import {
   QueryClient,
 } from "@tanstack/react-query";
 import LoadingSpinner from "@/components/loading-spinner";
-import { PaperlessDocumentsType } from "@/types";
+import type { PaperlessDocumentsType } from "@/types";
+import { getPaperlessDocuments } from "../actions";
 
 const queryClient = new QueryClient();
 
@@ -85,12 +86,12 @@ function DocumentsSearch() {
 
 function DocumentsPage() {
   const searchParams = useSearchParams();
-  const query = searchParams.get("query");
-
+  const query = searchParams.get("query") || "";
+  
   const QueryResult = useQuery({
     queryKey: ["key", query],
     queryFn: async () => {
-      const response = await fetch("/api/paperless?query=" + query);
+      const response = await getPaperlessDocuments(query);
       const data = (await response.json()) as PaperlessDocumentsType;
       return data;
     },
