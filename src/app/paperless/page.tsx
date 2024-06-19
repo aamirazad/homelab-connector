@@ -89,7 +89,6 @@ function DocumentsPage() {
 
   const QueryResult = useQuery({
     queryKey: ["key", query],
-    queryKey: ["key", query],
     queryFn: async () => {
       const response = await fetch("/api/paperless?query=" + query);
       const data = await response.json() as PaperlessDocumentsType;
@@ -99,7 +98,10 @@ function DocumentsPage() {
 
   useEffect(() => {
     void queryClient.refetchQueries();
+    void queryClient.refetchQueries();
   }, [query]);
+
+  console.log(QueryResult.isLoading);
 
   console.log(QueryResult.isLoading);
 
