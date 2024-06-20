@@ -1,7 +1,12 @@
 "use client";
 
 import { SignedIn, SignedOut } from "@clerk/nextjs";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import {
+  redirect,
+  usePathname,
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -24,7 +29,8 @@ import {
 } from "@tanstack/react-query";
 import LoadingSpinner from "@/components/loading-spinner";
 import type { PaperlessDocumentsType } from "@/types";
-import { getPaperlessDocuments } from "../actions";
+import { getPaperlessDocuments, getUserData } from "../actions";
+import Link from "next/link";
 
 const queryClient = new QueryClient();
 
@@ -83,51 +89,71 @@ function DocumentsSearch() {
 
 function DocumentsPage() {
   const searchParams = useSearchParams();
-  const query = searchParams.get("query") ?? "";
+  const query = searchParams.get("query");
 
-  const QueryResult = useQuery({
+  const PaperlessDocuments = useQuery({
     queryKey: ["key", query],
     queryFn: async () => {
+      if (!query) {
+        // Immediately resolve to null or an appropriate default value if there's no query
+        return Promise.resolve(null);
+      }
       const response = await getPaperlessDocuments(query);
       const data = (await response.json()) as PaperlessDocumentsType;
       return data;
     },
+    // This ensures the query does not run if there's no query string
+    enabled: !!query,
   });
 
-  useEffect(() => {
-    void queryClient.refetchQueries();
-  }, [query]);
+  const userData = useQuery({
+    queryKey: ["userData"],
+    queryFn: async () => {
+      const data = await getUserData();
+      return data;
+    },
+  });
 
-  console.log(QueryResult.isLoading);
+  if (!query) {
+    return <h1 className="text-2xl font-bold">Start Searching!</h1>;
+  }
+
+  if (PaperlessDocuments.isLoading || userData.isLoading) {
+    return <LoadingSpinner>Loading...</LoadingSpinner>;
+  } else if (!userData.data?.paperlessURL) {
+    return (
+      <h1 className="text-2xl font-bold">
+        You need to set your paperless url in{" "}
+        <Link href="/settings">settings</Link>
+      </h1>
+    );
+  } else if (!PaperlessDocuments.data || PaperlessDocuments.error) {
+    return <h1 className="text-2xl font-bold">Connection failed!</h1>;
+  }
+
+  const paperlessURL = userData.data?.paperlessURL;
+  const paperlessDocumentMap = PaperlessDocuments.data.data.documents;
 
   return (
     <div>
-      {QueryResult.isLoading ? (
-        <LoadingSpinner>Loading...</LoadingSpinner>
-      ) : QueryResult.data === null ? ( // Check if QueryResult.data is null
-        <h1 className="text-2xl font-bold">Connection failed!</h1>
-      ) : QueryResult.data?.data ? (
-        <div className="flex flex-col gap-4">
-          <h1 className="text-2xl font-bold">Search Results</h1>
-          <ul className="list-disc">
-            {QueryResult.data.data.documents.map((document, index) => (
-              <li className="underline" key={index}>
-                <a
-                  rel="noopener noreferrer"
-                  target="_blank"
-                  className="text-blue-600 underline hover:text-blue-800"
-                  href={`https://papers.aamira.me/api/documents/${document.id}/preview/#search="${query}"`}
-                >
-                  {document.title}
-                  <ExternalLink size={16} className="mx-1 inline-block" />
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-      ) : (
-        <h1 className="text-2xl font-bold">Start searching!</h1>
-      )}
+      <div className="flex flex-col gap-4">
+        <h1 className="text-2xl font-bold">Search Results</h1>
+        <ul className="list-disc">
+          {paperlessDocumentMap.map((document, index) => (
+            <li className="underline" key={index}>
+              <a
+                rel="noopener noreferrer"
+                target="_blank"
+                className="text-blue-600 underline hover:text-blue-800"
+                href={`${paperlessURL}/api/documents/${document.id}/preview/#search="${query}"`}
+              >
+                {document.title}
+                <ExternalLink size={16} className="mx-1 inline-block" />
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }
