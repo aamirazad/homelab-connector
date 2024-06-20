@@ -2,7 +2,6 @@
 
 import { SignedIn, SignedOut } from "@clerk/nextjs";
 import {
-  redirect,
   usePathname,
   useRouter,
   useSearchParams,
@@ -21,7 +20,6 @@ import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useCallback } from "react";
 import { ExternalLink } from "lucide-react";
-import { useEffect } from "react";
 import {
   useQuery,
   QueryClientProvider,
@@ -128,7 +126,12 @@ function DocumentsPage() {
       </h1>
     );
   } else if (!PaperlessDocuments.data || PaperlessDocuments.error) {
-    return <h1 className="text-2xl font-bold">Connection failed!</h1>;
+    return (
+      <h1 className="text-2xl font-bold">
+        Connection failed! Check that the paperless url is set correctly in{" "}
+        <Link href="/settings">settings</Link>
+      </h1>
+    );
   }
 
   const paperlessURL = userData.data?.paperlessURL;
@@ -161,10 +164,10 @@ function DocumentsPage() {
 export default function PaperlessPage() {
   return (
     <main className="">
-      <div className="flex w-96 flex-col items-center justify-center">
+      <div className="flex flex-col items-center justify-center">
         <SignedOut>
           <div className="flex flex-col text-center text-2xl">
-            Please sign in above
+            Please <Link href="/sign-in">sign in</Link>
           </div>
         </SignedOut>
         <SignedIn>
