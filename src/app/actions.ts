@@ -1,41 +1,75 @@
 "use server";
 
 import { db } from "@/server/db";
+import type { UsersTableType } from "@/server/db/schema";
 import { users } from "@/server/db/schema";
-import { currentUser } from "@clerk/nextjs/server";
-
-export async function setFullUserName(name: string, userId: string) {
-  try {
-    await db
-      .insert(users)
-      .values({ fullName: name, userId: userId })
-      .onConflictDoUpdate({ target: users.userId, set: { fullName: name } });
-  } catch {
-    throw new Error("Database error");
-  }
+import type { PaperlessDocumentsType } from "@/types";
+import { auth } from "@clerk/nextjs/server";
+interface User {
+  userId: string;
+  fullName?: string;
+  paperlessURL?: string;
+  paperlessToken?: string;
 }
 
-export async function setPaperlessURL(url: string, userId: string) {
-  try {
-    await db
-      .insert(users)
-      .values({ paperlessURL: url, userId: userId })
-      .onConflictDoUpdate({ target: users.userId, set: { paperlessURL: url } });
-  } catch {
-    throw new Error("Database error");
-  }
-}
+export async function setUserProperty<K extends keyof User>(
+  propertyName: K,
+  value: UsersTableType[K],
+) {
+  const { userId } = auth();
 
-export async function setPaperlessToken(token: string, userId: string) {
+  if (!userId) {
+    return null;
+  }
+
   try {
     await db
       .insert(users)
-      .values({ paperlessToken: token, userId: userId })
+      .values({ [propertyName]: value, userId: userId })
       .onConflictDoUpdate({
         target: users.userId,
-        set: { paperlessToken: token },
+        set: { [propertyName]: value },
       });
   } catch {
-    throw new Error("Database error");
+    return null;
   }
+}
+
+export async function getUserData() {
+  const { userId } = auth();
+
+  if (!userId) {
+    return null;
+  }
+
+  const userData = await db.query.users.findFirst({
+    where: (model, { eq }) => eq(model.userId, userId),
+  });
+
+  return userData;
+}
+
+export async function getPaperlessDocuments(query: string) {
+  const { userId } = auth();
+
+  if (!userId) return null;
+
+  const userData = await getUserData();
+
+  if (!query || query == "null" || query.length < 3 || !userData) return null;
+
+  const response = await fetch(
+    `${userData.paperlessURL}/api/search/?query=${query}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Token ${userData.paperlessToken}`,
+      },
+    },
+  );
+
+  const data = (await response.json()) as PaperlessDocumentsType;
+
+  return data;
 }

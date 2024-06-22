@@ -16,13 +16,14 @@ import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useCallback } from "react";
 import { ExternalLink } from "lucide-react";
-import { useEffect } from "react";
 import {
   useQuery,
   QueryClientProvider,
   QueryClient,
 } from "@tanstack/react-query";
 import LoadingSpinner from "@/components/loading-spinner";
+import { getPaperlessDocuments, getUserData } from "../actions";
+import Link from "next/link";
 
 const queryClient = new QueryClient();
 
@@ -33,8 +34,7 @@ function DocumentsSearch() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const givenQuery = searchParams.get("query") || "";
-  // 1. Define your form.
+  const givenQuery = searchParams.get("query") ?? "";
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -53,10 +53,8 @@ function DocumentsSearch() {
   );
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    if (values["query"])
-      router.replace(
-        pathname + "?" + createQueryString("query", values["query"]),
-      );
+    if (values.query)
+      router.replace(pathname + "?" + createQueryString("query", values.query));
   }
 
   return (
@@ -83,85 +81,78 @@ function DocumentsSearch() {
 }
 
 function DocumentsPage() {
-  type DataType = {
-    data: {
-      total: number;
-      documents: {
-        added: string;
-        archive_serial_number: string;
-        archived_file_name: string;
-        content: string;
-        correspondent: string;
-        created: string;
-        created_date: string;
-        custom_fields: [];
-        document_type: number;
-        id: number;
-        is_shared_by_requester: boolean;
-        modified: string;
-        notes: [];
-        original_file_name: string;
-        owner: number;
-        storage_path: number;
-        tags: [];
-        title: string;
-        user_can_change: boolean;
-      }[];
-      saved_views: [];
-      correspondents: [];
-      document_types: [];
-      storage_paths: [];
-      tags: [];
-      users: [];
-      groups: [];
-      mail_accounts: [];
-      mail_rules: [];
-      custom_fields: [];
-      workflows: [];
-    };
-  };
   const searchParams = useSearchParams();
   const query = searchParams.get("query");
 
-  const QueryResult = useQuery({
-    queryKey: ["key"],
+  const PaperlessDocuments = useQuery({
+    queryKey: ["key", query],
     queryFn: async () => {
-      const response = await fetch("/api/paperless?query=" + query);
-      const data = (await response.json()) as DataType;
+      if (!query) {
+        // Immediately resolve to null or an appropriate default value if there's no query
+        return Promise.resolve(null);
+      }
+      const response = await getPaperlessDocuments(query);
+      return response;
+    },
+    // This ensures the query does not run if there's no query string
+    enabled: !!query,
+  });
+
+  const userData = useQuery({
+    queryKey: ["userData"],
+    queryFn: async () => {
+      const data = await getUserData();
       return data;
     },
   });
 
-  useEffect(() => {
-    queryClient.refetchQueries();
-  }, [query]);
+  if (!query) {
+    return <h1 className="text-2xl font-bold">Start Searching!</h1>;
+  }
+
+  if (PaperlessDocuments.isLoading || userData.isLoading) {
+    return <LoadingSpinner>Loading...</LoadingSpinner>;
+  } else if (!userData.data?.paperlessURL) {
+    return (
+      <h1 className="text-2xl font-bold">
+        You need to set your paperless url in{" "}
+        <Link href="/settings">settings</Link>
+      </h1>
+    );
+  } else if (!PaperlessDocuments.data || PaperlessDocuments.error) {
+    console.log(PaperlessDocuments.data);
+    return (
+      <h1 className="text-2xl font-bold">
+        Connection failed! Check that the paperless url/token is set correctly
+        in <Link href="/settings">settings</Link>
+      </h1>
+    );
+  }
+
+  const paperlessURL = userData.data?.paperlessURL;
+
+  const paperlessDocumentMap = PaperlessDocuments.data.documents;
 
   return (
     <div>
-      {QueryResult.isLoading ? (
-        <LoadingSpinner>Loading...</LoadingSpinner>
-      ) : QueryResult.data?.data ? (
-        <div className="flex flex-col gap-4">
-          <h1 className="text-2xl font-bold">Search Results</h1>
-          <ul className="list-disc">
-            {QueryResult.data.data.documents.map((document, index) => (
-              <li className="underline" key={index}>
-                <a
-                  rel="noopener noreferrer"
-                  target="_blank"
-                  className="text-blue-600 underline hover:text-blue-800"
-                  href={`https://papers.aamira.me/api/documents/${document.id}/preview/#search="${query}"`}
-                >
-                  {document.title}
-                  <ExternalLink size={16} className="mx-1 inline-block" />
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-      ) : (
-        <h1 className="text-2xl font-bold">Start searching!</h1>
-      )}
+      <div className="flex flex-col gap-4">
+        <h1 className="text-2xl font-bold">Search Results</h1>
+        <ul className="list-disc">
+          {paperlessDocumentMap.map((document, index) => (
+            <li className="underline" key={index}>
+              <a
+                rel="noopener noreferrer"
+                target="_blank"
+                className="text-blue-600 underline hover:text-blue-800"
+                href={`${paperlessURL}/api/documents/${document.id}/preview/#search="${query}"`}
+              >
+                {document.title}
+                <ExternalLink size={16} className="mx-1 inline-block" />
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }
@@ -169,10 +160,10 @@ function DocumentsPage() {
 export default function PaperlessPage() {
   return (
     <main className="">
-      <div className="flex w-96 flex-col items-center justify-center">
+      <div className="flex flex-col items-center justify-center">
         <SignedOut>
           <div className="flex flex-col text-center text-2xl">
-            Please sign in above
+            Please <Link href="/sign-in">sign in</Link>
           </div>
         </SignedOut>
         <SignedIn>
