@@ -268,9 +268,9 @@ export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState(0);
 
   const formElements = [
-    <FullName key="fullname" setActiveTab={setActiveTab} />,
-    <PaperlessURL key="paperlessurl" setActiveTab={setActiveTab} />,
-    <PaperlessToken key="paperlesstoken" setActiveTab={setActiveTab} />,
+    <FullName key="fullName" setActiveTab={setActiveTab} />,
+    <PaperlessURL key="paperlessURL" setActiveTab={setActiveTab} />,
+    <PaperlessToken key="paperlessToken" setActiveTab={setActiveTab} />,
     <Done key="done" />,
   ];
   return (
