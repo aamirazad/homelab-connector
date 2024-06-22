@@ -89,8 +89,8 @@ function UserSettings() {
 
 export function TopNav() {
   return (
-    <nav className="flex justify-center">
-      <div className="m-4 flex h-10 w-3/4 flex-wrap items-center justify-between rounded-bl-md rounded-tl-md bg-slate-200 text-xl dark:bg-slate-900">
+    <nav className="flex justify-center w-full">
+      <div className="md:w-1/2 m-4 flex md:flex-nowrap h-10 w-56 flex-wrap items-center justify-between rounded-bl-md rounded-tl-md bg-slate-200 text-xl dark:bg-slate-900">
         <div className="flex w-64">
           <Link
             href="/"
@@ -99,7 +99,7 @@ export function TopNav() {
             Homelab Connector
           </Link>
         </div>
-        <div className="flex h-full items-center rounded-br-md rounded-tr-md bg-slate-300 dark:bg-slate-700">
+        <div className="flex h-full items-center rounded-l bg-slate-300 dark:bg-slate-700 rounded-r md:rounded-l-none">
           <Link
             href="paperless"
             className={buttonVariants({ variant: "link" })}
