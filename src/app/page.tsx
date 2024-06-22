@@ -2,8 +2,8 @@ import OpenLinkInNewPage from "@/components/open-link-in-new-page";
 
 export default async function HomePage() {
   return (
-    <main className="">
-      <div className="">
+    <main>
+      <div>
         <div>Welcome to Homelab Connector</div>
         <div>
           Check out the

@@ -90,8 +90,8 @@ function UserSettings() {
 export function TopNav() {
   return (
     <nav className="flex w-full justify-center">
-      <div className="m-4 flex h-10 w-56 flex-wrap items-center justify-between rounded-bl-md rounded-tl-md text-xl md:w-1/2 md:flex-nowrap md:bg-slate-200 md:dark:bg-slate-900">
-        <div className="flex flex-col md:flex md:flex-none bg-slate-200 dark:bg-slate-900 rounded-r md: rounded-none">
+      <div className="mt-4 flex h-10 w-56 flex-wrap items-center justify-center md:justify-between text-xl md:w-1/2 md:flex-nowrap md:rounded-l md:bg-slate-200 md:dark:bg-slate-900">
+        <div className="flex-col rounded bg-slate-200 dark:bg-slate-900 md:flex md:flex-none md:rounded-l">
           <Link
             href="/"
             className={`${buttonVariants({ variant: "link" })} text-xl font-bold`}
