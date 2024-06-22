@@ -52,7 +52,7 @@ function UserSettings() {
           )}
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuLabel>My Account</DropdownMenuLabel>
+          <DropdownMenuLabel>{user?.fullName ? (user.fullName) : (<>My Account</>)} </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => openUserProfile()}>
             Manage Account
@@ -90,7 +90,7 @@ function UserSettings() {
 export function TopNav() {
   return (
     <nav className="flex w-full justify-center">
-      <div className="mt-4 flex h-10 w-56 flex-wrap items-center justify-center md:justify-between text-xl md:w-1/2 md:flex-nowrap md:rounded-l md:bg-slate-200 md:dark:bg-slate-900">
+      <div className="mt-4 flex h-10 w-56 flex-wrap items-center justify-center text-xl md:w-1/2 md:flex-nowrap md:justify-between md:rounded-l md:bg-slate-200 md:dark:bg-slate-900">
         <div className="flex-col rounded bg-slate-200 dark:bg-slate-900 md:flex md:flex-none md:rounded-l">
           <Link
             href="/"
