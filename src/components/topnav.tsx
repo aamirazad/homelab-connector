@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Image from "next/image";
 import { useUser } from "@clerk/nextjs";
-import { User } from "lucide-react";
+import { AlignJustify, User } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
   AlertDialog,
@@ -45,20 +45,22 @@ function UserSettings() {
               height={32}
               priority={true}
               alt="Avatar"
-              className="mt-1 overflow-hidden rounded-full"
+              className="overflow-hidden rounded-full"
             />
           ) : (
             <User className="h-6 w-8" />
           )}
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuLabel>{user?.fullName ? (user.fullName) : (<>My Account</>)} </DropdownMenuLabel>
+          <DropdownMenuLabel>
+            {user?.fullName ? user.fullName : <>My Account</>}{" "}
+          </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => openUserProfile()}>
             Manage Account
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => router.push("/settings")}>
-            Settings
+          <DropdownMenuItem asChild>
+            <Link href="settings">Settings</Link>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <AlertDialogTrigger>
@@ -99,7 +101,8 @@ export function TopNav() {
             Homelab Connector
           </Link>
         </div>
-        <div className="flex h-full items-center rounded-l rounded-r bg-slate-300 dark:bg-slate-700 md:rounded-l-none">
+        {/* Desktop links */}
+        <div className="hidden h-full items-center rounded-l rounded-r bg-slate-300 dark:bg-slate-700 md:flex md:rounded-l-none">
           <Link
             href="paperless"
             className={buttonVariants({ variant: "link" })}
@@ -107,31 +110,43 @@ export function TopNav() {
             Paperless-ngx
           </Link>
           <Separator orientation="vertical" />
-          <div>
-            <Tooltip text="Comming soon!">
-              <Button
-                variant="link"
-                className="pointer-events-none opacity-50"
-                aria-disabled="true"
-                tabIndex={-1}
-              >
-                Immich
-              </Button>
-            </Tooltip>
-          </div>
+          <Tooltip text="Comming soon!">
+            <Button
+              variant="link"
+              className="pointer-events-none opacity-50"
+              aria-disabled="true"
+              tabIndex={-1}
+            >
+              Immich
+            </Button>
+          </Tooltip>
           <Separator orientation="vertical" />
-          <div>
-            <div className={buttonVariants({ variant: "link" })}>
-              <SignedOut>
-                <SignInButton />
-              </SignedOut>
-              <SignedIn>
-                <UserSettings />
-              </SignedIn>
-            </div>
+          <div className={buttonVariants({ variant: "link" })}>
+            <SignedOut>
+              <SignInButton />
+            </SignedOut>
+            <SignedIn>
+              <UserSettings />
+            </SignedIn>
           </div>
           <Separator orientation="vertical" />
           <ModeToggle />
+        </div>
+        {/* Mobile dropdown */}
+        <div className="flex h-full items-center rounded-l rounded-r bg-slate-300 dark:bg-slate-700 md:hidden md:rounded-l-none">
+          <DropdownMenu>
+            <DropdownMenuTrigger>
+              <AlignJustify />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuLabel>Links</DropdownMenuLabel>
+              <DropdownMenuItem asChild>
+                <Link href="paperless">Paperless-ngx</Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <UserSettings />
         </div>
       </div>
     </nav>
