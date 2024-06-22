@@ -54,6 +54,7 @@ function DocumentsSearch() {
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     if (values.query)
+    if (values.query)
       router.replace(
         pathname + "?" + createQueryString("query", values.query),
       );
