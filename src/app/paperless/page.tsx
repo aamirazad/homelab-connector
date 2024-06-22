@@ -1,11 +1,7 @@
 "use client";
 
 import { SignedIn, SignedOut } from "@clerk/nextjs";
-import {
-  usePathname,
-  useRouter,
-  useSearchParams,
-} from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -26,7 +22,6 @@ import {
   QueryClient,
 } from "@tanstack/react-query";
 import LoadingSpinner from "@/components/loading-spinner";
-import type { PaperlessDocumentsType } from "@/types";
 import { getPaperlessDocuments, getUserData } from "../actions";
 import Link from "next/link";
 
@@ -97,8 +92,7 @@ function DocumentsPage() {
         return Promise.resolve(null);
       }
       const response = await getPaperlessDocuments(query);
-      const data = (await response.json()) as PaperlessDocumentsType;
-      return data;
+      return response;
     },
     // This ensures the query does not run if there's no query string
     enabled: !!query,
@@ -126,16 +120,18 @@ function DocumentsPage() {
       </h1>
     );
   } else if (!PaperlessDocuments.data || PaperlessDocuments.error) {
+    console.log(PaperlessDocuments.data);
     return (
       <h1 className="text-2xl font-bold">
-        Connection failed! Check that the paperless url is set correctly in{" "}
-        <Link href="/settings">settings</Link>
+        Connection failed! Check that the paperless url/token is set correctly
+        in <Link href="/settings">settings</Link>
       </h1>
     );
   }
 
   const paperlessURL = userData.data?.paperlessURL;
-  const paperlessDocumentMap = PaperlessDocuments.data.data.documents;
+
+  const paperlessDocumentMap = PaperlessDocuments.data.documents;
 
   return (
     <div>

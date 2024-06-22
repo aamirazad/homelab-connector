@@ -1,7 +1,8 @@
 "use server";
 
 import { db } from "@/server/db";
-import { UsersTableType, users } from "@/server/db/schema";
+import type { UsersTableType } from "@/server/db/schema";
+import { users } from "@/server/db/schema";
 import type { PaperlessDocumentsType } from "@/types";
 import { auth } from "@clerk/nextjs/server";
 interface User {
@@ -18,7 +19,7 @@ export async function setUserProperty<K extends keyof User>(
   const { userId } = auth();
 
   if (!userId) {
-    throw new Error("Not authenticated");
+    return null;
   }
 
   try {
@@ -30,7 +31,7 @@ export async function setUserProperty<K extends keyof User>(
         set: { [propertyName]: value },
       });
   } catch {
-    throw new Error("Database error");
+    return null;
   }
 }
 
@@ -38,7 +39,7 @@ export async function getUserData() {
   const { userId } = auth();
 
   if (!userId) {
-    throw new Error("Not authenticated");
+    return null;
   }
 
   const userData = await db.query.users.findFirst({
@@ -51,12 +52,11 @@ export async function getUserData() {
 export async function getPaperlessDocuments(query: string) {
   const { userId } = auth();
 
-  if (!userId) return Response.json({ error: "Unauthorized" }, { status: 401 });
+  if (!userId) return null;
 
   const userData = await getUserData();
 
-  if (!query || query == "null" || query.length < 3 || !userData)
-    return Response.json({ error: "Bad Request" }, { status: 400 });
+  if (!query || query == "null" || query.length < 3 || !userData) return null;
 
   const response = await fetch(
     `${userData.paperlessURL}/api/search/?query=${query}`,
@@ -71,5 +71,5 @@ export async function getPaperlessDocuments(query: string) {
 
   const data = (await response.json()) as PaperlessDocumentsType;
 
-  return Response.json({ data });
+  return data;
 }
