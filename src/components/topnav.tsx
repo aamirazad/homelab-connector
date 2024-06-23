@@ -2,8 +2,7 @@
 
 import { SignInButton, SignedIn, SignedOut, useClerk } from "@clerk/nextjs";
 import Link from "next/link";
-import { Button, buttonVariants } from "@/components/ui/button";
-import Tooltip from "@/components/tooltip";
+import { buttonVariants } from "@/components/ui/button";
 import { ModeToggle } from "@/components/mode-toggle";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -17,7 +16,6 @@ import {
 import Image from "next/image";
 import { useUser } from "@clerk/nextjs";
 import { AlignJustify, User } from "lucide-react";
-import { useRouter } from "next/navigation";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,6 +26,12 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 function UserSettings() {
   const { user } = useUser();
@@ -88,6 +92,23 @@ function UserSettings() {
   );
 }
 
+function ImmichTooltip() {
+  return (
+    <TooltipProvider delayDuration={50}>
+      <Tooltip>
+        <TooltipTrigger
+          aria-disabled="true"
+          tabIndex={-1}
+          className={`${buttonVariants({ variant: "link" })} cursor-not-allowed opacity-50`}
+        >
+          Immich
+        </TooltipTrigger>
+        <TooltipContent>Comming soon!</TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+}
+
 export function TopNav() {
   return (
     <nav className="flex w-full justify-center">
@@ -109,16 +130,7 @@ export function TopNav() {
             Paperless-ngx
           </Link>
           <Separator orientation="vertical" />
-          <Tooltip text="Comming soon!">
-            <Button
-              variant="link"
-              className="pointer-events-none opacity-50"
-              aria-disabled="true"
-              tabIndex={-1}
-            >
-              Immich
-            </Button>
-          </Tooltip>
+          <ImmichTooltip />
           <Separator orientation="vertical" />
           <div className={buttonVariants({ variant: "link" })}>
             <SignedOut>
@@ -147,18 +159,8 @@ export function TopNav() {
                   Paperless-ngx
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Tooltip text="Comming soon!">
-                  <Button
-                    variant="link"
-                    className="pointer-events-none opacity-50"
-                    aria-disabled="true"
-                    tabIndex={-1}
-                  >
-                    Immich
-                  </Button>
-                </Tooltip>
-              </DropdownMenuItem>
+              <ImmichTooltip />
+              <DropdownMenuSeparator />
             </DropdownMenuContent>
           </DropdownMenu>
           <UserSettings />
