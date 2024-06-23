@@ -34,9 +34,11 @@ export default function RootLayout({
       >
         <body className="">
           <ThemeProvider attribute="class" defaultTheme="dark">
-            <TopNav />
-            <div className="flex flex-col items-center justify-center p-4 px-6">
-              {children}
+            <div className="flex flex-col gap-12 md:gap-0">
+              <TopNav />
+              <div className="flex flex-col items-center justify-center p-4 px-6">
+                {children}
+              </div>
             </div>
           </ThemeProvider>
         </body>
