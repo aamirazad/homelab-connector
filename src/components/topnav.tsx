@@ -101,7 +101,7 @@ export function TopNav() {
           </Link>
         </div>
         {/* Desktop links */}
-        <div className="hidden h-full items-center rounded-l rounded-r bg-slate-300 dark:bg-slate-700 md:flex md:rounded-l-none">
+        <div className="hidden h-full items-center rounded-r bg-slate-300 dark:bg-slate-700 md:flex">
           <Link
             href="paperless"
             className={buttonVariants({ variant: "link" })}
@@ -132,7 +132,7 @@ export function TopNav() {
           <ModeToggle />
         </div>
         {/* Mobile dropdown */}
-        <div className="flex h-full items-center rounded-l rounded-r bg-slate-300 dark:bg-slate-700 md:hidden md:rounded-l-none">
+        <div className="flex h-full items-center space-x-4 rounded-l rounded-r bg-slate-300 dark:bg-slate-700 md:hidden px-4 -mt-1">
           <DropdownMenu>
             <DropdownMenuTrigger>
               <AlignJustify />
