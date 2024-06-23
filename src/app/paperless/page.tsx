@@ -54,9 +54,7 @@ function DocumentsSearch() {
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     if (values.query)
-      router.replace(
-        pathname + "?" + createQueryString("query", values.query),
-      );
+      router.replace(pathname + "?" + createQueryString("query", values.query));
   }
 
   return (
@@ -122,7 +120,6 @@ function DocumentsPage() {
       </h1>
     );
   } else if (!PaperlessDocuments.data || PaperlessDocuments.error) {
-    console.log(PaperlessDocuments.data);
     return (
       <h1 className="text-2xl font-bold">
         Connection failed! Check that the paperless url/token is set correctly
@@ -133,29 +130,31 @@ function DocumentsPage() {
 
   const paperlessURL = userData.data?.paperlessURL;
 
-  const paperlessDocumentMap = PaperlessDocuments.data.documents;
+  const paperlessDocumentMap = PaperlessDocuments.data.results;
+
+  if (paperlessDocumentMap.length === 0) {
+    return <h1 className="text-2xl font-bold">No results!</h1>;
+  }
 
   return (
-    <div>
-      <div className="flex flex-col gap-4">
-        <h1 className="text-2xl font-bold">Search Results</h1>
-        <ul className="list-disc">
-          {paperlessDocumentMap.map((document, index) => (
-            <li className="underline" key={index}>
-              <a
-                rel="noopener noreferrer"
-                target="_blank"
-                className="text-blue-600 underline hover:text-blue-800"
-                href={`${paperlessURL}/api/documents/${document.id}/preview/#search="${query}"`}
-              >
-                {document.title}
-                <ExternalLink size={16} className="mx-1 inline-block" />
-              </a>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
+    <>
+      <h1 className="text-2xl font-bold">Search Results</h1>
+      <ul className="list-disc">
+        {paperlessDocumentMap.map((document, index) => (
+          <li className="underline" key={index}>
+            <a
+              rel="noopener noreferrer"
+              target="_blank"
+              className="text-blue-600 underline hover:text-blue-800"
+              href={`${paperlessURL}/api/documents/${document.id}/preview/#search="${query}"`}
+            >
+              {document.title}
+              <ExternalLink size={16} className="mx-1 inline-block" />
+            </a>
+          </li>
+        ))}
+      </ul>
+    </>
   );
 }
 
