@@ -19,7 +19,7 @@ import { useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import { redirect, usePathname } from "next/navigation";
 import LoadingSpinner from "@/components/loading-spinner";
-import { setUserProperty } from "../actions";
+import { getUserData, setUserProperty } from "../actions";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 
@@ -151,9 +151,9 @@ function PaperlessToken({
                 <Input {...field} />
               </FormControl>
               <FormDescription>
-                You can create (or re-create) an API token by opening the &quot;My
-                Profile&quot; link in the user dropdown found in the web UI and
-                clicking the circular arrow button.
+                You can create (or re-create) an API token by opening the
+                &quot;My Profile&quot; link in the user dropdown found in the
+                web UI and clicking the circular arrow button.
               </FormDescription>
             </FormItem>
           )}
@@ -162,13 +162,6 @@ function PaperlessToken({
       </form>
     </Form>
   );
-}
-
-function Done() {
-  setTimeout(function () {
-    redirect("/");
-  }, 3000);
-  return <>All done! Redirecting home..</>;
 }
 
 interface ProgressIndicatorProps {
@@ -203,7 +196,6 @@ export default function SettingsPage() {
   const formElements = [
     <PaperlessURL key="paperlessURL" setActiveTab={setActiveTab} />,
     <PaperlessToken key="paperlessToken" setActiveTab={setActiveTab} />,
-    <Done key="done" />,
   ];
   return (
     <>
