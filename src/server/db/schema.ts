@@ -16,7 +16,6 @@ export const createTable = pgTableCreator(
 export const users = createTable("users", {
   id: serial("id").primaryKey(),
   userId: varchar("userId", { length: 256 }).notNull().unique(),
-  fullName: varchar("fullName", { length: 256 }),
   paperlessURL: varchar("paperlessURL", { length: 256 }),
   paperlessToken: varchar("paperlessToken", { length: 256 }),
 });
