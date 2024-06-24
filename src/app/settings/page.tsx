@@ -23,74 +23,6 @@ import { setUserProperty } from "../actions";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 
-function FullName({
-  setActiveTab,
-}: {
-  setActiveTab: Dispatch<SetStateAction<number>>;
-}) {
-  const { user, isLoaded } = useUser();
-  const pathname = usePathname();
-  const formSchema = z.object({
-    FullName: z.string().min(1, {
-      message: "Required.",
-    }),
-  });
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      FullName: "",
-    },
-  });
-
-  if (!isLoaded) {
-    return <LoadingSpinner>Loading...</LoadingSpinner>;
-  }
-
-  if (!user) {
-    return redirect("/sign-in?redirect=" + pathname);
-  }
-
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    setActiveTab((prevTab) => prevTab + 1); // Increment activeTab
-    try {
-      await setUserProperty("fullName", values.FullName);
-      // Operation succeeded, show success toast
-      toast("Your name preferences was saved");
-      // Optionally, move to a new tab or take another action to indicate success
-    } catch {
-      // Operation failed, show error toast
-      toast("Uh oh! Something went wrong.", {
-        description: "Your name preferences were not saved.",
-        action: {
-          label: "Go back",
-          onClick: () => setActiveTab(0), // Go back to try again
-        },
-      });
-    }
-  }
-
-  return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="w-64 space-y-4">
-        <FormField
-          control={form.control}
-          name="FullName"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Full Name</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <Button type="submit">Submit</Button>
-      </form>
-    </Form>
-  );
-}
-
 function PaperlessURL({
   setActiveTab,
 }: {
@@ -152,6 +84,7 @@ function PaperlessURL({
                 <Input {...field} />
               </FormControl>
               <FormDescription>Leave empty to disable</FormDescription>
+              <FormMessage />
             </FormItem>
           )}
         />
