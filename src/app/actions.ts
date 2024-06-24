@@ -59,7 +59,7 @@ export async function getPaperlessDocuments(query: string) {
   if (!query || query == "null" || query.length < 3 || !userData) return null;
 
   const response = await fetch(
-    `${userData.paperlessURL}/api/search/?query=${query}`,
+    `${userData.paperlessURL}/api/documents/?query=${query}`,
     {
       method: "GET",
       headers: {
