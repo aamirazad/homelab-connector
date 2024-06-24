@@ -28,26 +28,20 @@ import {
   QueryClient,
 } from "@tanstack/react-query";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
-
-const queryClient = new QueryClient();
+import type { UsersTableType } from "@/server/db/schema";
 
 function PaperlessURL({
   setActiveTab,
+  userData,
 }: {
   setActiveTab: Dispatch<SetStateAction<number>>;
+  userData: UsersTableType;
 }) {
   const { user, isLoaded } = useUser();
   const pathname = usePathname();
   const [isAutofilled, setIsAutofilled] = useState(false);
   const formSchema = z.object({
     URL: z.string(),
-  });
-  const { data: userData, isLoading } = useQuery({
-    queryKey: ["userData"],
-    queryFn: async () => {
-      const data = await getUserData();
-      return data;
-    },
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -57,7 +51,7 @@ function PaperlessURL({
     },
   });
 
-  if (!isLoaded || isLoading || !userData) {
+  if (!isLoaded) {
     return <LoadingSpinner>Loading...</LoadingSpinner>;
   } else if (userData.paperlessURL && !isAutofilled) {
     form.setValue("URL", userData.paperlessURL);
@@ -116,8 +110,10 @@ function PaperlessURL({
 
 function PaperlessToken({
   setActiveTab,
+  userData,
 }: {
   setActiveTab: Dispatch<SetStateAction<number>>;
+  userData: UsersTableType;
 }) {
   const { user, isLoaded } = useUser();
   const pathname = usePathname();
@@ -126,13 +122,6 @@ function PaperlessToken({
   const formSchema = z.object({
     token: z.string(),
   });
-  const { data: userData, isLoading } = useQuery({
-    queryKey: ["userData"],
-    queryFn: async () => {
-      const data = await getUserData();
-      return data;
-    },
-  });
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -140,7 +129,7 @@ function PaperlessToken({
     },
   });
 
-  if (!isLoaded || isLoading || !userData) {
+  if (!isLoaded) {
     return <LoadingSpinner>Loading...</LoadingSpinner>;
   } else if (userData.paperlessToken && !isAutofilled) {
     form.setValue("token", userData.paperlessToken);
@@ -229,12 +218,33 @@ const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
   );
 };
 
+const queryClient = new QueryClient();
+
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState(0);
+  const { data: userData, isLoading } = useQuery({
+    queryKey: ["userData"],
+    queryFn: async () => {
+      const data = await getUserData();
+      return data;
+    },
+  });
+
+  if (!userData || isLoading) {
+    return <LoadingSpinner>Loading...</LoadingSpinner>;
+  }
 
   const formElements = [
-    <PaperlessURL key="paperlessURL" setActiveTab={setActiveTab} />,
-    <PaperlessToken key="paperlessToken" setActiveTab={setActiveTab} />,
+    <PaperlessURL
+      key="paperlessURL"
+      setActiveTab={setActiveTab}
+      userData={userData}
+    />,
+    <PaperlessToken
+      key="paperlessToken"
+      setActiveTab={setActiveTab}
+      userData={userData}
+    />,
   ];
   return (
     <>
