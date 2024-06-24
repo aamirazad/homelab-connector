@@ -19,9 +19,16 @@ import { useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import { redirect, usePathname } from "next/navigation";
 import LoadingSpinner from "@/components/loading-spinner";
-import { setUserProperty } from "../actions";
+import { getUserData, setUserProperty } from "../actions";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
+import {
+  useQuery,
+  QueryClientProvider,
+  QueryClient,
+} from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
 
 function PaperlessURL({
   setActiveTab,
@@ -33,6 +40,14 @@ function PaperlessURL({
   const formSchema = z.object({
     URL: z.string(),
   });
+  const { data: userData, isLoading } = useQuery({
+    queryKey: ["userData"],
+    queryFn: async () => {
+      const data = await getUserData();
+      return data;
+    },
+  });
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -40,13 +55,17 @@ function PaperlessURL({
     },
   });
 
-  if (!isLoaded) {
+  if (!isLoaded || isLoading || !userData) {
     return <LoadingSpinner>Loading...</LoadingSpinner>;
+  } else if (userData.paperlessURL){
+    form.setValue("URL", userData.paperlessURL);
   }
 
   if (!user) {
     return redirect("/sign-in?redirect=" + pathname);
   }
+
+
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (values.URL == "") {
@@ -199,7 +218,9 @@ export default function SettingsPage() {
   ];
   return (
     <>
-      {formElements[activeTab]}
+      <QueryClientProvider client={queryClient}>
+        {formElements[activeTab]}
+      </QueryClientProvider>
       <ProgressIndicator
         activeTab={activeTab}
         totalTabs={formElements.length}
