@@ -11,6 +11,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -61,7 +62,7 @@ function DocumentsSearch() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-64">
         <FormField
           control={form.control}
           name="query"
@@ -71,6 +72,7 @@ function DocumentsSearch() {
               <FormControl>
                 <Input {...field} />
               </FormControl>
+              <FormMessage />
             </FormItem>
           )}
         />
@@ -90,7 +92,6 @@ function DocumentsPage() {
     queryKey: ["key", query],
     queryFn: async () => {
       if (!query) {
-        // Immediately resolve to null or an appropriate default value if there's no query
         return Promise.resolve(null);
       }
       const response = await getPaperlessDocuments(query);
