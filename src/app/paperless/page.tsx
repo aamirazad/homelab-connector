@@ -143,15 +143,12 @@ function DocumentsPage() {
       <ul className="list-disc">
         {paperlessDocumentMap.map((document, index) => (
           <li className="underline" key={index}>
-            <a
-              rel="noopener noreferrer"
-              target="_blank"
-              className="text-blue-600 underline hover:text-blue-800"
-              href={`${paperlessURL}/api/documents/${document.id}/preview/#search="${query}"`}
+            <Link
+              className="underline hover:text-slate-300"
+              href={`/documents/${document.id}`}
             >
               {document.title}
-              <ExternalLink size={16} className="mx-1 inline-block" />
-            </a>
+            </Link>
           </li>
         ))}
       </ul>

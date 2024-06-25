@@ -1,4 +1,5 @@
 import OpenLinkInNewPage from "@/components/open-link-in-new-page";
+import Link from "next/link";
 
 export default async function HomePage() {
   return (
@@ -13,6 +14,7 @@ export default async function HomePage() {
           to get started.
         </div>
         <div>Or sign in to access the dashboard.</div>
+        <Link href="/documents/12">Buttom</Link>
       </div>
     </main>
   );

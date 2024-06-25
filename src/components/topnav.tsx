@@ -124,7 +124,7 @@ export function TopNav() {
         {/* Desktop links */}
         <div className="hidden h-full items-center rounded-r bg-slate-300 dark:bg-slate-700 md:flex">
           <Link
-            href="paperless"
+            href="/paperless"
             className={buttonVariants({ variant: "link" })}
           >
             Paperless-ngx
@@ -153,7 +153,7 @@ export function TopNav() {
               <DropdownMenuLabel>Links</DropdownMenuLabel>
               <DropdownMenuItem asChild>
                 <Link
-                  href="paperless"
+                  href="/paperless"
                   className={buttonVariants({ variant: "link" })}
                 >
                   Paperless-ngx
