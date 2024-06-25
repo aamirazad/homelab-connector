@@ -1,11 +1,12 @@
-import PdfViewer from "@/components/PdfViewer";
+"use client";
+import { Document, pdfjs } from "react-pdf";
+
+pdfjs.GlobalWorkerOptions.workerSrc = "/static/js/pdf.worker.min.js"
 
 export default function DocumentPage({
   params: { id },
 }: {
   params: { id: string };
 }) {
-  return (
-   <PdfViewer url="test" />
-  );
+  return <Document file="https://pdfobject.com/pdf/sample.pdf" />;
 }
