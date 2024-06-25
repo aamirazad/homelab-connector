@@ -28,26 +28,19 @@ import {
   QueryClient,
 } from "@tanstack/react-query";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
+import type { UsersTableType } from "@/server/db/schema";
 
 const queryClient = new QueryClient();
 
-function PaperlessURL({
-  setActiveTab,
-}: {
+interface FormProps {
   setActiveTab: Dispatch<SetStateAction<number>>;
-}) {
-  const { user, isLoaded } = useUser();
-  const pathname = usePathname();
+  userData: UsersTableType;
+}
+
+function PaperlessURL({ setActiveTab, userData }: FormProps) {
   const [isAutofilled, setIsAutofilled] = useState(false);
   const formSchema = z.object({
     URL: z.string(),
-  });
-  const { data: userData, isLoading } = useQuery({
-    queryKey: ["userData"],
-    queryFn: async () => {
-      const data = await getUserData();
-      return data;
-    },
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -57,15 +50,9 @@ function PaperlessURL({
     },
   });
 
-  if (!isLoaded || isLoading || !userData) {
-    return <LoadingSpinner>Loading...</LoadingSpinner>;
-  } else if (userData.paperlessURL && !isAutofilled) {
+  if (userData.paperlessURL && !isAutofilled) {
     form.setValue("URL", userData.paperlessURL);
     setIsAutofilled(true);
-  }
-
-  if (!user) {
-    return redirect("/sign-in?redirect=" + pathname);
   }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -114,24 +101,11 @@ function PaperlessURL({
   );
 }
 
-function PaperlessToken({
-  setActiveTab,
-}: {
-  setActiveTab: Dispatch<SetStateAction<number>>;
-}) {
-  const { user, isLoaded } = useUser();
-  const pathname = usePathname();
+function PaperlessToken({ setActiveTab, userData }: FormProps) {
   const [isAutofilled, setIsAutofilled] = useState(false);
   const [isHidden, setIsHidden] = useState(false);
   const formSchema = z.object({
     token: z.string(),
-  });
-  const { data: userData, isLoading } = useQuery({
-    queryKey: ["userData"],
-    queryFn: async () => {
-      const data = await getUserData();
-      return data;
-    },
   });
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -140,15 +114,9 @@ function PaperlessToken({
     },
   });
 
-  if (!isLoaded || isLoading || !userData) {
-    return <LoadingSpinner>Loading...</LoadingSpinner>;
-  } else if (userData.paperlessToken && !isAutofilled) {
+  if (userData.paperlessToken && !isAutofilled) {
     form.setValue("token", userData.paperlessToken);
     setIsAutofilled(true);
-  }
-
-  if (!user) {
-    return redirect("/sign-in?redirect=" + pathname);
   }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -229,23 +197,55 @@ const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
   );
 };
 
-export default function SettingsPage() {
+export function Forms() {
   const [activeTab, setActiveTab] = useState(0);
+  const { user: clerkUser, isLoaded } = useUser();
+  const pathname = usePathname();
+
+  const { data: userData, isLoading } = useQuery({
+    queryKey: ["userData"],
+    queryFn: async () => {
+      const data = await getUserData();
+      return data;
+    },
+  });
+
+  if (!userData || isLoading || !isLoaded) {
+    return <LoadingSpinner>Loading...</LoadingSpinner>;
+  } else if (!clerkUser) {
+    return redirect("/sign-in?redirect=" + pathname);
+  }
 
   const formElements = [
-    <PaperlessURL key="paperlessURL" setActiveTab={setActiveTab} />,
-    <PaperlessToken key="paperlessToken" setActiveTab={setActiveTab} />,
+    <PaperlessURL
+      key="paperlessURL"
+      setActiveTab={setActiveTab}
+      userData={userData}
+    />,
+    <PaperlessToken
+      key="paperlessToken"
+      setActiveTab={setActiveTab}
+      userData={userData}
+    />,
   ];
   return (
     <>
-      <QueryClientProvider client={queryClient}>
-        {formElements[activeTab]}
-      </QueryClientProvider>
+      {formElements[activeTab]}
       <ProgressIndicator
         activeTab={activeTab}
         totalTabs={formElements.length}
         setActiveTab={setActiveTab}
       />
+    </>
+  );
+}
+
+export default function SettingsPage() {
+  return (
+    <>
+      <QueryClientProvider client={queryClient}>
+        <Forms />
+      </QueryClientProvider>
       <Toaster />
     </>
   );
