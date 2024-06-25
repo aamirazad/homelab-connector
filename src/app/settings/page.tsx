@@ -19,7 +19,7 @@ import { useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import { redirect, usePathname } from "next/navigation";
 import LoadingSpinner from "@/components/loading-spinner";
-import { getUserData, setUserProperty } from "../actions";
+import { getUserData, setUserProperty } from "@/app/actions";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 import {

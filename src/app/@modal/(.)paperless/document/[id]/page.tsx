@@ -1,5 +1,5 @@
 import { Modal } from "./modal";
-import DocumentViewer from "@/components/DocumentViewer";
+import DocumentViewer from "@/components/document-viewer";
 
 export default function DocumentModal(props: { id: number }) {
   return (

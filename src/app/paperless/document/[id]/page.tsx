@@ -1,4 +1,4 @@
-import DocumentViewer from "@/components/DocumentViewer";
+import DocumentViewer from "@/components/document-viewer";
 
 export default function FullPageDocumentPage(props: { id: number }) {
   return (
