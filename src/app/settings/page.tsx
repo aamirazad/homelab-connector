@@ -19,9 +19,17 @@ import { useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import { redirect, usePathname } from "next/navigation";
 import LoadingSpinner from "@/components/loading-spinner";
-import { setUserProperty } from "../actions";
+import { getUserData, setUserProperty } from "../actions";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
+import {
+  useQuery,
+  QueryClientProvider,
+  QueryClient,
+} from "@tanstack/react-query";
+import { EyeIcon, EyeOffIcon } from "lucide-react";
+
+const queryClient = new QueryClient();
 
 function PaperlessURL({
   setActiveTab,
@@ -30,9 +38,18 @@ function PaperlessURL({
 }) {
   const { user, isLoaded } = useUser();
   const pathname = usePathname();
+  const [isAutofilled, setIsAutofilled] = useState(false);
   const formSchema = z.object({
     URL: z.string(),
   });
+  const { data: userData, isLoading } = useQuery({
+    queryKey: ["userData"],
+    queryFn: async () => {
+      const data = await getUserData();
+      return data;
+    },
+  });
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -40,8 +57,11 @@ function PaperlessURL({
     },
   });
 
-  if (!isLoaded) {
+  if (!isLoaded || isLoading || !userData) {
     return <LoadingSpinner>Loading...</LoadingSpinner>;
+  } else if (userData.paperlessURL && !isAutofilled) {
+    form.setValue("URL", userData.paperlessURL);
+    setIsAutofilled(true);
   }
 
   if (!user) {
@@ -65,7 +85,7 @@ function PaperlessURL({
         description: "Your Paperless URL preferences were not saved.",
         action: {
           label: "Go back",
-          onClick: () => setActiveTab(1), // Go back to try again
+          onClick: () => setActiveTab((prevTab) => prevTab - 1), // Go back to try again
         },
       });
     }
@@ -81,7 +101,7 @@ function PaperlessURL({
             <FormItem>
               <FormLabel>Paperless URL</FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input type="url" {...field} />
               </FormControl>
               <FormDescription>Leave empty to disable</FormDescription>
               <FormMessage />
@@ -101,8 +121,17 @@ function PaperlessToken({
 }) {
   const { user, isLoaded } = useUser();
   const pathname = usePathname();
+  const [isAutofilled, setIsAutofilled] = useState(false);
+  const [isHidden, setIsHidden] = useState(false);
   const formSchema = z.object({
     token: z.string(),
+  });
+  const { data: userData, isLoading } = useQuery({
+    queryKey: ["userData"],
+    queryFn: async () => {
+      const data = await getUserData();
+      return data;
+    },
   });
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -111,8 +140,11 @@ function PaperlessToken({
     },
   });
 
-  if (!isLoaded) {
+  if (!isLoaded || isLoading || !userData) {
     return <LoadingSpinner>Loading...</LoadingSpinner>;
+  } else if (userData.paperlessToken && !isAutofilled) {
+    form.setValue("token", userData.paperlessToken);
+    setIsAutofilled(true);
   }
 
   if (!user) {
@@ -132,7 +164,7 @@ function PaperlessToken({
         description: "Your Paperless token preferences were not saved.",
         action: {
           label: "Go back",
-          onClick: () => setActiveTab(1), // Go back to try again
+          onClick: () => setActiveTab((prevTab) => prevTab - 1), // Go back to try again
         },
       });
     }
@@ -148,7 +180,14 @@ function PaperlessToken({
             <FormItem>
               <FormLabel>Paperless API Token</FormLabel>
               <FormControl>
-                <Input {...field} />
+                <div className="flex flex-shrink items-center space-x-2">
+                  <Input type={isHidden ? "text" : "password"} {...field} />
+                  {isHidden ? (
+                    <EyeIcon onClick={() => setIsHidden(false)} />
+                  ) : (
+                    <EyeOffIcon onClick={() => setIsHidden(true)} />
+                  )}
+                </div>
               </FormControl>
               <FormDescription>
                 You can create (or re-create) an API token by opening the
@@ -177,7 +216,7 @@ const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
 }) => {
   return (
     <div className="flex items-center justify-center p-5">
-      {Array.from({ length: totalTabs - 1 }, (_, index) => (
+      {Array.from({ length: totalTabs }, (_, index) => (
         <span
           onClick={() => setActiveTab(index)}
           key={index}
@@ -199,7 +238,9 @@ export default function SettingsPage() {
   ];
   return (
     <>
-      {formElements[activeTab]}
+      <QueryClientProvider client={queryClient}>
+        {formElements[activeTab]}
+      </QueryClientProvider>
       <ProgressIndicator
         activeTab={activeTab}
         totalTabs={formElements.length}
