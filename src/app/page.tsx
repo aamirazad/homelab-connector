@@ -14,7 +14,7 @@ export default async function HomePage() {
           to get started.
         </div>
         <div>Or sign in to access the dashboard.</div>
-        <Link href="/documents/12">Buttom</Link>
+        <Link href="/paperless/document/12">Buttom</Link>
       </div>
     </main>
   );

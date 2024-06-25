@@ -16,7 +16,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useCallback } from "react";
-import { ExternalLink } from "lucide-react";
 import {
   useQuery,
   QueryClientProvider,
@@ -129,8 +128,6 @@ function DocumentsPage() {
     );
   }
 
-  const paperlessURL = userData.data?.paperlessURL;
-
   const paperlessDocumentMap = PaperlessDocuments.data.results;
 
   if (paperlessDocumentMap.length === 0) {
@@ -145,7 +142,7 @@ function DocumentsPage() {
           <li className="underline" key={index}>
             <Link
               className="underline hover:text-slate-300"
-              href={`/documents/${document.id}`}
+              href={`/paperless/document/${document.id}?query=${query}`}
             >
               {document.title}
             </Link>

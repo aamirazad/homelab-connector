@@ -44,10 +44,6 @@ export async function getUserData() {
 }
 
 export async function getPaperlessDocuments(query: string) {
-  const { userId } = auth();
-
-  if (!userId) return null;
-
   const userData = await getUserData();
 
   if (!query || query == "null" || query.length < 3 || !userData) return null;
@@ -66,4 +62,21 @@ export async function getPaperlessDocuments(query: string) {
   const data = (await response.json()) as PaperlessDocumentsType;
 
   return data;
+}
+
+export async function getPaperlessDocument(id: number) {
+  const userData = await getUserData();
+
+  if (!id || !userData) return null;
+
+  const response = await fetch(
+    `${userData.paperlessURL}/api/documents/?query=${query}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Token ${userData.paperlessToken}`,
+      },
+    },
+  );
 }
