@@ -22,7 +22,7 @@ import {
   QueryClient,
 } from "@tanstack/react-query";
 import LoadingSpinner from "@/components/loading-spinner";
-import { getPaperlessDocuments, getUserData } from "../actions";
+import { getPaperlessDocuments, getUserData } from "@/app/actions";
 import Link from "next/link";
 
 const queryClient = new QueryClient();
