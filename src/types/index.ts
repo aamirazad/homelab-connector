@@ -41,24 +41,24 @@ export type PaperlessDocumentsType = {
   all: number[];
   results: {
     id: number;
-    correspondent: number; // Change type as per actual data or use a specific type/interface
+    correspondent: number;
     document_type: number;
     storage_path: number;
     title: string;
     content: string;
     tags: number[];
-    created: string; // ISO 8601 date string
-    created_date: string; // Date string
-    modified: string; // ISO 8601 date string
-    added: string; // ISO 8601 date string
-    archive_serial_number: number; // Change type as per actual data or use a specific type/interface
+    created: string;
+    created_date: string;
+    modified: string;
+    added: string;
+    archive_serial_number: number;
     original_file_name: string;
     archived_file_name: string;
     owner: number;
     user_can_change: boolean;
     is_shared_by_requester: boolean;
-    notes: string[]; // Change type as per actual data or use a specific type/interface
-    custom_fields: string[]; // Change type as per actual data or use a specific type/interface
+    notes: string[];
+    custom_fields: string[];
     __search_hit__: {
       score: number;
       highlights: string;
