@@ -30,15 +30,14 @@ import {
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import type { UsersTableType } from "@/server/db/schema";
 
-function PaperlessURL({
-  setActiveTab,
-  userData,
-}: {
+const queryClient = new QueryClient();
+
+interface FormProps {
   setActiveTab: Dispatch<SetStateAction<number>>;
   userData: UsersTableType;
-}) {
-  const { user, isLoaded } = useUser();
-  const pathname = usePathname();
+}
+
+function PaperlessURL({ setActiveTab, userData }: FormProps) {
   const [isAutofilled, setIsAutofilled] = useState(false);
   const formSchema = z.object({
     URL: z.string(),
@@ -51,15 +50,9 @@ function PaperlessURL({
     },
   });
 
-  if (!isLoaded) {
-    return <LoadingSpinner>Loading...</LoadingSpinner>;
-  } else if (userData.paperlessURL && !isAutofilled) {
+  if (userData.paperlessURL && !isAutofilled) {
     form.setValue("URL", userData.paperlessURL);
     setIsAutofilled(true);
-  }
-
-  if (!user) {
-    return redirect("/sign-in?redirect=" + pathname);
   }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -108,15 +101,7 @@ function PaperlessURL({
   );
 }
 
-function PaperlessToken({
-  setActiveTab,
-  userData,
-}: {
-  setActiveTab: Dispatch<SetStateAction<number>>;
-  userData: UsersTableType;
-}) {
-  const { user, isLoaded } = useUser();
-  const pathname = usePathname();
+function PaperlessToken({ setActiveTab, userData }: FormProps) {
   const [isAutofilled, setIsAutofilled] = useState(false);
   const [isHidden, setIsHidden] = useState(false);
   const formSchema = z.object({
@@ -129,15 +114,9 @@ function PaperlessToken({
     },
   });
 
-  if (!isLoaded) {
-    return <LoadingSpinner>Loading...</LoadingSpinner>;
-  } else if (userData.paperlessToken && !isAutofilled) {
+  if (userData.paperlessToken && !isAutofilled) {
     form.setValue("token", userData.paperlessToken);
     setIsAutofilled(true);
-  }
-
-  if (!user) {
-    return redirect("/sign-in?redirect=" + pathname);
   }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -218,10 +197,11 @@ const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
   );
 };
 
-const queryClient = new QueryClient();
-
-export default function SettingsPage() {
+export function Forms() {
   const [activeTab, setActiveTab] = useState(0);
+  const { user: clerkUser, isLoaded } = useUser();
+  const pathname = usePathname();
+
   const { data: userData, isLoading } = useQuery({
     queryKey: ["userData"],
     queryFn: async () => {
@@ -230,8 +210,10 @@ export default function SettingsPage() {
     },
   });
 
-  if (!userData || isLoading) {
+  if (!userData || isLoading || !isLoaded) {
     return <LoadingSpinner>Loading...</LoadingSpinner>;
+  } else if (!clerkUser) {
+    return redirect("/sign-in?redirect=" + pathname);
   }
 
   const formElements = [
@@ -248,14 +230,22 @@ export default function SettingsPage() {
   ];
   return (
     <>
-      <QueryClientProvider client={queryClient}>
-        {formElements[activeTab]}
-      </QueryClientProvider>
+      {formElements[activeTab]}
       <ProgressIndicator
         activeTab={activeTab}
         totalTabs={formElements.length}
         setActiveTab={setActiveTab}
       />
+    </>
+  );
+}
+
+export default function SettingsPage() {
+  return (
+    <>
+      <QueryClientProvider client={queryClient}>
+        <Forms />
+      </QueryClientProvider>
       <Toaster />
     </>
   );
