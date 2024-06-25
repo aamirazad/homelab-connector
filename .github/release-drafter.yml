@@ -32,7 +32,6 @@ autolabeler:
     title:
       - "/BREAKING CHANGE/i"
       - '/\w+!:/i'
-  # Adding semantic versioning labels
   - label: "major"
     title:
       - "/BREAKING CHANGE/i"
