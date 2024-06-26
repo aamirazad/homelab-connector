@@ -7,6 +7,7 @@ import LoadingSpinner from "@/components/loading-spinner";
 export default function DocumentViewer(props: { id: number }) {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  console.log("docuement viewer: " + props.id)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -21,7 +22,6 @@ export default function DocumentViewer(props: { id: number }) {
       try {
         const response = await fetch(url, {
           headers: {
-            "Content-Type": "application/pdf",
             Authorization: `Token ${userData.paperlessToken}`,
           },
         });

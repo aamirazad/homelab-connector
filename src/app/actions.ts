@@ -89,4 +89,5 @@ export async function getPaperlessDocument(id: number) {
     }
   } catch (error) {
     console.error("Error fetching PDF:", error);
+  }
 }
