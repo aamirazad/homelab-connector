@@ -66,17 +66,27 @@ export async function getPaperlessDocuments(query: string) {
 
 export async function getPaperlessDocument(id: number) {
   const userData = await getUserData();
+  if (!userData) {
+    return null;
+  }
 
-  if (!id || !userData) return null;
-
-  const response = await fetch(
-    `${userData.paperlessURL}/api/documents/?query=${query}`,
-    {
-      method: "GET",
+  const url = `${userData.paperlessURL}/api/documents/${id}/download/`;
+  try {
+    const response = await fetch(url, {
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "application/pdf",
         Authorization: `Token ${userData.paperlessToken}`,
       },
-    },
-  );
+    });
+    if (response.ok) {
+      const blob = await response.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      setPdfUrl(objectUrl);
+      // Cleanup function to revoke URL when component unmounts or pdfUrl changes
+      return () => URL.revokeObjectURL(objectUrl);
+    } else {
+      console.error("Failed to fetch PDF");
+    }
+  } catch (error) {
+    console.error("Error fetching PDF:", error);
 }

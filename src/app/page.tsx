@@ -1,7 +1,9 @@
+"use client";
+
 import OpenLinkInNewPage from "@/components/open-link-in-new-page";
 import Link from "next/link";
 
-export default async function HomePage() {
+export default function HomePage() {
   return (
     <main>
       <div>
@@ -14,7 +16,7 @@ export default async function HomePage() {
           to get started.
         </div>
         <div>Or sign in to access the dashboard.</div>
-        <Link href="/paperless/document/12">Buttom</Link>
+        <Link href="/paperless/document/12">Button</Link>
       </div>
     </main>
   );
