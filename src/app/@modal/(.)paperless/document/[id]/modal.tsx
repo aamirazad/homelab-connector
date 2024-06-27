@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { type ElementRef, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
-import { createPortal } from 'react-dom';
+import { type ElementRef, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
+import { createPortal } from "react-dom";
 
 export function Modal({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const dialogRef = useRef<ElementRef<'dialog'>>(null);
+  const dialogRef = useRef<ElementRef<"dialog">>(null);
 
   useEffect(() => {
     if (!dialogRef.current?.open) {
@@ -19,12 +19,14 @@ export function Modal({ children }: { children: React.ReactNode }) {
   }
 
   return createPortal(
-    <div className="modal-backdrop">
-      <dialog ref={dialogRef} className="modal" onClose={onDismiss}>
-        {children}
-        <button onClick={onDismiss} className="close-button" />
-      </dialog>
-    </div>,
-    document.getElementById('modal-root')!
+    <dialog
+      ref={dialogRef}
+      className="absolute h-screen w-screen bg-black/90"
+      onClose={onDismiss}
+    >
+      {children}
+      {/* <button onClick={onDismiss} className="close-button" /> */}
+    </dialog>,
+    document.getElementById("modal-root")!,
   );
 }

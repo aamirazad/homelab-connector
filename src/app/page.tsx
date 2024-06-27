@@ -16,7 +16,6 @@ export default function HomePage() {
           to get started.
         </div>
         <div>Or sign in to access the dashboard.</div>
-        <Link href="/paperless/document/12">Button</Link>
       </div>
     </main>
   );
