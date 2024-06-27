@@ -9,8 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: PR Conventional Commit Validation
-        uses: ytanikin/PRConventionalCommits@1.1.0
+        uses: ytanikin/PRConventionalCommits@1.2
         with:
           task_types: '["feat","fix","docs","test","ci","refactor","perf","chore","revert"]'
-          ticket_key_regex: '^PROJECT-\\d{2,5}$'
           custom_labels: '{"feat": "feature", "feat": "minor", "fix": "fix", "fix": "patch", "docs": "documentation", "test": "test", "ci": "ci", "refactor": "refactor", "perf": "performance", "chore": "chore", "revert": "revert"}'
