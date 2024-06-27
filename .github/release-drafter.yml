@@ -1,33 +1,6 @@
 name-template: "v$RESOLVED_VERSION"
 tag-template: "v$RESOLVED_VERSION"
 autolabeler:
-  - label: "bug"
-    title:
-      - "/fix/i"
-  - label: "feature"
-    title:
-      - "/feat/i"
-  - label: "documentation"
-    title:
-      - "/docs/i"
-  - label: "ci"
-    title:
-      - "/ci/i"
-  - label: "style"
-    title:
-      - "/style/i"
-  - label: "refactor"
-    title:
-      - "/refactor/i"
-  - label: "performance"
-    title:
-      - "/perf/i"
-  - label: "test"
-    title:
-      - "/test/i"
-  - label: "chore"
-    title:
-      - "/chore/i"
   - label: "breaking"
     title:
       - "/BREAKING CHANGE/i"
@@ -51,32 +24,26 @@ categories:
       - "notable"
   - title: "Features"
     labels:
-      - "enhancement"
       - "feature"
   - title: "Performance Improvements"
     labels:
       - "performance"
   - title: "Bug Fixes"
     labels:
-      - "bug"
+      - "fix"
   - title: "Documentation"
     labels:
       - "documentation"
-  - title: "Style Improvements"
-    labels:
-      - "style"
   - title: "Maintenance"
     labels:
       - "chore"
-      - "deployment"
-      - "translation"
       - "ci"
       - "refactor"
-  - title: "Dependencies"
-    collapse-after: 3
-    labels:
-      - "dependencies"
+      - "revert"
+      - "test"
   - title: "All App Changes"
+    labels:
+      - "*"
     collapse-after: 1
 exclude-labels:
   - "skip-changelog"
