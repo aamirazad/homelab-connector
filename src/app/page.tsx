@@ -1,7 +1,6 @@
 "use client";
 
 import OpenLinkInNewPage from "@/components/open-link-in-new-page";
-import Link from "next/link";
 
 export default function HomePage() {
   return (
