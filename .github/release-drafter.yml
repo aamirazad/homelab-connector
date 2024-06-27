@@ -1,5 +1,20 @@
 name-template: "v$RESOLVED_VERSION"
 tag-template: "v$RESOLVED_VERSION"
+autolabeler:
+  - label: "breaking"
+    title:
+      - "/BREAKING CHANGE/i"
+      - '/\w+!:/i'
+  - label: "major"
+    title:
+      - "/BREAKING CHANGE/i"
+      - '/\w+!:/i'
+  - label: "minor"
+    title:
+      - "/feat/i"
+  - label: "patch"
+    title:
+      - "/fix/i"
 categories:
   - title: "Breaking Changes"
     labels:
