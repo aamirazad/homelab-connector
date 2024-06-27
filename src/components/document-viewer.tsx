@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getPaperlessDocument, getUserData } from "@/app/actions";
+import { getPaperlessDocument } from "@/app/actions";
 import LoadingSpinner from "@/components/loading-spinner";
 
 export default function DocumentViewer(props: { id: number }) {
