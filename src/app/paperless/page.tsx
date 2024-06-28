@@ -16,14 +16,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useCallback } from "react";
-import { ExternalLink } from "lucide-react";
 import {
   useQuery,
   QueryClientProvider,
   QueryClient,
 } from "@tanstack/react-query";
 import LoadingSpinner from "@/components/loading-spinner";
-import { getPaperlessDocuments, getUserData } from "../actions";
+import { getPaperlessDocuments, getUserData } from "@/app/actions";
 import Link from "next/link";
 
 const queryClient = new QueryClient();
@@ -129,8 +128,6 @@ function DocumentsPage() {
     );
   }
 
-  const paperlessURL = userData.data?.paperlessURL;
-
   const paperlessDocumentMap = PaperlessDocuments.data.results;
 
   if (paperlessDocumentMap.length === 0) {
@@ -143,15 +140,12 @@ function DocumentsPage() {
       <ul className="list-disc">
         {paperlessDocumentMap.map((document, index) => (
           <li className="underline" key={index}>
-            <a
-              rel="noopener noreferrer"
-              target="_blank"
-              className="text-blue-600 underline hover:text-blue-800"
-              href={`${paperlessURL}/api/documents/${document.id}/preview/#search="${query}"`}
+            <Link
+              className="underline hover:text-slate-300"
+              href={`/paperless/document/${document.id}?query=${query}`}
             >
               {document.title}
-              <ExternalLink size={16} className="mx-1 inline-block" />
-            </a>
+            </Link>
           </li>
         ))}
       </ul>

@@ -1,6 +1,6 @@
 import OpenLinkInNewPage from "@/components/open-link-in-new-page";
 
-export default async function HomePage() {
+export default function HomePage() {
   return (
     <main>
       <div>

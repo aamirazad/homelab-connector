@@ -44,10 +44,6 @@ export async function getUserData() {
 }
 
 export async function getPaperlessDocuments(query: string) {
-  const { userId } = auth();
-
-  if (!userId) return null;
-
   const userData = await getUserData();
 
   if (!query || query == "null" || query.length < 3 || !userData) return null;
