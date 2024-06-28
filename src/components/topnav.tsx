@@ -144,26 +144,31 @@ export function TopNav() {
           <ModeToggle />
         </div>
         {/* Mobile dropdown */}
-        <div className="flex h-full items-center space-x-4 rounded-l rounded-r bg-slate-300 dark:bg-slate-700 md:hidden px-4 -mt-1">
-          <DropdownMenu>
-            <DropdownMenuTrigger>
-              <AlignJustify />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuLabel>Links</DropdownMenuLabel>
-              <DropdownMenuItem asChild>
-                <Link
-                  href="/paperless"
-                  className={buttonVariants({ variant: "link" })}
-                >
-                  Paperless-ngx
-                </Link>
-              </DropdownMenuItem>
-              <ImmichTooltip />
-              <DropdownMenuSeparator />
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <UserSettings />
+        <div className="-mt-1 flex h-full items-center space-x-4 rounded-l rounded-r bg-slate-300 px-4 dark:bg-slate-700 md:hidden">
+          <SignedIn>
+            <DropdownMenu>
+              <DropdownMenuTrigger>
+                <AlignJustify />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuLabel>Links</DropdownMenuLabel>
+                <DropdownMenuItem asChild>
+                  <Link
+                    href="/paperless"
+                    className={buttonVariants({ variant: "link" })}
+                  >
+                    Paperless-ngx
+                  </Link>
+                </DropdownMenuItem>
+                <ImmichTooltip />
+                <DropdownMenuSeparator />
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <UserSettings />
+          </SignedIn>
+          <SignedOut>
+            <SignInButton />
+          </SignedOut>
         </div>
       </div>
     </nav>
