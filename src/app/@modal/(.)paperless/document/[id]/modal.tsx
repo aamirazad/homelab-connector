@@ -24,7 +24,7 @@ export function Modal({ children }: { children: React.ReactNode }) {
       className="absolute h-screen w-screen bg-zinc-900/60"
       onClose={onDismiss}
     >
-      <div className="p-20">{children}</div>
+      <div className="md:p-20 p-6">{children}</div>
     </dialog>,
     document.getElementById("modal-root")!,
   );
