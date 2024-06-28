@@ -59,11 +59,21 @@ export default function DocumentViewer(props: { id: number }) {
         setLoading(false);
       }
     };
-    fetchData();
-  }, []); // Dependency array to refetch if id changes
+    fetchData().catch((error) => {
+      console.error("An error occurred:", error);
+    });
+  }, [props.id]); // Dependency array to refetch if id changes
 
   if (loading) {
-    return <LoadingSpinner>Loading...</LoadingSpinner>;
+    return (
+      <div className="flex justify-center">
+        <div className="mx-auto max-w-sm rounded-lg bg-black p-4 shadow-md">
+          <LoadingSpinner className="w-min rounded-full text-xl font-bold">
+            Loading...
+          </LoadingSpinner>
+        </div>
+      </div>
+    );
   }
 
   if (!pdfUrl) {
@@ -71,10 +81,10 @@ export default function DocumentViewer(props: { id: number }) {
   }
 
   return (
-    <div className="flex h-screen w-full min-w-0 justify-center">
-      <div className="flex h-4/5 flex-col rounded-l bg-slate-600/50 md:w-1/2">
-        <div className="m-4 flex flex-grow md:flex-row flex-col justify-center gap-8 md:m-8 md:gap-16">
-          <div className="flex-shrink flex-grow h-full">
+    <div className="flex h-full w-full min-w-0 justify-center">
+      <div className="flex h-4/5 flex-col rounded-xl bg-slate-600/50 md:w-1/2">
+        <div className="m-4 flex flex-grow flex-col justify-center gap-8 md:m-8 md:flex-row md:gap-16">
+          <div className="h-full flex-shrink flex-grow">
             <object
               data={pdfUrl}
               type="application/pdf"

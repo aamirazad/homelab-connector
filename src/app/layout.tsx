@@ -34,11 +34,11 @@ export default function RootLayout({
           GeistSans.variable,
         )}
       >
-        <body className="">
+        <body className="h-screen">
           <ThemeProvider attribute="class" defaultTheme="dark">
-            <div className="flex flex-col gap-12 md:gap-0">
+            <div className="flex h-full flex-col gap-12 md:gap-0">
               <TopNav />
-              <div className="flex flex-col items-center justify-center p-4 px-6">
+              <div className="flex h-full flex-col items-center p-4 px-6">
                 {children}
               </div>
             </div>

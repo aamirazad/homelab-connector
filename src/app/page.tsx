@@ -1,7 +1,4 @@
-"use client";
-
 import OpenLinkInNewPage from "@/components/open-link-in-new-page";
-import Link from "next/link";
 
 export default function HomePage() {
   return (
@@ -17,7 +14,6 @@ export default function HomePage() {
         </div>
         <div>Or sign in to access the dashboard.</div>
       </div>
-      <Link href="/paperless/document/259">button</Link>
     </main>
   );
 }
