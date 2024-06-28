@@ -69,25 +69,27 @@ export default function DocumentViewer(props: { id: number }) {
   }
 
   return (
-    <div className="flex h-screen w-full min-w-0 justify-center text-white">
-      <div className="flex h-4/5 w-1/2 justify-center gap-16">
-        <div className="flex-shrink flex-grow">
-          <embed
-            src={pdfUrl}
-            className=""
-            type="application/pdf"
-            width="100%"
-            height="100%"
-          />
-        </div>
-        <div className="flex flex-shrink-0 flex-col">
-          <Button
-            onClick={() => {
-              router.back();
-            }}
-          >
-            Back
-          </Button>
+    <div className="flex h-screen w-full min-w-0 justify-center">
+      <div className="flex h-4/5 w-1/2 flex-col rounded-xl bg-slate-600/50">
+        <div className="m-8 flex flex-grow justify-center gap-16">
+          <div className="flex-shrink flex-grow">
+            <embed
+              src={pdfUrl}
+              className=""
+              type="application/pdf"
+              width="100%"
+              height="100%"
+            />
+          </div>
+          <div className="flex flex-shrink-0 flex-col">
+            <Button
+              onClick={() => {
+                router.back();
+              }}
+            >
+              Back
+            </Button>
+          </div>
         </div>
       </div>
     </div>
