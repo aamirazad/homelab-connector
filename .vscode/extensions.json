@@ -1,0 +1,10 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "graphite.gti-vscode",
+    "esbenp.prettier-vscode",
+    "yoavbls.pretty-ts-errors",
+    "mvllow.rose-pine",
+    "bradlc.vscode-tailwindcss"
+  ]
+}
