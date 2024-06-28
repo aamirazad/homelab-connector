@@ -92,7 +92,7 @@ export default function DocumentViewer(props: { id: number }) {
               height="100%"
             >
               <p>
-                Your web browser doesn't have a PDF plugin. Instead you can
+                Your web browser doesn&apos;t have a PDF plugin. Instead you can
                 <a href={pdfUrl}>click here to download the PDF file.</a>
               </p>
             </object>
