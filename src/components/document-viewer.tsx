@@ -72,16 +72,20 @@ export default function DocumentViewer(props: { id: number }) {
 
   return (
     <div className="flex h-screen w-full min-w-0 justify-center">
-      <div className="flex h-4/5 md:w-1/2 flex-col rounded-l bg-slate-600/50">
-        <div className="md:m-8 m-4 flex flex-col flex-grow justify-center md:gap-16 gap-8">
-          <div className="flex-shrink flex-grow">
-            <embed
-              src="https://papers.aamira.me/api/documents/259/preview"
-              className="bg-red-300"
+      <div className="flex h-4/5 flex-col rounded-l bg-slate-600/50 md:w-1/2">
+        <div className="m-4 flex flex-grow md:flex-row flex-col justify-center gap-8 md:m-8 md:gap-16">
+          <div className="flex-shrink flex-grow h-full">
+            <object
+              data={pdfUrl}
               type="application/pdf"
               width="100%"
               height="100%"
-            />
+            >
+              <p>
+                Your web browser doesn't have a PDF plugin. Instead you can{" "}
+                <a href={pdfUrl}>click here to download the PDF file.</a>
+              </p>
+            </object>
           </div>
           <div className="flex flex-shrink-0 flex-col">
             <Button
