@@ -63,32 +63,3 @@ export async function getPaperlessDocuments(query: string) {
 
   return data;
 }
-
-export async function getPaperlessDocument(
-  documentId: number,
-): Promise<string | null> {
-  const userData = await getUserData();
-  if (!userData) {
-    console.error("Error getting user data");
-    return null;
-  }
-  try {
-    const url = `${userData.paperlessURL}/api/documents/${documentId}/download/`;
-    const response = await fetch(url, {
-      headers: {
-        Authorization: `Token ${userData.paperlessToken}`,
-      },
-    });
-    if (response.ok) {
-      const blob = await response.blob();
-      const objectUrl = URL.createObjectURL(blob);
-      return objectUrl;
-    } else {
-      console.error("Failed to fetch PDF");
-      return null;
-    }
-  } catch (error) {
-    console.error("Error fetching PDF:", error);
-    return null;
-  }
-}

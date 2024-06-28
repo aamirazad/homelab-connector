@@ -1,10 +1,39 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getPaperlessDocument } from "@/app/actions";
 import LoadingSpinner from "@/components/loading-spinner";
 import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
+import { getUserData } from "@/app/actions";
+
+export async function getPaperlessDocument(
+  documentId: number,
+): Promise<string | null> {
+  const userData = await getUserData();
+  if (!userData) {
+    console.error("Error getting user data");
+    return null;
+  }
+  try {
+    const url = `${userData.paperlessURL}/api/documents/${documentId}/download/`;
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Token ${userData.paperlessToken}`,
+      },
+    });
+    if (response.ok) {
+      const blob = await response.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      return objectUrl;
+    } else {
+      console.error("Failed to fetch PDF");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error fetching PDF:", error);
+    return null;
+  }
+}
 
 export default function DocumentViewer(props: { id: number }) {
   const router = useRouter();
@@ -19,10 +48,10 @@ export default function DocumentViewer(props: { id: number }) {
       const objectUrl = await getPaperlessDocument(props.id);
       if (objectUrl) {
         setPdfUrl(objectUrl);
+        setLoading(false);
         // Cleanup function to revoke URL when component unmounts or pdfUrl changes
         return () => URL.revokeObjectURL(objectUrl);
       } else {
-        setLoading(false);
       }
     };
 
