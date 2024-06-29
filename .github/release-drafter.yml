@@ -45,7 +45,7 @@ categories:
 exclude-labels:
   - "skip-changelog"
 category-template: "### $TITLE"
-change-template: "- $TITLE @$AUTHOR ([#$NUMBER]($URL))"
+change-template: "- $TITLE @$AUTHOR ([#$NUMBER])"
 change-title-escapes: '\<*_&#@'
 template: |
   ## v$RESOLVED_VERSION
