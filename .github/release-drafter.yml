@@ -41,10 +41,7 @@ categories:
       - "refactor"
       - "revert"
       - "test"
-  - title: "All App Changes"
-    labels:
-      - "*"
-    collapse-after: 1
+      - "style"
 exclude-labels:
   - "skip-changelog"
 category-template: "### $TITLE"
