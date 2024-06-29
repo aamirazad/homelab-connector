@@ -41,6 +41,29 @@ export default function DocumentViewer(props: { id: number }) {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const SkeletonLoader = () => (
+    <div className="flex h-4/5 w-full justify-center">
+      <div className="flex h-full min-w-0 justify-center md:w-1/2">
+        <div className="flex h-full w-full flex-col rounded-xl bg-slate-600/50">
+          <div className="m-4 flex flex-grow animate-pulse flex-col justify-center gap-8 md:m-8 md:flex-row md:gap-16">
+            {/* PDF Skeleton */}
+            <div className="h-full flex-shrink flex-grow rounded-lg bg-gray-400"></div>
+            {/* Button Skeleton */}
+            <div className="flex flex-shrink-0 flex-col gap-8">
+              <div className="h-10 w-24 rounded-md bg-gray-400"></div>
+              <div className="h-10 w-24 rounded-md bg-gray-400"></div>
+              <div className="h-10 w-24 rounded-md bg-gray-400"></div>
+              <div className="h-10 w-24 rounded-md bg-gray-400"></div>
+              <div className="h-10 w-24 rounded-md bg-gray-400"></div>
+              <div className="h-10 w-24 rounded-md bg-gray-400"></div>
+              <div className="h-10 w-24 rounded-md bg-gray-400"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -65,15 +88,7 @@ export default function DocumentViewer(props: { id: number }) {
   }, [props.id]); // Dependency array to refetch if id changes
 
   if (loading) {
-    return (
-      <div className="flex justify-center">
-        <div className="mx-auto max-w-sm rounded-lg bg-black p-4 shadow-md">
-          <LoadingSpinner className="w-min rounded-full text-xl font-bold">
-            Loading...
-          </LoadingSpinner>
-        </div>
-      </div>
-    );
+    return <SkeletonLoader />;
   }
 
   if (!pdfUrl) {
