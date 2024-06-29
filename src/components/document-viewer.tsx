@@ -153,7 +153,8 @@ function DocumentViewer(props: { id: number }) {
           </div>
           <div className="flex flex-shrink-0 flex-col">
             <Button
-              onClick={() => {
+              onClick={(e) => {
+                e.preventDefault();
                 router.back();
               }}
             >
