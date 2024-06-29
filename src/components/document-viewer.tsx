@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import LoadingSpinner from "@/components/loading-spinner";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
 import { getUserData } from "@/app/actions";
@@ -40,6 +39,7 @@ export default function DocumentViewer(props: { id: number }) {
 
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const fetchDataCalledRef = useRef(false);
 
   const SkeletonLoader = () => (
     <div className="flex h-4/5 w-full justify-center">
@@ -65,27 +65,32 @@ export default function DocumentViewer(props: { id: number }) {
   );
 
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
+    if (!fetchDataCalledRef.current) {
+      const fetchData = async () => {
+        setLoading(true);
 
-      try {
-        const objectUrl = await getPaperlessDocument(props.id);
-        if (objectUrl) {
-          setPdfUrl(objectUrl);
-        } else {
+        try {
+          const objectUrl = await getPaperlessDocument(props.id);
+          if (objectUrl) {
+            setPdfUrl(objectUrl);
+          } else {
+            setPdfUrl(null);
+          }
+        } catch (error) {
+          console.error("An error occurred:", error);
           setPdfUrl(null);
+        } finally {
+          setLoading(false);
         }
-      } catch (error) {
+      };
+
+      fetchData().catch((error) => {
         console.error("An error occurred:", error);
-        setPdfUrl(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData().catch((error) => {
-      console.error("An error occurred:", error);
-    });
-  }, [props.id]); // Dependency array to refetch if id changes
+      });
+
+      fetchDataCalledRef.current = true; // Mark as fetched
+    }
+  }, [props.id]); // Include props.id in the dependency array if refetch is needed on id change
 
   if (loading) {
     return <SkeletonLoader />;
