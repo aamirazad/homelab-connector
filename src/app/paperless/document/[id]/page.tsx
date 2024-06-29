@@ -5,5 +5,9 @@ export default function ModalDocumentPage({
 }: {
   params: { id: number };
 }) {
-  return <DocumentViewer id={params.id} />;
+  return (
+    <main className="h-full w-full">
+      <DocumentViewer id={params.id} />
+    </main>
+  );
 }
