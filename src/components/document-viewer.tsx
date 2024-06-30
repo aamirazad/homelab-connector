@@ -128,7 +128,7 @@ function DocumentViewer(props: { id: number }) {
     return <SkeletonLoader />;
   }
 
-  if (pdfUrl) {
+  if (!pdfUrl) {
     return (
       <div className="flex justify-center">
         <div className="mx-auto max-w-sm rounded-lg bg-black p-4 shadow-md">
