@@ -3,10 +3,16 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
-import { getUserData } from "@/app/actions";
-import type { AdviceAPIType } from "@/types";
+import { getAdvice, getUserData } from "@/app/actions";
+import {
+  useQuery,
+  QueryClientProvider,
+  QueryClient,
+} from "@tanstack/react-query";
 
-export async function getPaperlessDocument(
+const queryClient = new QueryClient();
+
+async function getPaperlessDocument(
   documentId: number,
 ): Promise<string | null> {
   const userData = await getUserData();
@@ -35,32 +41,15 @@ export async function getPaperlessDocument(
   }
 }
 
-export default function DocumentViewer(props: { id: number }) {
-  const router = useRouter();
+function SkeletonLoader() {
+  const { data: advice, isLoading } = useQuery({
+    queryKey: ["advice"],
+    queryFn: getAdvice,
+  });
 
-  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const fetchDataCalledRef = useRef(false);
-  const [advice, setAdvice] = useState<string | null>(null);
+  console.log(advice);
 
-  useEffect(() => {
-    const fetchAdvice = async () => {
-      try {
-        const response = await fetch("https://api.adviceslip.com/advice");
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        const data = (await response.json()) as AdviceAPIType;
-        setAdvice(data.slip.advice);
-      } catch (error) {
-        console.error("Failed to fetch advice:", error);
-      }
-    };
-
-    void fetchAdvice();
-  }, []);
-
-  const SkeletonLoader = () => (
+  return (
     <div className="flex h-4/5 w-full justify-center">
       <div className="flex h-full min-w-0 justify-center md:w-1/2">
         <div className="flex h-full w-full flex-col rounded-xl bg-slate-600/50">
@@ -72,7 +61,11 @@ export default function DocumentViewer(props: { id: number }) {
               {/* Text Overlay */}
               <div className="z-10 flex items-center justify-center">
                 <div className="text-center text-black">
-                  {advice ? advice : "Loading advice..."}
+                  {isLoading
+                    ? "Loading advice..."
+                    : advice === null
+                      ? "Unable to fetch advice"
+                      : advice}
                 </div>
               </div>
             </div>
@@ -91,6 +84,14 @@ export default function DocumentViewer(props: { id: number }) {
       </div>
     </div>
   );
+}
+
+function DocumentViewer(props: { id: number }) {
+  const router = useRouter();
+
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const fetchDataCalledRef = useRef(false);
 
   useEffect(() => {
     if (!fetchDataCalledRef.current) {
@@ -157,5 +158,13 @@ export default function DocumentViewer(props: { id: number }) {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function Page(props: { id: number }) {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <DocumentViewer id={props.id} />
+    </QueryClientProvider>
   );
 }
