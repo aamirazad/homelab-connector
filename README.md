@@ -8,6 +8,12 @@ This is a very unfinished project with many goals but few features. The vision i
 
 ### Paperless search
 
+#### Your paperlesss instance setup
+
+I hope to remove the need to do this but right now, you have to set the [PAPERLESS_CORS_ALLOWED_HOSTS](https://docs.paperless-ngx.com/configuration/#PAPERLESS_CORS_ALLOWED_HOSTS) on you docker compose env file to whatever url your using to connect to my website. This is to enable pdf preview which, to my understanding, won't let an external service download a pdf.
+
+#### Now, on my website
+
 It's very simple. Go to homelab connector with the link in the GitHub, sign in/create an account (use GitHub sign in). Then click on your icon at the top and click Settings. Here, you will put in your paperless URL and token. Then you can click paperless at the top, and you should be able to see a search box. Search for a document; after clicking on it, a popup should appear with a preview of the document, and (soon) you will see buttons to connect it to other stuff.
 
 ## Planned features
