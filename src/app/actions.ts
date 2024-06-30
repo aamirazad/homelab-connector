@@ -5,6 +5,7 @@ import type { UsersTableType } from "@/server/db/schema";
 import { users } from "@/server/db/schema";
 import type { PaperlessDocumentsType } from "@/types";
 import { auth } from "@clerk/nextjs/server";
+import type { AdviceAPIType } from "@/types";
 
 export async function setUserProperty<K extends keyof UsersTableType>(
   propertyName: K,
@@ -62,4 +63,18 @@ export async function getPaperlessDocuments(query: string) {
   const data = (await response.json()) as PaperlessDocumentsType;
 
   return data;
+}
+
+export async function getAdvice() {
+  try {
+    const response = await fetch("https://api.adviceslip.com/advice");
+    if (!response.ok) {
+      return null;
+    }
+    const data = (await response.json()) as { slip: { advice: string } };
+    return data.slip.advice;
+  } catch (error) {
+    console.error("Failed to fetch advice:", error);
+    return null;
+  }
 }
