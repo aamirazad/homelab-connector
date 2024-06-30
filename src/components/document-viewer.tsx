@@ -10,7 +10,8 @@ import {
   QueryClient,
   useQueryClient,
 } from "@tanstack/react-query";
-import { AdviceAPIType } from "@/types";
+import type { AdviceAPIType } from "@/types";
+import OpenInternalLink from "./internal-link";
 
 const queryClient = new QueryClient();
 
@@ -153,7 +154,9 @@ function DocumentViewer(props: { id: number }) {
             >
               <p>
                 Your web browser doesn&apos;t have a PDF plugin. Instead you can
-                <a href={pdfUrl}>click here to download the PDF file.</a>
+                <OpenInternalLink href={pdfUrl}>
+                  click here to download the PDF file.
+                </OpenInternalLink>
               </p>
             </object>
           </div>
