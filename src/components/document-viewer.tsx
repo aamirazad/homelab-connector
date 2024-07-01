@@ -52,8 +52,6 @@ function SkeletonLoader() {
     },
   });
 
-  console.log(advice?.slip);
-
   return (
     <div className="flex h-4/5 w-full justify-center">
       <div className="flex h-full min-w-0 justify-center md:w-1/2">
