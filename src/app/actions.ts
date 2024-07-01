@@ -71,7 +71,7 @@ export async function getAdvice() {
     if (!response.ok) {
       return null;
     }
-    const data = (await response.json()) as { slip: { advice: string } };
+    const data = (await response.json()) as AdviceAPIType;
     return data.slip.advice;
   } catch (error) {
     console.error("Failed to fetch advice:", error);
