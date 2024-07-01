@@ -47,8 +47,6 @@ function SkeletonLoader() {
     queryFn: getAdvice,
   });
 
-  console.log(advice);
-
   return (
     <div className="flex h-4/5 w-full justify-center">
       <div className="flex h-full min-w-0 justify-center md:w-1/2">
@@ -60,13 +58,7 @@ function SkeletonLoader() {
               <div className="absolute inset-0 animate-pulse rounded-lg bg-gray-400"></div>
               {/* Text Overlay */}
               <div className="z-10 flex items-center justify-center">
-                <div className="text-center text-black">
-                  {isLoading
-                    ? "Loading advice..."
-                    : advice === null
-                      ? "Unable to fetch advice"
-                      : advice}
-                </div>
+                <div className="text-center text-black">{advice}</div>
               </div>
             </div>
             {/* Button Skeleton */}
