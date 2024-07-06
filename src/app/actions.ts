@@ -3,7 +3,7 @@
 import { db } from "@/server/db";
 import type { UsersTableType } from "@/server/db/schema";
 import { users } from "@/server/db/schema";
-import type { PaperlessDocumentsType } from "@/types";
+import type { PaperlessDocumentsType, WhishperRecordingsType } from "@/types";
 import { auth } from "@clerk/nextjs/server";
 import type { AdviceAPIType } from "@/types";
 
@@ -96,18 +96,11 @@ export async function getWhishperRecordings(query: string) {
 
   if (!query || query == "null" || query.length < 3 || !userData) return null;
 
-  const response = await fetch(
-    `${userData.whishperURL}/api/documents/?query=${query}&page=1&page_size=10&truncate_content=true`,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Token ${userData.paperlessToken}`,
-      },
-    },
-  );
+  const response = await fetch(`${userData.whishperURL}/api/transcriptions`);
 
-  const data = (await response.json()) as PaperlessDocumentsType;
+  const data = (await response.json()) as WhishperRecordingsType;
+
+  console.log(data)
 
   return data;
 }

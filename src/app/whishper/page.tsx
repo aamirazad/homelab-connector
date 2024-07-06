@@ -17,9 +17,30 @@ import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useCallback } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { getUserData, getWhishperRecordings } from "../actions";
+import {
+  useQuery,
+  QueryClientProvider,
+  QueryClient,
+} from "@tanstack/react-query";
+import { getUserData } from "../actions";
 import LoadingSpinner from "@/components/loading-spinner";
+import { WhishperRecordingsType } from "@/types";
+
+async function getWhishperRecordings(query: string) {
+  const userData = await getUserData();
+
+  if (!query || query == "null" || query.length < 3 || !userData) return null;
+
+  const response = await fetch(`${userData.whishperURL}/api/transcriptions`);
+
+  const data = (await response.json()) as WhishperRecordingsType;
+
+  console.log(data);
+
+  return data;
+}
+
+const queryClient = new QueryClient();
 
 function SearchForm() {
   const formSchema = z.object({
@@ -100,20 +121,24 @@ function RecordingsList() {
     },
   });
 
+  if (!userData.data?.whishperURL) {
+    return (
+      <h1 className="text-2xl font-bold">
+        You need to set your whishper url in{" "}
+        <Link href="/settings">settings</Link>
+      </h1>
+    );
+  }
+
   if (!query) {
     return <h1 className="text-2xl font-bold">Start Searching!</h1>;
   }
 
   if (WhishperRecordings.isLoading || userData.isLoading) {
     return <LoadingSpinner>Loading...</LoadingSpinner>;
-  } else if (!userData.data?.whishperURL) {
-    return (
-      <h1 className="text-2xl font-bold">
-        You need to set your paperless url in{" "}
-        <Link href="/settings">settings</Link>
-      </h1>
-    );
-  } else if (!WhishperRecordings.data || WhishperRecordings.error) {
+  }
+
+  if (!WhishperRecordings.data || WhishperRecordings.error) {
     return (
       <h1 className="text-2xl font-bold">
         Connection failed! Check that the whishper url is set correctly in{" "}
@@ -122,9 +147,9 @@ function RecordingsList() {
     );
   }
 
-  const WhishperRecordingsMap = WhishperRecordings.data.results;
+  const WhishperRecordingsMap = WhishperRecordings.data;
 
-  if (WhishperRecordingsMap.length === 0) {
+  if (!WhishperRecordingsMap ?? WhishperRecordingsMap.length === 0) {
     return <h1 className="text-2xl font-bold">No results!</h1>;
   }
 
@@ -134,12 +159,12 @@ function RecordingsList() {
       <ul className="list-disc">
         {WhishperRecordingsMap.map((recording, index) => (
           <li className="underline" key={index}>
-            <Link
+            <a
               className="underline hover:text-slate-300"
-              href={`/paperless/document/${recording.id}?query=${query}`}
+              href={`${userData.data?.whishperURL}/editor/${recording.id}`}
             >
-              {recording.title}
-            </Link>
+              {recording.fileName.split("_WHSHPR_")[1]}
+            </a>
           </li>
         ))}
       </ul>
@@ -157,7 +182,16 @@ export default function WhishperPage() {
           </div>
         </SignedOut>
         <SignedIn>
-          <SearchForm />
+          <div className="flex w-full flex-col gap-8">
+            <div className="flex w-full justify-center">
+              <SearchForm />
+            </div>
+            <div className="w-full">
+              <QueryClientProvider client={queryClient}>
+                <RecordingsList />
+              </QueryClientProvider>
+            </div>
+          </div>
         </SignedIn>
       </div>
     </main>

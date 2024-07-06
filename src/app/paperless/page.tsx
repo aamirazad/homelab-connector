@@ -131,7 +131,7 @@ function DocumentsPage() {
 
   const paperlessDocumentMap = PaperlessDocuments.data.results;
 
-  if (paperlessDocumentMap.length === 0) {
+  if (!paperlessDocumentMap ?? paperlessDocumentMap.length === 0) {
     return <h1 className="text-2xl font-bold">No results!</h1>;
   }
 
@@ -165,7 +165,9 @@ export default function PaperlessPage() {
         </SignedOut>
         <SignedIn>
           <div className="flex w-full flex-col gap-8">
-            <DocumentsSearch />
+            <div className="flex w-full justify-center">
+              <DocumentsSearch />
+            </div>
             <div className="w-full">
               <QueryClientProvider client={queryClient}>
                 <DocumentsPage />

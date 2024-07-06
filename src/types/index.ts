@@ -68,6 +68,36 @@ export type PaperlessDocumentsType = {
   }[];
 };
 
+export type WhishperRecordingsType = {
+  id: string;
+  status: number;
+  language: string;
+  modelSize: string;
+  task: string;
+  device: string;
+  fileName: string;
+  sourceUrl: string;
+  result: {
+    language: string;
+    duration: number;
+    segments: {
+      end: number;
+      id: string;
+      start: number;
+      score: number;
+      text: string;
+      words: {
+        end: number;
+        start: number;
+        word: string;
+        score: number;
+      }[];
+    }[];
+    text: string;
+  };
+  translations: [];
+}[];
+
 export type AdviceAPIType = {
   slip: {
     slip_id: number;
