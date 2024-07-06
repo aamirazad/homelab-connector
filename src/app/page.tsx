@@ -1,4 +1,4 @@
-import OpenLinkInNewPage from "@/components/open-link-in-new-page";
+import OpenExternalLInk from "@/components/external-link";
 
 export default function HomePage() {
   return (
@@ -6,10 +6,10 @@ export default function HomePage() {
       <div>
         <div>Welcome to Homelab Connector</div>
         <div>
-          Check out the
-          <OpenLinkInNewPage href="https://github.com/aamirazad/homelab-connector/blob/main/README.md">
+          Check out the{" "}
+          <OpenExternalLInk href="https://github.com/aamirazad/homelab-connector/blob/main/README.md">
             README
-          </OpenLinkInNewPage>
+          </OpenExternalLInk>{" "}
           to get started.
         </div>
         <div>Or sign in to access the dashboard.</div>

@@ -24,6 +24,7 @@ import {
 import LoadingSpinner from "@/components/loading-spinner";
 import { getPaperlessDocuments, getUserData } from "@/app/actions";
 import Link from "next/link";
+import OpenInternalLink from "@/components/internal-link";
 
 const queryClient = new QueryClient();
 
@@ -115,15 +116,15 @@ function DocumentsPage() {
   } else if (!userData.data?.paperlessURL) {
     return (
       <h1 className="text-2xl font-bold">
-        You need to set your paperless url in{" "}
-        <Link href="/settings">settings</Link>
+        You need to set your paperless url in
+        <OpenInternalLink href="/settings">settings</OpenInternalLink>
       </h1>
     );
   } else if (!PaperlessDocuments.data || PaperlessDocuments.error) {
     return (
       <h1 className="text-2xl font-bold">
         Connection failed! Check that the paperless url/token is set correctly
-        in <Link href="/settings">settings</Link>
+        in <OpenInternalLink href="/settings">settings</OpenInternalLink>
       </h1>
     );
   }
@@ -158,8 +159,8 @@ export default function PaperlessPage() {
     <main className="">
       <div className="flex flex-col items-center justify-center">
         <SignedOut>
-          <div className="flex flex-col text-center text-2xl">
-            Please <Link href="/sign-in">sign in</Link>
+          <div className="text-center text-2xl">
+            Please <OpenInternalLink href="/sign-in">sign in</OpenInternalLink>
           </div>
         </SignedOut>
         <SignedIn>
