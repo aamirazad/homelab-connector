@@ -64,17 +64,3 @@ export async function getPaperlessDocuments(query: string) {
 
   return data;
 }
-
-export async function getAdvice() {
-  try {
-    const response = await fetch("https://api.adviceslip.com/advice");
-    if (!response.ok) {
-      return null;
-    }
-    const data = (await response.json()) as { slip: { advice: string } };
-    return data.slip.advice;
-  } catch (error) {
-    console.error("Failed to fetch advice:", error);
-    return null;
-  }
-}

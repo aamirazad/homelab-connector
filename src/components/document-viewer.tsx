@@ -8,7 +8,9 @@ import {
   useQuery,
   QueryClientProvider,
   QueryClient,
+  useQueryClient,
 } from "@tanstack/react-query";
+import { AdviceAPIType } from "@/types";
 
 const queryClient = new QueryClient();
 
@@ -44,10 +46,13 @@ async function getPaperlessDocument(
 function SkeletonLoader() {
   const { data: advice, isLoading } = useQuery({
     queryKey: ["advice"],
-    queryFn: getAdvice,
+    queryFn: async () => {
+      const response = await fetch("https://api.adviceslip.com/advice");
+      return (await response.json()) as AdviceAPIType;
+    },
   });
 
-  console.log(advice);
+  console.log(advice?.slip);
 
   return (
     <div className="flex h-4/5 w-full justify-center">
@@ -63,9 +68,9 @@ function SkeletonLoader() {
                 <div className="text-center text-black">
                   {isLoading
                     ? "Loading advice..."
-                    : advice === null
+                    : advice?.slip.advice === null
                       ? "Unable to fetch advice"
-                      : advice}
+                      : advice?.slip.advice}
                 </div>
               </div>
             </div>
