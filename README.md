@@ -1,6 +1,8 @@
 # Homelab Connector
 
 ![GitHub deployments](https://img.shields.io/github/deployments/aamirazad/homelab-connector/Production?label=build&logo=vercel)
+![GitHub License](https://img.shields.io/github/license/aamirazad/homelab-connector)
+
 
 ## About
 
