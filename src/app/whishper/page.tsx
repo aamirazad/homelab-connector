@@ -3,7 +3,7 @@
 import { SignedIn, SignedOut } from "@clerk/nextjs";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { array, z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -24,7 +24,11 @@ import {
 } from "@tanstack/react-query";
 import { getUserData } from "../actions";
 import LoadingSpinner from "@/components/loading-spinner";
-import { WhishperRecordingsType } from "@/types";
+import type { WhishperRecordingsType } from "@/types";
+import OpenInternalLink from "@/components/internal-link";
+import OpenExternalLInk from "@/components/external-link";
+
+const queryClient = new QueryClient();
 
 async function getWhishperRecordings(query: string) {
   const userData = await getUserData();
@@ -34,13 +38,13 @@ async function getWhishperRecordings(query: string) {
   const response = await fetch(`${userData.whishperURL}/api/transcriptions`);
 
   const data = (await response.json()) as WhishperRecordingsType;
-
-  console.log(data);
-
-  return data;
+  const lowerCaseQuery = query.toLowerCase();
+  return data.filter(
+    (item) =>
+      item.fileName.toLowerCase().includes(lowerCaseQuery) ||
+      item.result.text.toLowerCase().includes(lowerCaseQuery),
+  );
 }
-
-const queryClient = new QueryClient();
 
 function SearchForm() {
   const formSchema = z.object({
@@ -121,6 +125,10 @@ function RecordingsList() {
     },
   });
 
+  if (!query) {
+    return <h1 className="text-2xl font-bold">Start Searching!</h1>;
+  }
+
   if (!userData.data?.whishperURL) {
     return (
       <h1 className="text-2xl font-bold">
@@ -128,10 +136,6 @@ function RecordingsList() {
         <Link href="/settings">settings</Link>
       </h1>
     );
-  }
-
-  if (!query) {
-    return <h1 className="text-2xl font-bold">Start Searching!</h1>;
   }
 
   if (WhishperRecordings.isLoading || userData.isLoading) {
@@ -159,12 +163,12 @@ function RecordingsList() {
       <ul className="list-disc">
         {WhishperRecordingsMap.map((recording, index) => (
           <li className="underline" key={index}>
-            <a
+            <OpenExternalLInk
               className="underline hover:text-slate-300"
               href={`${userData.data?.whishperURL}/editor/${recording.id}`}
             >
               {recording.fileName.split("_WHSHPR_")[1]}
-            </a>
+            </OpenExternalLInk>
           </li>
         ))}
       </ul>
@@ -177,8 +181,8 @@ export default function WhishperPage() {
     <main className="">
       <div className="flex flex-col items-center justify-center">
         <SignedOut>
-          <div className="flex flex-col text-center text-2xl">
-            Please <Link href="/sign-in">sign in</Link>
+          <div className="text-center text-2xl">
+            Please <OpenInternalLink href="/sign-in">sign in</OpenInternalLink>
           </div>
         </SignedOut>
         <SignedIn>
