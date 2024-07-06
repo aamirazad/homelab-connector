@@ -129,7 +129,15 @@ function DocumentViewer(props: { id: number }) {
   }
 
   if (!pdfUrl) {
-    return <h1>Failed to get document</h1>;
+    return (
+      <div className="flex justify-center">
+        <div className="mx-auto max-w-sm rounded-lg bg-black p-4 shadow-md">
+          <h1 className="w-full text-center text-2xl font-bold">
+            Failed to get document
+          </h1>
+        </div>
+      </div>
+    );
   }
 
   return (
