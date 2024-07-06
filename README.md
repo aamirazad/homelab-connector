@@ -3,7 +3,6 @@
 ![GitHub deployments](https://img.shields.io/github/deployments/aamirazad/homelab-connector/Production?label=build&logo=vercel)
 ![GitHub License](https://img.shields.io/github/license/aamirazad/homelab-connector)
 
-
 ## About
 
 This is a very unfinished project with many goals but few features. The vision is for this website to be the one-stop shop to connect everything. But I'm starting with just homelab services. What do I mean connect? I mean obsidian connect. If you don't know how obsidian works or the idea behind it, you have these notes that you can link to each other to do very powerful things. So I thought I would bring that power to all my services. Here's an example use case: I have a paperless document that I scanned. Maybe it's a manual for a smart home appliance. So I can connect the manual to the home assistant appliance. Then maybe I have an obsidian note about all the ways I'm using the device, and I can connect it too. That way, I don't have to rely on search, which can sometimes be inefficient and inconsistent (for example, if you name the note in obsidian differently).
@@ -22,9 +21,11 @@ It's very simple. Go to homelab connector with the link in the GitHub, sign in/c
 
 ## Planned features
 
+- [x] [Paperless-ngx](https://paperless-ngx.com) functionality
+- [ ] [Whishper](https://whishper.net/) functionality
+- [ ] [Immich](https://immich.app/) functionality
+- [ ] [Home assistant](https://www.home-assistant.io/) functionality
+- [ ] [Obsidian](https://obsidian.md/) functionality
 - [ ] Connections
-- [ ] Immich functionality
-- [ ] Home assistant functionality
-- [ ] Obisidna functionality
 - [ ] Graph view
 - [ ] Self hostable
