@@ -3,7 +3,7 @@
 import { SignedIn, SignedOut } from "@clerk/nextjs";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { array, z } from "zod";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -27,6 +27,23 @@ import LoadingSpinner from "@/components/loading-spinner";
 import type { WhishperRecordingsType } from "@/types";
 import OpenInternalLink from "@/components/internal-link";
 import OpenExternalLInk from "@/components/external-link";
+import AudioViewer from "@/components/audio-viewer";
+import {
+  type ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { ExternalLink } from "lucide-react";
+import { columns } from "@/types";
 
 const queryClient = new QueryClient();
 
@@ -39,11 +56,27 @@ async function getWhishperRecordings(query: string) {
 
   const data = (await response.json()) as WhishperRecordingsType;
   const lowerCaseQuery = query.toLowerCase();
-  return data.filter(
-    (item) =>
-      item.fileName.toLowerCase().includes(lowerCaseQuery) ||
-      item.result.text.toLowerCase().includes(lowerCaseQuery),
-  );
+  const filteredAndScored = data
+    .filter(
+      (item) =>
+        item.fileName.toLowerCase().includes(lowerCaseQuery) ||
+        item.result.text.toLowerCase().includes(lowerCaseQuery),
+    )
+    .map((item) => {
+      const fileNameOccurrences = (
+        item.fileName.toLowerCase().match(new RegExp(lowerCaseQuery, "g")) ?? []
+      ).length;
+      const textOccurrences = (
+        item.result.text.toLowerCase().match(new RegExp(lowerCaseQuery, "g")) ??
+        []
+      ).length;
+      const score = fileNameOccurrences + textOccurrences;
+      return { ...item, score };
+    });
+  const sortedByScore = filteredAndScored.sort((a, b) => b.score - a.score);
+
+  // Step 4: Return the sorted array without the score
+  return sortedByScore.map(({ ...item }) => item);
 }
 
 function SearchForm() {
@@ -160,19 +193,73 @@ function RecordingsList() {
   return (
     <>
       <h1 className="text-2xl font-bold">Search Results</h1>
-      <ul className="list-disc">
-        {WhishperRecordingsMap.map((recording, index) => (
-          <li className="underline" key={index}>
-            <OpenExternalLInk
-              className="underline hover:text-slate-300"
-              href={`${userData.data?.whishperURL}/editor/${recording.id}`}
-            >
-              {recording.fileName.split("_WHSHPR_")[1]}
-            </OpenExternalLInk>
-          </li>
-        ))}
-      </ul>
+      <DataTable<WhishperRecordingsType, unknown>
+        data={WhishperRecordingsMap as WhishperRecordingsType[]}
+      />
     </>
+  );
+}
+
+interface DataTableProps<TData, TValue> {
+  columns: ColumnDef<TData, TValue>[];
+  data: TData[];
+}
+
+function DataTable<TData, TValue>({
+  columns,
+  data,
+}: DataTableProps<TData, TValue>) {
+  const table = useReactTable({
+    data,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+  });
+
+  return (
+    <div className="rounded-md border">
+      <Table>
+        <TableHeader>
+          {table.getHeaderGroups().map((headerGroup) => (
+            <TableRow key={headerGroup.id}>
+              {headerGroup.headers.map((header) => {
+                return (
+                  <TableHead key={header.id}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
+                  </TableHead>
+                );
+              })}
+            </TableRow>
+          ))}
+        </TableHeader>
+        <TableBody>
+          {table.getRowModel().rows?.length ? (
+            table.getRowModel().rows.map((row) => (
+              <TableRow
+                key={row.id}
+                data-state={row.getIsSelected() && "selected"}
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={columns.length} className="h-24 text-center">
+                No results.
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </div>
   );
 }
 

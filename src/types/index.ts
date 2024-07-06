@@ -1,3 +1,5 @@
+import type { ColumnDef } from "@tanstack/react-table";
+
 export type PaperlessSearchType = {
   total: number;
   documents: {
@@ -104,3 +106,18 @@ export type AdviceAPIType = {
     advice: string;
   };
 };
+
+export const columns: ColumnDef<WhishperRecordingsType>[] = [
+  {
+    accessorKey: "name",
+    header: "Name",
+  },
+  {
+    accessorKey: "status",
+    header: "Status",
+  },
+  {
+    accessorKey: "link",
+    header: "Link",
+  },
+];
