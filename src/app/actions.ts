@@ -5,6 +5,7 @@ import type { UsersTableType } from "@/server/db/schema";
 import { users } from "@/server/db/schema";
 import type { PaperlessDocumentsType } from "@/types";
 import { auth } from "@clerk/nextjs/server";
+import type { AdviceAPIType } from "@/types";
 
 export async function setUserProperty<K extends keyof UsersTableType>(
   propertyName: K,

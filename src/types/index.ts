@@ -67,3 +67,10 @@ export type PaperlessDocumentsType = {
     };
   }[];
 };
+
+export type AdviceAPIType = {
+  slip: {
+    slip_id: number;
+    advice: string;
+  };
+};

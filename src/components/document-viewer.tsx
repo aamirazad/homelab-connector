@@ -3,9 +3,18 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
-import { getUserData } from "@/app/actions";
+import { getAdvice, getUserData } from "@/app/actions";
+import {
+  useQuery,
+  QueryClientProvider,
+  QueryClient,
+  useQueryClient,
+} from "@tanstack/react-query";
+import { AdviceAPIType } from "@/types";
 
-export async function getPaperlessDocument(
+const queryClient = new QueryClient();
+
+async function getPaperlessDocument(
   documentId: number,
 ): Promise<string | null> {
   const userData = await getUserData();
@@ -34,22 +43,39 @@ export async function getPaperlessDocument(
   }
 }
 
-export default function DocumentViewer(props: { id: number }) {
-  const router = useRouter();
+function SkeletonLoader() {
+  const { data: advice, isLoading } = useQuery({
+    queryKey: ["advice"],
+    queryFn: async () => {
+      const response = await fetch("https://api.adviceslip.com/advice");
+      return (await response.json()) as AdviceAPIType;
+    },
+  });
 
-  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const fetchDataCalledRef = useRef(false);
+  console.log(advice?.slip);
 
-  const SkeletonLoader = () => (
+  return (
     <div className="flex h-4/5 w-full justify-center">
       <div className="flex h-full min-w-0 justify-center md:w-1/2">
         <div className="flex h-full w-full flex-col rounded-xl bg-slate-600/50">
-          <div className="m-4 flex flex-grow animate-pulse flex-col justify-center gap-8 md:m-8 md:flex-row md:gap-16">
+          <div className="m-4 flex h-full flex-grow flex-col justify-center gap-8 md:m-8 md:flex-row md:gap-16">
             {/* PDF Skeleton */}
-            <div className="h-full flex-shrink flex-grow rounded-lg bg-gray-400"></div>
+            <div className="relative flex h-full flex-shrink flex-grow items-center justify-center rounded-lg">
+              {/* Pulsing Background */}
+              <div className="absolute inset-0 animate-pulse rounded-lg bg-gray-400"></div>
+              {/* Text Overlay */}
+              <div className="z-10 flex items-center justify-center">
+                <div className="text-center text-black">
+                  {isLoading
+                    ? "Loading advice..."
+                    : advice?.slip.advice === null
+                      ? "Unable to fetch advice"
+                      : advice?.slip.advice}
+                </div>
+              </div>
+            </div>
             {/* Button Skeleton */}
-            <div className="flex flex-shrink-0 flex-col gap-8">
+            <div className="flex flex-shrink-0 animate-pulse flex-col gap-8">
               <div className="h-10 w-24 rounded-md bg-gray-400"></div>
               <div className="h-10 w-24 rounded-md bg-gray-400"></div>
               <div className="h-10 w-24 rounded-md bg-gray-400"></div>
@@ -63,6 +89,14 @@ export default function DocumentViewer(props: { id: number }) {
       </div>
     </div>
   );
+}
+
+function DocumentViewer(props: { id: number }) {
+  const router = useRouter();
+
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const fetchDataCalledRef = useRef(false);
 
   useEffect(() => {
     if (!fetchDataCalledRef.current) {
@@ -129,5 +163,13 @@ export default function DocumentViewer(props: { id: number }) {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function Page(props: { id: number }) {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <DocumentViewer id={props.id} />
+    </QueryClientProvider>
   );
 }
