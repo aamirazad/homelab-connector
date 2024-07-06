@@ -18,6 +18,7 @@ export const users = createTable("users", {
   userId: varchar("userId", { length: 256 }).notNull().unique(),
   paperlessURL: varchar("paperlessURL", { length: 256 }),
   paperlessToken: varchar("paperlessToken", { length: 256 }),
+  whishperURL: varchar("whishperURL", { length: 256 }),
 });
 
 export type UsersTableType = typeof users.$inferSelect;
