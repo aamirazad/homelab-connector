@@ -40,8 +40,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import OpenExternalLInk from "@/components/external-link";
-import { UsersTableType } from "@/server/db/schema";
+import OpenExternalLink from "@/components/external-link";
+import type { UsersTableType } from "@/server/db/schema";
 
 const queryClient = new QueryClient();
 
@@ -191,7 +191,7 @@ function RecordingsList() {
   return (
     <>
       <h1 className="text-2xl font-bold">Search Results</h1>
-      <DataTable data={WhishperRecordingsMap} />
+      <DataTable data={WhishperRecordingsMap} userData={userData.data} />
     </>
   );
 }
@@ -201,11 +201,11 @@ interface DataTableProps<TData> {
   userData: UsersTableType;
 }
 
-function DataTable<TData>({
+function DataTable<TData extends WhishperRecordingType>({
   data,
   userData,
 }: DataTableProps<TData>) {
-  const columns: ColumnDef<WhishperRecordingType>[] = [
+  const columns: ColumnDef<TData>[] = [
     {
       accessorFn: (recording) => {
         const name =
@@ -220,11 +220,9 @@ function DataTable<TData>({
     },
     {
       cell: ({ row }) => (
-        <OpenExternalLInk
+        <OpenExternalLink
           href={`${userData.whishperURL}/editor/${row.original.id}`}
-        >
-          Test
-        </OpenExternalLInk>
+        />
       ),
       header: "Link",
     },

@@ -3,7 +3,6 @@
 import OpenInternalLink from "@/components/internal-link";
 import LoadingSpinner from "@/components/loading-spinner";
 import { RedirectToSignIn, SignedIn, SignedOut } from "@clerk/nextjs";
-import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
 export default function SignIn() {

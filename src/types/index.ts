@@ -1,5 +1,3 @@
-import type { ColumnDef } from "@tanstack/react-table";
-
 export type PaperlessSearchType = {
   total: number;
   documents: {

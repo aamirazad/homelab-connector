@@ -4,12 +4,12 @@ import React from "react";
 import { cn } from "@/lib/utils";
 
 interface OpenLinkInNewPageProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   href: string;
   className?: string;
 }
 
-export default function OpenExternalLInk({
+export default function OpenExternalLink({
   children,
   href,
   className,
