@@ -24,10 +24,8 @@ import {
 } from "@tanstack/react-query";
 import { getUserData } from "../actions";
 import LoadingSpinner from "@/components/loading-spinner";
-import type { WhishperRecordingsType } from "@/types";
+import type { WhishperRecordingType } from "@/types";
 import OpenInternalLink from "@/components/internal-link";
-import OpenExternalLInk from "@/components/external-link";
-import AudioViewer from "@/components/audio-viewer";
 import {
   type ColumnDef,
   flexRender,
@@ -42,8 +40,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ExternalLink } from "lucide-react";
-import { columns } from "@/types";
+import OpenExternalLInk from "@/components/external-link";
+import { UsersTableType } from "@/server/db/schema";
 
 const queryClient = new QueryClient();
 
@@ -54,7 +52,7 @@ async function getWhishperRecordings(query: string) {
 
   const response = await fetch(`${userData.whishperURL}/api/transcriptions`);
 
-  const data = (await response.json()) as WhishperRecordingsType;
+  const data = (await response.json()) as WhishperRecordingType[];
   const lowerCaseQuery = query.toLowerCase();
   const filteredAndScored = data
     .filter(
@@ -162,6 +160,10 @@ function RecordingsList() {
     return <h1 className="text-2xl font-bold">Start Searching!</h1>;
   }
 
+  if (WhishperRecordings.isLoading || userData.isLoading) {
+    return <LoadingSpinner>Loading...</LoadingSpinner>;
+  }
+
   if (!userData.data?.whishperURL) {
     return (
       <h1 className="text-2xl font-bold">
@@ -169,10 +171,6 @@ function RecordingsList() {
         <Link href="/settings">settings</Link>
       </h1>
     );
-  }
-
-  if (WhishperRecordings.isLoading || userData.isLoading) {
-    return <LoadingSpinner>Loading...</LoadingSpinner>;
   }
 
   if (!WhishperRecordings.data || WhishperRecordings.error) {
@@ -193,22 +191,45 @@ function RecordingsList() {
   return (
     <>
       <h1 className="text-2xl font-bold">Search Results</h1>
-      <DataTable<WhishperRecordingsType, unknown>
-        data={WhishperRecordingsMap as WhishperRecordingsType[]}
-      />
+      <DataTable data={WhishperRecordingsMap} />
     </>
   );
 }
 
-interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
+interface DataTableProps<TData> {
   data: TData[];
+  userData: UsersTableType;
 }
 
-function DataTable<TData, TValue>({
-  columns,
+function DataTable<TData>({
   data,
-}: DataTableProps<TData, TValue>) {
+  userData,
+}: DataTableProps<TData>) {
+  const columns: ColumnDef<WhishperRecordingType>[] = [
+    {
+      accessorFn: (recording) => {
+        const name =
+          recording.fileName.split("_WHSHPR_")[1] ?? recording.fileName;
+        return name.replace(".m4a", "") ?? recording.fileName;
+      },
+      header: "Name",
+    },
+    {
+      accessorKey: "status",
+      header: "Status",
+    },
+    {
+      cell: ({ row }) => (
+        <OpenExternalLInk
+          href={`${userData.whishperURL}/editor/${row.original.id}`}
+        >
+          Test
+        </OpenExternalLInk>
+      ),
+      header: "Link",
+    },
+  ];
+
   const table = useReactTable({
     data,
     columns,

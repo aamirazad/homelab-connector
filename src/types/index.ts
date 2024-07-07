@@ -70,7 +70,7 @@ export type PaperlessDocumentsType = {
   }[];
 };
 
-export type WhishperRecordingsType = {
+export type WhishperRecordingType = {
   id: string;
   status: number;
   language: string;
@@ -98,7 +98,7 @@ export type WhishperRecordingsType = {
     text: string;
   };
   translations: [];
-}[];
+};
 
 export type AdviceAPIType = {
   slip: {
@@ -106,18 +106,3 @@ export type AdviceAPIType = {
     advice: string;
   };
 };
-
-export const columns: ColumnDef<WhishperRecordingsType>[] = [
-  {
-    accessorKey: "name",
-    header: "Name",
-  },
-  {
-    accessorKey: "status",
-    header: "Status",
-  },
-  {
-    accessorKey: "link",
-    header: "Link",
-  },
-];
