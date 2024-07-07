@@ -42,6 +42,7 @@ import {
 } from "@/components/ui/table";
 import OpenExternalLink from "@/components/external-link";
 import type { UsersTableType } from "@/server/db/schema";
+import { BadgeCheck, Badge, BadgeAlert } from "lucide-react";
 
 const queryClient = new QueryClient();
 
@@ -213,18 +214,31 @@ function DataTable<TData extends WhishperRecordingType>({
         return name.replace(".m4a", "") ?? recording.fileName;
       },
       header: "Name",
+      cell: ({ getValue, row }) => (
+        <OpenInternalLink href={`/whishper/recording/${row.original.fileName}`}>
+          {getValue() as string}
+        </OpenInternalLink>
+      ),
     },
     {
       accessorKey: "status",
       header: "Status",
+      cell: ({ getValue }) => {
+        const value = getValue();
+        if (value === 2) return <BadgeCheck color="#28a745" />;
+        if (value === 1) return <Badge />;
+        if (value === -1) return <BadgeAlert color="#ff0f0f" />;
+        return null;
+      },
     },
     {
+      accessorKey: "id",
+      header: "Link",
       cell: ({ row }) => (
         <OpenExternalLink
           href={`${userData.whishperURL}/editor/${row.original.id}`}
         />
       ),
-      header: "Link",
     },
   ];
 
