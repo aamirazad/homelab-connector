@@ -40,9 +40,7 @@ export async function setUserProperty<K extends keyof UsersTableType>(
 export async function getUserData() {
   const { userId } = auth();
 
-  if (!userId) {
-    return null;
-  }
+  if (!userId) return null;
 
   const userData = await db.query.users.findFirst({
     where: (model, { eq }) => eq(model.userId, userId),

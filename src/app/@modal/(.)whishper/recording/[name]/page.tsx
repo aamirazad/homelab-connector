@@ -1,13 +1,14 @@
 import { Modal } from "@/app/@modal/(.)paperless/document/[id]/modal";
+import AudioPreview from "@/components/audio-preview";
 
 export default function ModalAudioPreview({
   params,
 }: {
-  params: { id: number };
+  params: { name: string };
 }) {
   return (
     <Modal>
-      <div>Test</div>
+      <AudioPreview name={params.name} />
     </Modal>
   );
 }

@@ -1,7 +1,8 @@
 import OpenExternalLink from "@/components/external-link";
-import Link from "next/link";
+import { getUserData } from "./actions";
 
-export default function HomePage() {
+export default async function HomePage() {
+
   return (
     <main>
       <div>
@@ -14,7 +15,6 @@ export default function HomePage() {
           to get started.
         </div>
         <div>Or sign in to access the dashboard.</div>
-        <Link href="/paperless/document/2024_07_04">testing</Link>
       </div>
     </main>
   );

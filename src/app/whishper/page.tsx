@@ -192,7 +192,11 @@ function RecordingsList() {
   return (
     <>
       <h1 className="text-2xl font-bold">Search Results</h1>
-      <DataTable data={WhishperRecordingsMap} userData={userData.data} />
+      <DataTable
+        data={WhishperRecordingsMap}
+        userData={userData.data}
+        query={query}
+      />
     </>
   );
 }
@@ -200,11 +204,13 @@ function RecordingsList() {
 interface DataTableProps<TData> {
   data: TData[];
   userData: UsersTableType;
+  query: string;
 }
 
 function DataTable<TData extends WhishperRecordingType>({
   data,
   userData,
+  query,
 }: DataTableProps<TData>) {
   const columns: ColumnDef<TData>[] = [
     {
@@ -215,7 +221,9 @@ function DataTable<TData extends WhishperRecordingType>({
       },
       header: "Name",
       cell: ({ getValue, row }) => (
-        <OpenInternalLink href={`/whishper/recording/${row.original.fileName}`}>
+        <OpenInternalLink
+          href={`/whishper/recording/${row.original.fileName}?query=${query}`}
+        >
           {getValue() as string}
         </OpenInternalLink>
       ),
