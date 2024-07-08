@@ -26,7 +26,7 @@ After setting your whishper URL in the settings, go to the whishper page and ser
 ## Planned features
 
 - [x] [Paperless-ngx](https://paperless-ngx.com) functionality
-- [ ] [Whishper](https://whishper.net/) functionality
+- [x] [Whishper](https://whishper.net/) functionality
 - [ ] [Immich](https://immich.app/) functionality
 - [ ] [Home assistant](https://www.home-assistant.io/) functionality
 - [ ] [Obsidian](https://obsidian.md/) functionality
