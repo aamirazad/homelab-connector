@@ -4,7 +4,7 @@ import { db } from "@/server/db";
 import type { UsersTableType } from "@/server/db/schema";
 import { users } from "@/server/db/schema";
 import type { PaperlessDocumentsType } from "@/types";
-import { auth } from "@clerk/nextjs/server";
+import { auth, clerkMiddleware } from "@clerk/nextjs/server";
 
 /*
 Clerk helpers
@@ -38,6 +38,7 @@ export async function setUserProperty<K extends keyof UsersTableType>(
 }
 
 export async function getUserData() {
+  clerkMiddleware();
   const { userId } = auth();
 
   if (!userId) return null;
@@ -77,4 +78,19 @@ export async function getPaperlessDocuments(query: string) {
   const data = (await response.json()) as PaperlessDocumentsType;
 
   return data;
+}
+
+export async function getRecording(name: string): Promise<string | null> {
+  const userData: UsersTableType | undefined | null = await getUserData();
+  if (!userData) {
+    throw new Error("User data is undefined");
+  }
+
+  const url = `${userData.whishperURL}/api/documents/${name}/download/`;
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error("Failed to fetch recording");
+  }
+  const blob = await response.blob();
+  return URL.createObjectURL(blob);
 }

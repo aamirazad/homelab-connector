@@ -7,62 +7,43 @@ import {
   QueryClient,
 } from "@tanstack/react-query";
 import LoadingSpinner from "./loading-spinner";
-import { UsersTableType } from "@/server/db/schema";
+import type { UsersTableType } from "@/server/db/schema";
+import { getRecording } from "@/app/actions";
 
 const queryClient = new QueryClient();
 
-async function getRecording(
-  name: string,
-  userData: UsersTableType,
-): Promise<string | null> {
-  if (!userData) {
-    console.error("Error getting user data");
-    return null;
-  }
-
-  try {
-    const url = `${userData.whishperURL}/api/documents/${name}/download/`;
-    const response = await fetch(url);
-    console.log(response);
-    if (response.ok) {
-      const blob = await response.blob();
-      return URL.createObjectURL(blob);
-    } else {
-      console.error("Failed to fetch recording");
-      return null;
-    }
-  } catch (error) {
-    console.error("An error occurred:", error);
-    return null;
-  }
-}
-
 function Player(props: { name: string }) {
-  const user = useQuery({
-    queryKey: ["audioURL", props.name],
+  const {
+    data: userData,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["audioURL"],
     queryFn: async () => {
-      return getUserData;
+      return getUserData();
     },
   });
 
-  const url = useQuery({
-    queryKey: ["audioURL", props.name],
-    queryFn: async () => {
-      return getRecording(props.name, user.data);
-    },
+  const { data: url } = useQuery({
+    queryKey: ["url", props.name],
+    queryFn: getRecording,
   });
 
-  if (user.isLoading ?? url.isLoading) {
-    return <LoadingSpinner>Loading ...</LoadingSpinner>;
+  if (isLoading ?? !userData) {
+    return <LoadingSpinner>Loading...</LoadingSpinner>;
   }
 
-  return <p>{url.data}</p>;
+  if (error instanceof Error) {
+    return <p>Error: {error.message}</p>;
+  }
+
+  return <p>{url}</p>;
 }
 
-export default function AudioPreview(props: { name: string }) {
+export default function AudioPreview({ name }: { name: string }) {
   return (
     <QueryClientProvider client={queryClient}>
-      <Player name={props.name} />
+      <Player name={name} />
     </QueryClientProvider>
   );
 }

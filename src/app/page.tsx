@@ -1,5 +1,4 @@
 import OpenExternalLink from "@/components/external-link";
-import { getUserData } from "./actions";
 
 export default async function HomePage() {
 

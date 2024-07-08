@@ -46,7 +46,9 @@ import { BadgeCheck, Badge, BadgeAlert } from "lucide-react";
 
 const queryClient = new QueryClient();
 
-async function getWhishperRecordings(query: string) {
+async function getWhishperRecordings(
+  query: string,
+): Promise<WhishperRecordingType[] | null> {
   const userData = await getUserData();
 
   if (!query || query == "null" || query.length < 3 || !userData) return null;
