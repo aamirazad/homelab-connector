@@ -5,32 +5,43 @@ import {
   QueryClientProvider,
   QueryClient,
 } from "@tanstack/react-query";
+import LoadingSpinner from "./loading-spinner";
+import type { UsersTableType } from "@/server/db/schema";
 
 const queryClient = new QueryClient();
 
-async function fetchAudioUrl() {
+const fetchUserData = async (): Promise<UsersTableType> => {
   const response = await fetch(`/api/getUserData`);
   if (!response.ok) {
-    throw new Error("Network response was not ok");
+    throw new Error("Network error");
   }
-  return response.json();
-}
+  const data = (await response.json()) as UsersTableType;
+  return data;
+};
 
-async function Player(props: { name: string }) {
+function Player(props: { name: string }) {
   // Fetch user data using useQuery hook
 
-  const userData = useQuery({
+  const {
+    data: userData,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["userData"],
-    queryFn: async () => {
-      const data = await fetchAudioUrl();
-      return data;
-    },
+    queryFn: fetchUserData,
   });
+
+  if (isLoading) {
+    return <LoadingSpinner>Loading ...</LoadingSpinner>;
+  }
+  if (!userData?.whishperURL ?? error) {
+    return <h1>Failed to get whishper url</h1>;
+  }
 
   return (
     <audio controls={true}>
       <source
-        src="https://audio.typhon-sirius.ts.net/api/video/2024_07_04-230439000_WHSHPR_2024-05-18%20-%20Grandma%20telling%20me%20and%20dathi%20about%20the%20past.m4a"
+        src={`${userData.whishperURL}/api/video/${props.name}`}
         type="audio/mp4"
       />
     </audio>
