@@ -78,3 +78,8 @@ export async function getPaperlessDocuments(query: string) {
 
   return data;
 }
+
+export async function formatWhishperName(name: string) {
+  const frontPart = name.split("_WHSHPR_")[1] ?? name;
+  return frontPart.replace(".m4a", "") ?? name;
+}

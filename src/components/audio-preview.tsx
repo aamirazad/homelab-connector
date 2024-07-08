@@ -7,6 +7,7 @@ import {
 } from "@tanstack/react-query";
 import type { UsersTableType } from "@/server/db/schema";
 import { Button } from "@/components/ui/button";
+import { formatWhishperName } from "@/app/actions";
 
 const queryClient = new QueryClient();
 
@@ -22,18 +23,20 @@ const fetchUserData = async (): Promise<UsersTableType> => {
 function SkeletonLoader() {
   return (
     <div className="flex h-1/5 w-full justify-center">
-      <div className="flex h-full justify-center md:w-1/3">
+      <div className="flex h-full justify-center md:w-1/2">
         <div className="flex h-full w-full flex-col rounded-xl bg-slate-600/50">
-          <div className="m-4 flex h-full flex-grow flex-col items-center justify-center">
-            {/* Long Pill Skeleton */}
-            <div className="mb-2 flex w-full flex-grow justify-center">
-              <div className="h-12 w-full animate-pulse rounded-full bg-gray-400 md:w-3/4"></div>
+          <div className="m-4 flex h-full flex-grow flex-col justify-center">
+            {/* Title Skeleton */}
+            <div className="h-6 w-3/4 animate-pulse rounded-md bg-gray-300"></div>
+            {/* Audio Skeleton */}
+            <div className="my-2 flex w-full flex-grow justify-center">
+              <div className="h-10 w-full animate-pulse rounded-md bg-gray-300 md:w-3/4"></div>
             </div>
-            {/* Button Skeleton */}
-            <div className="flex animate-pulse justify-center gap-12">
-              <div className="h-10 w-24 rounded-md bg-gray-400" />
-              <div className="h-10 w-24 rounded-md bg-gray-400" />
-              <div className="h-10 w-24 rounded-md bg-gray-400" />
+            {/* Button Skeletons */}
+            <div className="flex w-full flex-shrink-0 justify-between">
+              <div className="h-10 w-24 animate-pulse rounded-md bg-gray-300"></div>
+              <div className="h-10 w-24 animate-pulse rounded-md bg-gray-300"></div>
+              <div className="h-10 w-24 animate-pulse rounded-md bg-gray-300"></div>
             </div>
           </div>
         </div>
@@ -47,14 +50,18 @@ function AudioInfo(props: { name: string }) {
 
   const {
     data: userData,
-    isLoading,
+    isLoading: isUserDataLoading,
     error,
   } = useQuery({
     queryKey: ["userData"],
     queryFn: fetchUserData,
   });
 
-  if (isLoading) {
+  const decodedName = decodeURIComponent(props.name);
+  const frontPart = decodedName.split("_WHSHPR_")[1] ?? decodedName;
+  const formattedName = frontPart.replace(".m4a", "") ?? decodedName;
+
+  if (isUserDataLoading) {
     return <SkeletonLoader />;
   }
   if (!userData?.whishperURL ?? error) {
@@ -62,15 +69,15 @@ function AudioInfo(props: { name: string }) {
   }
 
   return (
-    <div className="flex h-1/5 w-full justify-center">
+    <div className="flex w-full justify-center">
       <div className="flex h-full justify-center md:w-1/2">
         <div className="flex h-full w-full flex-col rounded-xl bg-slate-600/50">
-          <div className="m-4 flex h-full flex-grow flex-col justify-center">
-            <div className="mb-4 w-full animate-pulse">
-              <div className="h-6 w-3/4 rounded-md bg-gray-500"></div>
-            </div>
+          <div className="m-4 flex h-full flex-grow flex-col justify-center gap-4">
+            <h1 className="h-6 w-3/4 rounded-md bg-gradient-to-r from-blue-500 to-purple-500 text-lg text-white">
+              {formattedName}
+            </h1>
             {/* Audio */}
-            <div className="mb-2 flex w-full flex-grow justify-center">
+            <div className="flex w-full flex-grow justify-center">
               <audio controls={true} className="w-full md:w-3/4">
                 <source
                   src={`${userData.whishperURL}/api/video/${props.name}`}
@@ -79,9 +86,9 @@ function AudioInfo(props: { name: string }) {
               </audio>
             </div>
             <div className="flex w-full flex-shrink-0 animate-pulse justify-between">
-              <Button />
-              <Button />
-              <Button />
+              {Array.from({ length: 5 }, (_, index) => (
+                <Button key={index} />
+              ))}
             </div>
           </div>
         </div>

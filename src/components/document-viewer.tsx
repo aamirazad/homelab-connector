@@ -60,7 +60,7 @@ function SkeletonLoader() {
             {/* PDF Skeleton */}
             <div className="relative flex h-full flex-shrink flex-grow items-center justify-center rounded-lg">
               {/* Pulsing Background */}
-              <div className="absolute inset-0 animate-pulse rounded-lg bg-gray-400"></div>
+              <div className="absolute inset-0 animate-pulse rounded-lg bg-gray-400" />
               {/* Text Overlay */}
               <div className="z-10 flex items-center justify-center">
                 <div className="text-center text-black">
@@ -74,13 +74,9 @@ function SkeletonLoader() {
             </div>
             {/* Button Skeleton */}
             <div className="flex flex-shrink-0 animate-pulse flex-col gap-8">
-              <div className="h-10 w-24 rounded-md bg-gray-400"></div>
-              <div className="h-10 w-24 rounded-md bg-gray-400"></div>
-              <div className="h-10 w-24 rounded-md bg-gray-400"></div>
-              <div className="h-10 w-24 rounded-md bg-gray-400"></div>
-              <div className="h-10 w-24 rounded-md bg-gray-400"></div>
-              <div className="h-10 w-24 rounded-md bg-gray-400"></div>
-              <div className="h-10 w-24 rounded-md bg-gray-400"></div>
+              {Array.from({ length: 7 }, (_, index) => (
+                <div key={index} className="h-10 w-24 rounded-md bg-gray-400" />
+              ))}
             </div>
           </div>
         </div>

@@ -22,7 +22,7 @@ import {
   QueryClientProvider,
   QueryClient,
 } from "@tanstack/react-query";
-import { getUserData } from "../actions";
+import { formatWhishperName, getUserData } from "../actions";
 import LoadingSpinner from "@/components/loading-spinner";
 import type { WhishperRecordingType } from "@/types";
 import OpenInternalLink from "@/components/internal-link";
