@@ -22,9 +22,8 @@ import {
   QueryClientProvider,
   QueryClient,
 } from "@tanstack/react-query";
-import { formatWhishperName, getUserData } from "../actions";
+import { getUserData, getWhishperRecordings } from "../actions";
 import LoadingSpinner from "@/components/loading-spinner";
-import type { WhishperRecordingType } from "@/types";
 import OpenInternalLink from "@/components/internal-link";
 import {
   type ColumnDef,
@@ -46,39 +45,7 @@ import { BadgeCheck, Badge, BadgeAlert } from "lucide-react";
 
 const queryClient = new QueryClient();
 
-async function getWhishperRecordings(
-  query: string,
-): Promise<WhishperRecordingType[] | null> {
-  const userData = await getUserData();
 
-  if (!query || query == "null" || query.length < 3 || !userData) return null;
-
-  const response = await fetch(`${userData.whishperURL}/api/transcriptions`);
-
-  const data = (await response.json()) as WhishperRecordingType[];
-  const lowerCaseQuery = query.toLowerCase();
-  const filteredAndScored = data
-    .filter(
-      (item) =>
-        item.fileName.toLowerCase().includes(lowerCaseQuery) ||
-        item.result.text.toLowerCase().includes(lowerCaseQuery),
-    )
-    .map((item) => {
-      const fileNameOccurrences = (
-        item.fileName.toLowerCase().match(new RegExp(lowerCaseQuery, "g")) ?? []
-      ).length;
-      const textOccurrences = (
-        item.result.text.toLowerCase().match(new RegExp(lowerCaseQuery, "g")) ??
-        []
-      ).length;
-      const score = fileNameOccurrences + textOccurrences;
-      return { ...item, score };
-    });
-  const sortedByScore = filteredAndScored.sort((a, b) => b.score - a.score);
-
-  // Step 4: Return the sorted array without the score
-  return sortedByScore.map(({ ...item }) => item);
-}
 
 function SearchForm() {
   const formSchema = z.object({
@@ -193,7 +160,7 @@ function RecordingsList() {
 
   return (
     <>
-      <h1 className="text-2xl font-bold">Search Results</h1>
+      <h1 className="text-2xl font-bold mb-4">Search Results</h1>
       <DataTable
         data={WhishperRecordingsMap}
         userData={userData.data}

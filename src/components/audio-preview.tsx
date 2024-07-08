@@ -7,7 +7,9 @@ import {
 } from "@tanstack/react-query";
 import type { UsersTableType } from "@/server/db/schema";
 import { Button } from "@/components/ui/button";
-import { formatWhishperName } from "@/app/actions";
+import { useRouter } from "next/navigation";
+import { ChevronLeft, ExternalLink } from "lucide-react";
+import { getWhishperRecordings } from "@/app/actions";
 
 const queryClient = new QueryClient();
 
@@ -22,21 +24,21 @@ const fetchUserData = async (): Promise<UsersTableType> => {
 
 function SkeletonLoader() {
   return (
-    <div className="flex h-1/5 w-full justify-center">
+    <div className="flex w-full justify-center">
       <div className="flex h-full justify-center md:w-1/2">
         <div className="flex h-full w-full flex-col rounded-xl bg-slate-600/50">
-          <div className="m-4 flex h-full flex-grow flex-col justify-center">
+          <div className="m-4 flex h-full flex-grow flex-col justify-center gap-9">
             {/* Title Skeleton */}
-            <div className="h-6 w-3/4 animate-pulse rounded-md bg-gray-300"></div>
+            <div className="h-6 w-3/4 animate-pulse rounded-md bg-gray-300 px-2 py-1"></div>
             {/* Audio Skeleton */}
             <div className="my-2 flex w-full flex-grow justify-center">
               <div className="h-10 w-full animate-pulse rounded-md bg-gray-300 md:w-3/4"></div>
             </div>
             {/* Button Skeletons */}
-            <div className="flex w-full flex-shrink-0 justify-between">
-              <div className="h-10 w-24 animate-pulse rounded-md bg-gray-300"></div>
-              <div className="h-10 w-24 animate-pulse rounded-md bg-gray-300"></div>
-              <div className="h-10 w-24 animate-pulse rounded-md bg-gray-300"></div>
+            <div className="flex w-full flex-shrink-0 animate-pulse justify-between">
+              {Array.from({ length: 5 }, (_, index) => (
+                <Button className="w-24" key={index} />
+              ))}
             </div>
           </div>
         </div>
@@ -46,7 +48,7 @@ function SkeletonLoader() {
 }
 
 function AudioInfo(props: { name: string }) {
-  // Fetch user data using useQuery hook
+  const router = useRouter();
 
   const {
     data: userData,
@@ -72,10 +74,18 @@ function AudioInfo(props: { name: string }) {
     <div className="flex w-full justify-center">
       <div className="flex h-full justify-center md:w-1/2">
         <div className="flex h-full w-full flex-col rounded-xl bg-slate-600/50">
-          <div className="m-4 flex h-full flex-grow flex-col justify-center gap-4">
-            <h1 className="h-6 w-3/4 rounded-md bg-gradient-to-r from-blue-500 to-purple-500 text-lg text-white">
+          <div className="m-4 flex h-full flex-grow flex-col justify-center gap-9">
+            <div className="rounded-md bg-gradient-to-r from-indigo-900 to-purple-900 px-2 py-1 text-xl text-white">
               {formattedName}
-            </h1>
+              <Button
+                className="place-self-end rounded-full border-none bg-slate-500/60 hover:bg-slate-500/90"
+                variant="outline"
+                size="icon"
+                onClick={() => router.back()}
+              >
+                <ChevronLeft />
+              </Button>
+            </div>
             {/* Audio */}
             <div className="flex w-full flex-grow justify-center">
               <audio controls={true} className="w-full md:w-3/4">
@@ -85,10 +95,21 @@ function AudioInfo(props: { name: string }) {
                 />
               </audio>
             </div>
-            <div className="flex w-full flex-shrink-0 animate-pulse justify-between">
-              {Array.from({ length: 5 }, (_, index) => (
-                <Button key={index} />
-              ))}
+            <div className="flex w-full flex-shrink-0 justify-between">
+              <Button className="w-24">
+                <ExternalLink /> Open
+              </Button>
+              <Button className="w-24">Download</Button>
+              <form
+                action={async () => {
+                  "use server";
+                  await getWhishperRecordings(props.name);
+                }}
+              >
+                <Button className="w-24" variant="destructive">
+                  Delete
+                </Button>
+              </form>
             </div>
           </div>
         </div>
