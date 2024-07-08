@@ -6,44 +6,39 @@ import {
   QueryClientProvider,
   QueryClient,
 } from "@tanstack/react-query";
-import LoadingSpinner from "./loading-spinner";
-import type { UsersTableType } from "@/server/db/schema";
-import { getRecording } from "@/app/actions";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 const queryClient = new QueryClient();
 
+async function getthedata() {
+  const userData = await getUserData();
+  if (!userData) {
+    console.error("Error getting user data");
+    return null;
+  }
+  return userData;
+}
+
 function Player(props: { name: string }) {
-  const {
-    data: userData,
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ["audioURL"],
-    queryFn: async () => {
-      return getUserData();
-    },
-  });
+  // Fetch user data using useQuery hook
 
-  const { data: url } = useQuery({
-    queryKey: ["url", props.name],
-    queryFn: getRecording,
-  });
+  console.log("User data:", userData);
 
-  if (isLoading ?? !userData) {
-    return <LoadingSpinner>Loading...</LoadingSpinner>;
-  }
-
-  if (error instanceof Error) {
-    return <p>Error: {error.message}</p>;
-  }
-
-  return <p>{url}</p>;
+  return (
+    <audio controls={true}>
+      <source
+        src="https://audio.typhon-sirius.ts.net/api/video/2024_07_04-230439000_WHSHPR_2024-05-18%20-%20Grandma%20telling%20me%20and%20dathi%20about%20the%20past.m4a"
+        type="audio/mp4"
+      />
+    </audio>
+  );
 }
 
 export default function AudioPreview({ name }: { name: string }) {
   return (
     <QueryClientProvider client={queryClient}>
       <Player name={name} />
+      <ReactQueryDevtools initialIsOpen={true} />
     </QueryClientProvider>
   );
 }

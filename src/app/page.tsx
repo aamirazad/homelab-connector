@@ -1,10 +1,45 @@
+// Fixed code: Moved the QueryClientProvider and ReactQueryDevtools to wrap the entire component, ensuring React Query's context is available throughout the component.
+
 import OpenExternalLink from "@/components/external-link";
-import { getRecording } from "./actions";
-export default async function HomePage() {
-  const url =
-    "https://audio.typhon-sirius.ts.net/api/video/2024_07_04-230439000_WHSHPR_2024-05-18%20-%20Grandma%20telling%20me%20and%20dathi%20about%20the%20past.m4a/download/";
-  const response = await fetch(url);
-  console.log(response);
+import { getUserData } from "@/app/actions";
+import {
+  useQuery,
+  QueryClientProvider,
+  QueryClient,
+} from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+
+const queryClient = new QueryClient();
+
+export default function HomePage() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <Content />
+      <ReactQueryDevtools initialIsOpen={true} />
+    </QueryClientProvider>
+  );
+}
+
+function Content() {
+  const {
+    data: userData,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ["userData"],
+    queryFn: getUserData,
+  });
+
+  if (isLoading) {
+    console.log("Loading user data...");
+  }
+
+  if (isError) {
+    console.error("Error fetching user data:", error);
+  }
+
+  console.log("User data:", userData);
   return (
     <main>
       <div>
@@ -17,12 +52,6 @@ export default async function HomePage() {
           to get started.
         </div>
         <div>Or sign in to access the dashboard.</div>
-        <audio controls="controls" autoplay="autoplay">
-          <source
-            src="https://audio.typhon-sirius.ts.net/api/video/2024_07_04-230439000_WHSHPR_2024-05-18%20-%20Grandma%20telling%20me%20and%20dathi%20about%20the%20past.m4a"
-            type="audio/mp4"
-          />
-        </audio>
       </div>
     </main>
   );
