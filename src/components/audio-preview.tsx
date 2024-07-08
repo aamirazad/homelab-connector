@@ -1,28 +1,31 @@
 "use client";
 
-import { getUserData } from "@/app/actions";
 import {
   useQuery,
   QueryClientProvider,
   QueryClient,
 } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 const queryClient = new QueryClient();
 
-async function getthedata() {
-  const userData = await getUserData();
-  if (!userData) {
-    console.error("Error getting user data");
-    return null;
+async function fetchAudioUrl() {
+  const response = await fetch(`/api/getUserData`);
+  if (!response.ok) {
+    throw new Error("Network response was not ok");
   }
-  return userData;
+  return response.json();
 }
 
-function Player(props: { name: string }) {
+async function Player(props: { name: string }) {
   // Fetch user data using useQuery hook
 
-  console.log("User data:", userData);
+  const userData = useQuery({
+    queryKey: ["userData"],
+    queryFn: async () => {
+      const data = await fetchAudioUrl();
+      return data;
+    },
+  });
 
   return (
     <audio controls={true}>
@@ -38,7 +41,6 @@ export default function AudioPreview({ name }: { name: string }) {
   return (
     <QueryClientProvider client={queryClient}>
       <Player name={name} />
-      <ReactQueryDevtools initialIsOpen={true} />
     </QueryClientProvider>
   );
 }
