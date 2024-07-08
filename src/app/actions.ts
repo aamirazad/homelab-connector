@@ -81,7 +81,7 @@ export async function getPaperlessDocuments(query: string) {
 }
 
 export async function getRecording(name: string): Promise<string | null> {
-  const userData: UsersTableType | undefined | null = await getUserData();
+  const userData = await getUserData();
   if (!userData) {
     throw new Error("User data is undefined");
   }
@@ -89,6 +89,7 @@ export async function getRecording(name: string): Promise<string | null> {
   const url = `${userData.whishperURL}/api/documents/${name}/download/`;
   const response = await fetch(url);
   if (!response.ok) {
+    console.log(response);
     throw new Error("Failed to fetch recording");
   }
   const blob = await response.blob();
