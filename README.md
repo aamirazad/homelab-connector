@@ -19,6 +19,10 @@ I hope to remove the need to do this but right now, you have to set the [PAPERLE
 
 It's very simple. Go to homelab connector with the link in the GitHub, sign in/create an account (use GitHub sign in). Then click on your icon at the top and click Settings. Here, you will put in your paperless URL and token. Then you can click paperless at the top, and you should be able to see a search box. Search for a document; after clicking on it, a popup should appear with a preview of the document, and (soon) you will see buttons to connect it to other stuff.
 
+### Whishper
+
+After setting your whishper URL in the settings, go to the whishper page and serach for a recording. THis will not only search the names of the reocrdings, but also the transcriptions. After searching, you will see the name of the recording as well as it's transcription status and a link to it on the whishper page. It is important to note that whishper, as of right now, doens't have any authenticaiton. My service will assume the service is not accessable to the public web (cause it should not) and will only connect to it using your computer. After clicking on a recording, a popup will appear with a preview of the recording and buttons which will soon have powerful functionality.
+
 ## Planned features
 
 - [x] [Paperless-ngx](https://paperless-ngx.com) functionality
