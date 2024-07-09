@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Button } from "./ui/button";
+import { Button, buttonVariants } from "./ui/button";
 import { useRouter } from "next/navigation";
 import { getUserData } from "@/app/actions";
 import {
@@ -11,6 +11,9 @@ import {
 } from "@tanstack/react-query";
 import type { AdviceAPIType } from "@/types";
 import OpenInternalLink from "./internal-link";
+import { ExternalLink } from "lucide-react";
+import OpenExternalLink from "./external-link";
+import { UsersTableType } from "@/server/db/schema";
 
 const queryClient = new QueryClient();
 
@@ -85,6 +88,15 @@ function SkeletonLoader() {
   );
 }
 
+const fetchUserData = async (): Promise<UsersTableType> => {
+  const response = await fetch(`/api/getUserData`);
+  if (!response.ok) {
+    throw new Error("Network error");
+  }
+  const data = (await response.json()) as UsersTableType;
+  return data;
+};
+
 function DocumentViewer(props: { id: number }) {
   const router = useRouter();
 
@@ -120,11 +132,16 @@ function DocumentViewer(props: { id: number }) {
     }
   }, [props.id]); // Include props.id in the dependency array if refetch is needed on id change
 
-  if (loading) {
+  const { data: userData, isLoading: isUserDataLoading } = useQuery({
+    queryKey: ["userData"],
+    queryFn: fetchUserData,
+  });
+
+  if (loading ?? isUserDataLoading) {
     return <SkeletonLoader />;
   }
 
-  if (!pdfUrl) {
+  if (!pdfUrl || !userData) {
     return (
       <div className="flex justify-center">
         <div className="mx-auto max-w-sm rounded-lg bg-black p-4 shadow-md">
@@ -164,11 +181,14 @@ function DocumentViewer(props: { id: number }) {
             >
               Back
             </Button>
-            <Button asChild>
-              <a href={pdfUrl} download="document.pdf" className="no-underline">
-                <Button>Download</Button>
-              </a>
-            </Button>
+            <a
+              href="path_to_file"
+              download="proposed_file_name"
+              className={`${buttonVariants({ variant: "default" })}`}
+            >
+              Download
+            </a>
+            <OpenExternalLink href={`${userData.paperlessURL}`}>Open</OpenExternalLink>
           </div>
         </div>
       </div>
