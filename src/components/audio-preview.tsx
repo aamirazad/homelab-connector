@@ -9,7 +9,6 @@ import type { UsersTableType } from "@/server/db/schema";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, ExternalLink } from "lucide-react";
-import { getWhishperRecordings } from "@/app/actions";
 
 const queryClient = new QueryClient();
 
@@ -75,10 +74,10 @@ function AudioInfo(props: { name: string }) {
       <div className="flex h-full justify-center md:w-1/2">
         <div className="flex h-full w-full flex-col rounded-xl bg-slate-600/50">
           <div className="m-4 flex h-full flex-grow flex-col justify-center gap-9">
-            <div className="rounded-md bg-gradient-to-r from-indigo-900 to-purple-900 px-2 py-1 text-xl text-white">
+            <div className="flex flex-row items-center justify-between gap-2 rounded-md bg-gradient-to-r from-indigo-900 to-purple-900 px-2 py-1 text-xl text-white">
               {formattedName}
               <Button
-                className="place-self-end rounded-full border-none bg-slate-500/60 hover:bg-slate-500/90"
+                className="rounded-full border-none bg-slate-500/60 hover:bg-slate-500/90"
                 variant="outline"
                 size="icon"
                 onClick={() => router.back()}
@@ -95,21 +94,14 @@ function AudioInfo(props: { name: string }) {
                 />
               </audio>
             </div>
-            <div className="flex w-full flex-shrink-0 justify-between">
+            <div className="flex w-full flex-shrink-0 justify-center gap-12">
               <Button className="w-24">
                 <ExternalLink /> Open
               </Button>
               <Button className="w-24">Download</Button>
-              <form
-                action={async () => {
-                  "use server";
-                  await getWhishperRecordings(props.name);
-                }}
-              >
-                <Button className="w-24" variant="destructive">
-                  Delete
-                </Button>
-              </form>
+              <Button className="w-24" variant="destructive">
+                Delete
+              </Button>
             </div>
           </div>
         </div>

@@ -42,10 +42,9 @@ import {
 import OpenExternalLink from "@/components/external-link";
 import type { UsersTableType } from "@/server/db/schema";
 import { BadgeCheck, Badge, BadgeAlert } from "lucide-react";
+import type { WhishperRecordingType } from "@/types";
 
 const queryClient = new QueryClient();
-
-
 
 function SearchForm() {
   const formSchema = z.object({
@@ -160,7 +159,7 @@ function RecordingsList() {
 
   return (
     <>
-      <h1 className="text-2xl font-bold mb-4">Search Results</h1>
+      <h1 className="mb-4 text-2xl font-bold">Search Results</h1>
       <DataTable
         data={WhishperRecordingsMap}
         userData={userData.data}
