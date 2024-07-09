@@ -1,4 +1,4 @@
-import { Modal } from "@/app/@modal/(.)paperless/document/[id]/modal";
+import { Modal } from "@/components/modal";
 import AudioPreview from "@/components/audio-preview";
 
 export default function ModalAudioPreview({

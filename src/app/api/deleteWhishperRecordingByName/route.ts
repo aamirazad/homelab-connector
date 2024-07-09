@@ -1,4 +1,5 @@
-import { getUserData, getWhishperRecordings } from "@/app/actions";
+import { getUserData } from "@/app/actions";
+import { getWhishperRecordings } from "@/app/whishper/page";
 
 export async function DELETE(req: Request) {
   const url = new URL(req.url);

@@ -1,5 +1,5 @@
 import DocumentViewer from "@/components/document-viewer";
-import { Modal } from "./modal";
+import { Modal } from "../../../../../components/modal";
 
 export default function ModalDocumentPage({
   params,
