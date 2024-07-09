@@ -312,7 +312,10 @@ export default function WhishperPage() {
       <div className="flex flex-col items-center justify-center">
         <SignedOut>
           <div className="text-center text-2xl">
-            Please <OpenInternalLink href="/sign-in">sign in</OpenInternalLink>
+            Please{" "}
+            <OpenInternalLink href="/sign-in?redirect=/whishper">
+              sign in
+            </OpenInternalLink>
           </div>
         </SignedOut>
         <SignedIn>
