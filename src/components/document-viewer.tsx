@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
 import { Button, buttonVariants } from "./ui/button";
 import { useRouter } from "next/navigation";
 import { getUserData } from "@/app/actions";
@@ -177,7 +176,7 @@ function DocumentViewer(props: { id: number }) {
               </p>
             </object>
           </div>
-          <div className="flex flex-shrink-0 flex-col gap-8">
+          <div className="flex flex-col gap-8">
             <Button
               onClick={(e) => {
                 e.preventDefault();
