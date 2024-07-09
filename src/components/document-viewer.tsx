@@ -164,6 +164,11 @@ function DocumentViewer(props: { id: number }) {
             >
               Back
             </Button>
+            <Button asChild>
+              <a href={pdfUrl} download="document.pdf" className="no-underline">
+                <Button>Download</Button>
+              </a>
+            </Button>
           </div>
         </div>
       </div>
