@@ -3,7 +3,7 @@
 import { SignedIn, SignedOut } from "@clerk/nextjs";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { array, z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -14,6 +14,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useCallback } from "react";
 import {
@@ -21,14 +22,31 @@ import {
   QueryClientProvider,
   QueryClient,
 } from "@tanstack/react-query";
+import { getUserData } from "../actions";
 import LoadingSpinner from "@/components/loading-spinner";
-import { getPaperlessDocuments, getUserData } from "@/app/actions";
-import Link from "next/link";
+import type { WhishperRecordingsType } from "@/types";
 import OpenInternalLink from "@/components/internal-link";
+import OpenExternalLInk from "@/components/external-link";
 
 const queryClient = new QueryClient();
 
-function DocumentsSearch() {
+async function getWhishperRecordings(query: string) {
+  const userData = await getUserData();
+
+  if (!query || query == "null" || query.length < 3 || !userData) return null;
+
+  const response = await fetch(`${userData.whishperURL}/api/transcriptions`);
+
+  const data = (await response.json()) as WhishperRecordingsType;
+  const lowerCaseQuery = query.toLowerCase();
+  return data.filter(
+    (item) =>
+      item.fileName.toLowerCase().includes(lowerCaseQuery) ||
+      item.result.text.toLowerCase().includes(lowerCaseQuery),
+  );
+}
+
+function SearchForm() {
   const formSchema = z.object({
     query: z.string().min(3).max(256),
   });
@@ -66,7 +84,7 @@ function DocumentsSearch() {
           name="query"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Search for documents</FormLabel>
+              <FormLabel>Search for your voice recordings</FormLabel>
               <FormControl>
                 <Input {...field} />
               </FormControl>
@@ -82,17 +100,17 @@ function DocumentsSearch() {
   );
 }
 
-function DocumentsPage() {
+function RecordingsList() {
   const searchParams = useSearchParams();
   const query = searchParams.get("query");
 
-  const PaperlessDocuments = useQuery({
+  const WhishperRecordings = useQuery({
     queryKey: ["key", query],
     queryFn: async () => {
       if (!query) {
         return Promise.resolve(null);
       }
-      const response = await getPaperlessDocuments(query);
+      const response = await getWhishperRecordings(query);
       return response;
     },
     // This ensures the query does not run if there's no query string
@@ -111,27 +129,31 @@ function DocumentsPage() {
     return <h1 className="text-2xl font-bold">Start Searching!</h1>;
   }
 
-  if (PaperlessDocuments.isLoading || userData.isLoading) {
-    return <LoadingSpinner>Loading...</LoadingSpinner>;
-  } else if (!userData.data?.paperlessURL) {
+  if (!userData.data?.whishperURL) {
     return (
       <h1 className="text-2xl font-bold">
-        You need to set your paperless url in
-        <OpenInternalLink href="/settings">settings</OpenInternalLink>
-      </h1>
-    );
-  } else if (!PaperlessDocuments.data || PaperlessDocuments.error) {
-    return (
-      <h1 className="text-2xl font-bold">
-        Connection failed! Check that the paperless url/token is set correctly
-        in <OpenInternalLink href="/settings">settings</OpenInternalLink>
+        You need to set your whishper url in{" "}
+        <Link href="/settings">settings</Link>
       </h1>
     );
   }
 
-  const paperlessDocumentMap = PaperlessDocuments.data.results;
+  if (WhishperRecordings.isLoading || userData.isLoading) {
+    return <LoadingSpinner>Loading...</LoadingSpinner>;
+  }
 
-  if (!paperlessDocumentMap ?? paperlessDocumentMap.length === 0) {
+  if (!WhishperRecordings.data || WhishperRecordings.error) {
+    return (
+      <h1 className="text-2xl font-bold">
+        Connection failed! Check that the whishper url is set correctly in{" "}
+        <Link href="/settings">settings</Link>
+      </h1>
+    );
+  }
+
+  const WhishperRecordingsMap = WhishperRecordings.data;
+
+  if (!WhishperRecordingsMap ?? WhishperRecordingsMap.length === 0) {
     return <h1 className="text-2xl font-bold">No results!</h1>;
   }
 
@@ -139,14 +161,14 @@ function DocumentsPage() {
     <>
       <h1 className="text-2xl font-bold">Search Results</h1>
       <ul className="list-disc">
-        {paperlessDocumentMap.map((document, index) => (
+        {WhishperRecordingsMap.map((recording, index) => (
           <li className="underline" key={index}>
-            <Link
+            <OpenExternalLInk
               className="underline hover:text-slate-300"
-              href={`/paperless/document/${document.id}?query=${query}`}
+              href={`${userData.data?.whishperURL}/editor/${recording.id}`}
             >
-              {document.title}
-            </Link>
+              {recording.fileName.split("_WHSHPR_")[1]}
+            </OpenExternalLInk>
           </li>
         ))}
       </ul>
@@ -154,7 +176,7 @@ function DocumentsPage() {
   );
 }
 
-export default function PaperlessPage() {
+export default function WhishperPage() {
   return (
     <main className="">
       <div className="flex flex-col items-center justify-center">
@@ -166,11 +188,11 @@ export default function PaperlessPage() {
         <SignedIn>
           <div className="flex w-full flex-col gap-8">
             <div className="flex w-full justify-center">
-              <DocumentsSearch />
+              <SearchForm />
             </div>
             <div className="w-full">
               <QueryClientProvider client={queryClient}>
-                <DocumentsPage />
+                <RecordingsList />
               </QueryClientProvider>
             </div>
           </div>

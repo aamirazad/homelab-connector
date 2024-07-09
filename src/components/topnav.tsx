@@ -130,6 +130,13 @@ export function TopNav() {
             Paperless-ngx
           </Link>
           <Separator orientation="vertical" />
+          <Link
+            href="/whishper"
+            className={buttonVariants({ variant: "link" })}
+          >
+            Whishper
+          </Link>
+          <Separator orientation="vertical" />
           <ImmichTooltip />
           <Separator orientation="vertical" />
           <div className={buttonVariants({ variant: "link" })}>
@@ -160,6 +167,16 @@ export function TopNav() {
                     Paperless-ngx
                   </Link>
                 </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link
+                    href="/whishper"
+                    className={buttonVariants({ variant: "link" })}
+                  >
+                    Whishper
+                  </Link>
+                </DropdownMenuItem>
+                <Separator orientation="horizontal" />
                 <ImmichTooltip />
                 <DropdownMenuSeparator />
               </DropdownMenuContent>

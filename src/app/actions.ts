@@ -3,9 +3,17 @@
 import { db } from "@/server/db";
 import type { UsersTableType } from "@/server/db/schema";
 import { users } from "@/server/db/schema";
-import type { PaperlessDocumentsType } from "@/types";
+import type { PaperlessDocumentsType, WhishperRecordingsType } from "@/types";
 import { auth } from "@clerk/nextjs/server";
 import type { AdviceAPIType } from "@/types";
+
+/*
+Clerk helpers
+  ___| | ___ _ __| | __
+ / __| |/ _ | '__| |/ /
+| (__| |  __| |  |   <
+ \___|_|\___|_|  |_|\_\
+*/
 
 export async function setUserProperty<K extends keyof UsersTableType>(
   propertyName: K,
@@ -44,6 +52,15 @@ export async function getUserData() {
   return userData;
 }
 
+/*
+Paperless
+|  _ \ __ _ _ __   ___ _ __| | ___ ___ ___
+| |_) / _` | '_ \ / _ | '__| |/ _ / __/ __|
+|  __| (_| | |_) |  __| |  | |  __\__ \__ \
+|_|   \__,_| .__/ \___|_|  |_|\___|___|___/
+           |_|
+*/
+
 export async function getPaperlessDocuments(query: string) {
   const userData = await getUserData();
 
@@ -61,6 +78,29 @@ export async function getPaperlessDocuments(query: string) {
   );
 
   const data = (await response.json()) as PaperlessDocumentsType;
+
+  return data;
+}
+
+/*
+Whishper
+  \ \      / (_)___| |__  _ __   ___ _ __
+  \ \ /\ / /| / __| '_ \| '_ \ / _ | '__|
+   \ V  V / | \__ | | | | |_) |  __| |
+    \_/\_/  |_|___|_| |_| .__/ \___|_|
+                        |_|
+*/
+
+export async function getWhishperRecordings(query: string) {
+  const userData = await getUserData();
+
+  if (!query || query == "null" || query.length < 3 || !userData) return null;
+
+  const response = await fetch(`${userData.whishperURL}/api/transcriptions`);
+
+  const data = (await response.json()) as WhishperRecordingsType;
+
+  console.log(data)
 
   return data;
 }

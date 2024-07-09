@@ -171,6 +171,70 @@ function PaperlessToken({ setActiveTab, userData }: FormProps) {
   );
 }
 
+function WhishperURL({ setActiveTab, userData }: FormProps) {
+  const [isAutofilled, setIsAutofilled] = useState(false);
+  const formSchema = z.object({
+    URL: z.string(),
+  });
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      URL: "",
+    },
+  });
+
+  if (userData.whishperURL && !isAutofilled) {
+    form.setValue("URL", userData.whishperURL);
+    setIsAutofilled(true);
+  }
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (values.URL == "") {
+      setActiveTab((prevTab) => prevTab + 2); // Skip api key form
+    } else {
+      setActiveTab((prevTab) => prevTab + 1); // Increment activeTab
+    }
+    try {
+      await setUserProperty("whishperURL", values.URL);
+      // Operation succeeded, show success toast
+      toast("Your whishper URL preferences was saved");
+      // Optionally, move to a new tab or take another action to indicate success
+    } catch {
+      // Operation failed, show error toast
+      toast("Uh oh! Something went wrong.", {
+        description: "Your whishper URL preferences were not saved.",
+        action: {
+          label: "Go back",
+          onClick: () => setActiveTab((prevTab) => prevTab - 1), // Go back to try again
+        },
+      });
+    }
+  }
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="w-64 space-y-4">
+        <FormField
+          control={form.control}
+          name="URL"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Whishper URL</FormLabel>
+              <FormControl>
+                <Input type="url" {...field} />
+              </FormControl>
+              <FormDescription>Leave empty to disable</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button type="submit">Submit</Button>
+      </form>
+    </Form>
+  );
+}
+
 interface ProgressIndicatorProps {
   activeTab: number;
   totalTabs: number;
@@ -223,6 +287,11 @@ export function Forms() {
       userData={userData}
     />,
     <PaperlessToken
+      key="paperlessToken"
+      setActiveTab={setActiveTab}
+      userData={userData}
+    />,
+    <WhishperURL
       key="paperlessToken"
       setActiveTab={setActiveTab}
       userData={userData}

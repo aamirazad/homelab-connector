@@ -3,12 +3,11 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
-import { getAdvice, getUserData } from "@/app/actions";
+import { getUserData } from "@/app/actions";
 import {
   useQuery,
   QueryClientProvider,
   QueryClient,
-  useQueryClient,
 } from "@tanstack/react-query";
 import type { AdviceAPIType } from "@/types";
 import OpenInternalLink from "./internal-link";
