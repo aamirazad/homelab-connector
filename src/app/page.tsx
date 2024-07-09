@@ -12,7 +12,6 @@ export default function HomePage() {
           </OpenExternalLink>{" "}
           to get started.
         </div>
-        <div>Or sign in to access the dashboard.</div>
       </div>
     </main>
   );

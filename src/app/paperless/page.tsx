@@ -160,7 +160,10 @@ export default function PaperlessPage() {
       <div className="flex flex-col items-center justify-center">
         <SignedOut>
           <div className="text-center text-2xl">
-            Please <OpenInternalLink href="/sign-in">sign in</OpenInternalLink>
+            Please{" "}
+            <OpenInternalLink href="/sign-in?redirect=/paperless">
+              sign in
+            </OpenInternalLink>
           </div>
         </SignedOut>
         <SignedIn>
