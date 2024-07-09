@@ -68,7 +68,7 @@ export type PaperlessDocumentsType = {
   }[];
 };
 
-export type WhishperRecordingsType = {
+export type WhishperRecordingType = {
   id: string;
   status: number;
   language: string;
@@ -96,7 +96,7 @@ export type WhishperRecordingsType = {
     text: string;
   };
   translations: [];
-}[];
+};
 
 export type AdviceAPIType = {
   slip: {

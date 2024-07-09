@@ -1,6 +1,6 @@
 import DocumentViewer from "@/components/document-viewer";
 
-export default function ModalDocumentPage({
+export default function FullPageDocumentPage({
   params,
 }: {
   params: { id: number };

@@ -3,7 +3,7 @@
 import { SignedIn, SignedOut } from "@clerk/nextjs";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { array, z } from "zod";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -24,26 +24,60 @@ import {
 } from "@tanstack/react-query";
 import { getUserData } from "../actions";
 import LoadingSpinner from "@/components/loading-spinner";
-import type { WhishperRecordingsType } from "@/types";
 import OpenInternalLink from "@/components/internal-link";
-import OpenExternalLInk from "@/components/external-link";
+import {
+  type ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import OpenExternalLink from "@/components/external-link";
+import type { UsersTableType } from "@/server/db/schema";
+import { BadgeCheck, Badge, BadgeAlert } from "lucide-react";
+import type { WhishperRecordingType } from "@/types";
 
 const queryClient = new QueryClient();
 
-async function getWhishperRecordings(query: string) {
+export async function getWhishperRecordings(
+  query: string,
+): Promise<WhishperRecordingType[] | null> {
   const userData = await getUserData();
 
   if (!query || query == "null" || query.length < 3 || !userData) return null;
 
   const response = await fetch(`${userData.whishperURL}/api/transcriptions`);
 
-  const data = (await response.json()) as WhishperRecordingsType;
+  const data = (await response.json()) as WhishperRecordingType[];
   const lowerCaseQuery = query.toLowerCase();
-  return data.filter(
-    (item) =>
-      item.fileName.toLowerCase().includes(lowerCaseQuery) ||
-      item.result.text.toLowerCase().includes(lowerCaseQuery),
-  );
+  const filteredAndScored = data
+    .filter(
+      (item) =>
+        item.fileName.toLowerCase().includes(lowerCaseQuery) ||
+        item.result.text.toLowerCase().includes(lowerCaseQuery),
+    )
+    .map((item) => {
+      const fileNameOccurrences = (
+        item.fileName.toLowerCase().match(new RegExp(lowerCaseQuery, "g")) ?? []
+      ).length;
+      const textOccurrences = (
+        item.result.text.toLowerCase().match(new RegExp(lowerCaseQuery, "g")) ??
+        []
+      ).length;
+      const score = fileNameOccurrences + textOccurrences;
+      return { ...item, score };
+    });
+  const sortedByScore = filteredAndScored.sort((a, b) => b.score - a.score);
+
+  // Step 4: Return the sorted array without the score
+  return sortedByScore.map(({ ...item }) => item);
 }
 
 function SearchForm() {
@@ -129,6 +163,10 @@ function RecordingsList() {
     return <h1 className="text-2xl font-bold">Start Searching!</h1>;
   }
 
+  if (WhishperRecordings.isLoading || userData.isLoading) {
+    return <LoadingSpinner>Loading...</LoadingSpinner>;
+  }
+
   if (!userData.data?.whishperURL) {
     return (
       <h1 className="text-2xl font-bold">
@@ -136,10 +174,6 @@ function RecordingsList() {
         <Link href="/settings">settings</Link>
       </h1>
     );
-  }
-
-  if (WhishperRecordings.isLoading || userData.isLoading) {
-    return <LoadingSpinner>Loading...</LoadingSpinner>;
   }
 
   if (!WhishperRecordings.data || WhishperRecordings.error) {
@@ -159,20 +193,116 @@ function RecordingsList() {
 
   return (
     <>
-      <h1 className="text-2xl font-bold">Search Results</h1>
-      <ul className="list-disc">
-        {WhishperRecordingsMap.map((recording, index) => (
-          <li className="underline" key={index}>
-            <OpenExternalLInk
-              className="underline hover:text-slate-300"
-              href={`${userData.data?.whishperURL}/editor/${recording.id}`}
-            >
-              {recording.fileName.split("_WHSHPR_")[1]}
-            </OpenExternalLInk>
-          </li>
-        ))}
-      </ul>
+      <h1 className="mb-4 text-2xl font-bold">Search Results</h1>
+      <DataTable
+        data={WhishperRecordingsMap}
+        userData={userData.data}
+        query={query}
+      />
     </>
+  );
+}
+
+interface DataTableProps<TData> {
+  data: TData[];
+  userData: UsersTableType;
+  query: string;
+}
+
+function DataTable<TData extends WhishperRecordingType>({
+  data,
+  userData,
+  query,
+}: DataTableProps<TData>) {
+  const columns: ColumnDef<TData>[] = [
+    {
+      accessorFn: (recording) => {
+        const name =
+          recording.fileName.split("_WHSHPR_")[1] ?? recording.fileName;
+        return name.replace(".m4a", "") ?? recording.fileName;
+      },
+      header: "Name",
+      cell: ({ getValue, row }) => (
+        <OpenInternalLink
+          href={`/whishper/recording/${row.original.fileName}?query=${query}`}
+        >
+          {getValue() as string}
+        </OpenInternalLink>
+      ),
+    },
+    {
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ getValue }) => {
+        const value = getValue();
+        if (value === 2) return <BadgeCheck color="#28a745" />;
+        if (value === 1) return <Badge />;
+        if (value === -1) return <BadgeAlert color="#ff0f0f" />;
+        return null;
+      },
+    },
+    {
+      accessorKey: "id",
+      header: "Link",
+      cell: ({ row }) => (
+        <OpenExternalLink
+          href={`${userData.whishperURL}/editor/${row.original.id}`}
+        />
+      ),
+    },
+  ];
+
+  const table = useReactTable({
+    data,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+  });
+
+  return (
+    <div className="rounded-md border">
+      <Table>
+        <TableHeader>
+          {table.getHeaderGroups().map((headerGroup) => (
+            <TableRow key={headerGroup.id}>
+              {headerGroup.headers.map((header) => {
+                return (
+                  <TableHead key={header.id}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
+                  </TableHead>
+                );
+              })}
+            </TableRow>
+          ))}
+        </TableHeader>
+        <TableBody>
+          {table.getRowModel().rows?.length ? (
+            table.getRowModel().rows.map((row) => (
+              <TableRow
+                key={row.id}
+                data-state={row.getIsSelected() && "selected"}
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={columns.length} className="h-24 text-center">
+                No results.
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </div>
   );
 }
 
