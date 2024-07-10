@@ -20,7 +20,7 @@ import { useState } from "react";
 const queryClient = new QueryClient();
 
 const fetchUserData = async (): Promise<UsersTableType> => {
-  const response = await fetch(`/api/getUserData`);
+  const response = await fetch("/api/getUserData");
   if (!response.ok) {
     throw new Error("Network error");
   }

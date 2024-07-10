@@ -11,9 +11,9 @@ import {
 } from "@tanstack/react-query";
 import type { AdviceAPIType } from "@/types";
 import OpenInternalLink from "./internal-link";
-import { ExternalLink } from "lucide-react";
 import OpenExternalLink from "./external-link";
-import { UsersTableType } from "@/server/db/schema";
+import type { UsersTableType } from "@/server/db/schema";
+import { Download } from "lucide-react";
 
 const queryClient = new QueryClient();
 
@@ -172,7 +172,7 @@ function DocumentViewer(props: { id: number }) {
               </p>
             </object>
           </div>
-          <div className="flex flex-shrink-0 flex-col">
+          <div className="flex flex-shrink-0 flex-col gap-8">
             <Button
               onClick={(e) => {
                 e.preventDefault();
@@ -182,13 +182,19 @@ function DocumentViewer(props: { id: number }) {
               Back
             </Button>
             <a
-              href="path_to_file"
-              download="proposed_file_name"
+              href={pdfUrl}
+              download={pdfUrl}
               className={`${buttonVariants({ variant: "default" })}`}
             >
               Download
+              <Download />
             </a>
-            <OpenExternalLink href={`${userData.paperlessURL}`}>Open</OpenExternalLink>
+            <OpenExternalLink
+              className={buttonVariants({ variant: "default" })}
+              href={`${userData.paperlessURL}/documents/${props.id}/details/`}
+            >
+              Open
+            </OpenExternalLink>
           </div>
         </div>
       </div>
