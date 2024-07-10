@@ -195,6 +195,9 @@ function DocumentViewer(props: { id: number }) {
             >
               Open
             </OpenExternalLink>
+            <Button className="mr-2 w-24" variant="destructive">
+              Delete
+            </Button>
           </div>
         </div>
       </div>

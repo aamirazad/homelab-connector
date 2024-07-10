@@ -16,6 +16,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useState } from "react";
+import { getWhishperRecordings } from "@/app/whishper/page";
 
 const queryClient = new QueryClient();
 
@@ -56,6 +57,8 @@ function SkeletonLoader() {
 function AudioInfo(props: { name: string }) {
   const router = useRouter();
   const [isPlaying, setIsPlaying] = useState(false);
+
+  console.log(getWhishperRecordings(props.name));
 
   const {
     data: userData,
@@ -143,7 +146,15 @@ function AudioInfo(props: { name: string }) {
                     tabIndex={-1}
                     className="cursor-not-allowed opacity-50"
                   >
-                    <Button className="w-24" variant="destructive">
+                    <Button
+                      className="w-24"
+                      variant="destructive"
+                      onClick={() => {
+                        fetch("/api/deleteWhishperRecording" + id, {
+                          method: "DELETE",
+                        });
+                      }}
+                    >
                       Delete
                     </Button>
                   </TooltipTrigger>

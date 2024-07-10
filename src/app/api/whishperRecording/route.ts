@@ -15,8 +15,6 @@ export async function DELETE(req: Request) {
     return new Response("Unauthorized", { status: 401 });
   }
 
-  console.log(getWhishperRecordings(name));
-
   const response = await fetch(
     `${userData.whishperURL}/api/transcriptions/${name}`,
     {
