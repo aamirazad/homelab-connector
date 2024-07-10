@@ -17,6 +17,8 @@ import {
 } from "@/components/ui/tooltip";
 import { useState } from "react";
 import { getWhishperRecordings } from "@/app/whishper/page";
+import OpenExternalLink from "./external-link";
+import { SimpleWhishperTranscription, WhishperRecordingType } from "@/types";
 
 const queryClient = new QueryClient();
 
@@ -54,31 +56,44 @@ function SkeletonLoader() {
   );
 }
 
-function AudioInfo(props: { name: string }) {
+async function fetchWhishperRecording(
+  searchId: string,
+  userData: UsersTableType,
+) {
+  const response = await fetch(`${userData.whishperURL}/api/transcriptions`);
+  const data = (await response.json()) as WhishperRecordingType[];
+  for (const recording of data) {
+    if (recording.id === searchId) {
+      return recording;
+    }
+  }
+}
+
+function AudioInfo(props: { id: string }) {
   const router = useRouter();
   const [isPlaying, setIsPlaying] = useState(false);
 
-  console.log(getWhishperRecordings(props.name));
-
-  const {
-    data: userData,
-    isLoading: isUserDataLoading,
-    error,
-  } = useQuery({
+  const { data: userData, isLoading: isUserDataLoading } = useQuery({
     queryKey: ["userData"],
     queryFn: fetchUserData,
   });
 
-  const decodedName = decodeURIComponent(props.name);
-  const frontPart = decodedName.split("_WHSHPR_")[1] ?? decodedName;
-  const formattedName = frontPart.replace(".m4a", "") ?? decodedName;
+  const { data: recordingData, isLoading: isRecordingDataLoading } = useQuery({
+    queryKey: ["whishperRecording", props.idgt modify -cam "So close"], // Include id in the query key
+    queryFn: () => fetchWhishperRecording(props.id, userData),
+    enabled: !!userData, // Only fetch recording data when userData is available
+  });
 
-  if (isUserDataLoading) {
+  if (isUserDataLoading ?? isRecordingDataLoading) {
     return <SkeletonLoader />;
   }
-  if (!userData?.whishperURL ?? error) {
-    return <h1>Failed to get whishper url</h1>;
+  if (!userData?.whishperURL ?? !recordingData) {
+    return <h1>Failed</h1>;
   }
+
+  const decodedName = decodeURIComponent(recordingData.fileName);
+  const frontPart = decodedName.split("_WHSHPR_")[1] ?? decodedName;
+  const formattedName = frontPart.replace(".m4a", "") ?? decodedName;
 
   return (
     <div className="flex w-full justify-center">
@@ -121,7 +136,9 @@ function AudioInfo(props: { name: string }) {
                     className="cursor-not-allowed opacity-50"
                   >
                     <Button className="w-24">
-                      <ExternalLink /> Open
+                      <OpenExternalLink href={`${userData.whishperURL}`}>
+                        Open
+                      </OpenExternalLink>
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>Comming soon!</TooltipContent>
@@ -146,15 +163,7 @@ function AudioInfo(props: { name: string }) {
                     tabIndex={-1}
                     className="cursor-not-allowed opacity-50"
                   >
-                    <Button
-                      className="w-24"
-                      variant="destructive"
-                      onClick={() => {
-                        fetch("/api/deleteWhishperRecording" + id, {
-                          method: "DELETE",
-                        });
-                      }}
-                    >
+                    <Button className="w-24" variant="destructive">
                       Delete
                     </Button>
                   </TooltipTrigger>
@@ -169,10 +178,10 @@ function AudioInfo(props: { name: string }) {
   );
 }
 
-export default function AudioPreview({ name }: { name: string }) {
+export default function AudioPreview({ id }: { id: string }) {
   return (
     <QueryClientProvider client={queryClient}>
-      <AudioInfo name={name} />
+      <AudioInfo id={id} />
     </QueryClientProvider>
   );
 }

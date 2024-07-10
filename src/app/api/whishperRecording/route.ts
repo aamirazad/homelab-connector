@@ -1,12 +1,11 @@
 import { getUserData } from "@/app/actions";
-import { getWhishperRecordings } from "@/app/whishper/page";
 
 export async function DELETE(req: Request) {
   const url = new URL(req.url);
-  const name = url.searchParams.get("name");
+  const id = url.searchParams.get("id");
 
-  if (!name) {
-    return new Response("Name parameter is missing", { status: 400 });
+  if (!id) {
+    return new Response("id parameter is missing", { status: 400 });
   }
 
   const userData = await getUserData();
@@ -16,7 +15,7 @@ export async function DELETE(req: Request) {
   }
 
   const response = await fetch(
-    `${userData.whishperURL}/api/transcriptions/${name}`,
+    `${userData.whishperURL}/api/transcriptions/${id}`,
     {
       method: "DELETE",
     },
