@@ -97,6 +97,39 @@ const fetchUserData = async (): Promise<UsersTableType> => {
   return data;
 };
 
+async function deleteDocument(documentId: number) {
+  const userData = await getUserData();
+  if (!userData) {
+    console.error("Error getting user data");
+    return;
+  }
+  const body = {
+    documents: [documentId],
+    method: "delete",
+  };
+  try {
+    const response = await fetch(
+      `${userData.paperlessURL}/api/documents/bulk_edit/ `,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${userData.paperlessToken}`,
+        },
+        body: JSON.stringify(body),
+      },
+    );
+    if (!response.ok) {
+      console.error("Failed to delete document");
+      return;
+    }
+    console.log("Document deleted successfully");
+  } catch (error) {
+    console.error("Error deleting document:", error);
+    return null;
+  }
+}
+
 function DocumentViewer(props: { id: number }) {
   const router = useRouter();
 

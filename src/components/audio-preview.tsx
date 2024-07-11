@@ -29,6 +29,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { toast } from "sonner";
 
 const queryClient = new QueryClient();
 
@@ -249,9 +250,19 @@ function AudioInfo({ id }: AudioInfoProps) {
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
                     <AlertDialogAction
                       onClick={async () => {
-                        await deleteWhishperRecording(
+                        const response = await deleteWhishperRecording(
                           `${userData.whishperURL}/api/transcriptions/${id}`,
                         );
+                        if (response.ok) {
+                          toast("Recording deleted", {
+                            description: "The recording has been deleted.",
+                          });
+                        } else {
+                          toast("Error deleting recording", {
+                            description:
+                              "An error occurred while deleting the recording.",
+                          });
+                        }
                       }}
                     >
                       Continue
