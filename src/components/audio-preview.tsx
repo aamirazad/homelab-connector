@@ -9,15 +9,20 @@ import type { UsersTableType } from "@/server/db/schema";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { useState } from "react";
 import OpenExternalLink from "./external-link";
 import type { WhishperRecordingType } from "@/types";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const queryClient = new QueryClient();
 
@@ -78,6 +83,18 @@ async function downloadWhishperRecording(url: string, name: string) {
     console.error("Failed to download");
     return null;
   }
+}
+
+async function deleteWhishperRecording(url: string) {
+  const response = await fetch(url, {
+    method: "DELETE",
+  });
+
+  if (!response.ok) {
+    throw new Error("Network error");
+  }
+
+  return response;
 }
 
 type AudioInfoProps = {
@@ -204,21 +221,36 @@ function AudioInfo({ id }: AudioInfoProps) {
               >
                 Download
               </Button>
-              <TooltipProvider delayDuration={50}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      className="w-24 cursor-not-allowed opacity-50"
-                      aria-disabled="true"
-                      tabIndex={-1}
-                      variant="destructive"
+              <AlertDialog>
+                <AlertDialogTrigger>
+                  <Button className="w-24" variant="destructive">
+                    Delete
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>
+                      Are you absolutely sure?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This will permanently delete
+                      the recording.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={async () => {
+                        await deleteWhishperRecording(
+                          `${userData.whishperURL}/api/transcriptions/${id}`,
+                        );
+                      }}
                     >
-                      Delete
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Comming soon!</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+                      Continue
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           </div>
         </div>
