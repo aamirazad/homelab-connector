@@ -31,12 +31,8 @@ const queryClient = new QueryClient();
 
 async function getPaperlessDocument(
   documentId: number,
+  userData: UsersTableType,
 ): Promise<string | null> {
-  const userData = await getUserData();
-  if (!userData) {
-    console.error("Error getting user data");
-    return null;
-  }
   try {
     const url = `${userData.paperlessURL}/api/documents/${documentId}/download/`;
     const response = await fetch(url, {
@@ -135,44 +131,18 @@ async function deleteDocument(documentId: number) {
 function DocumentViewer(props: { id: number }) {
   const router = useRouter();
 
-  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const fetchDataCalledRef = useRef(false);
-
-  useEffect(() => {
-    if (!fetchDataCalledRef.current) {
-      const fetchData = async () => {
-        setLoading(true);
-
-        try {
-          const objectUrl = await getPaperlessDocument(props.id);
-          if (objectUrl) {
-            setPdfUrl(objectUrl);
-          } else {
-            setPdfUrl(null);
-          }
-        } catch (error) {
-          console.error("An error occurred:", error);
-          setPdfUrl(null);
-        } finally {
-          setLoading(false);
-        }
-      };
-
-      fetchData().catch((error) => {
-        console.error("An error occurred:", error);
-      });
-
-      fetchDataCalledRef.current = true; // Mark as fetched
-    }
-  }, [props.id]); // Include props.id in the dependency array if refetch is needed on id change
-
   const { data: userData, isLoading: isUserDataLoading } = useQuery({
     queryKey: ["userData"],
     queryFn: fetchUserData,
   });
 
-  if (loading ?? isUserDataLoading) {
+  const { data: pdfUrl, isLoading: isPdfUrlLoading } = useQuery({
+    queryKey: ["pdfUrl", props.id, userData], // Include id and paperlessURL in the query key
+    queryFn: () => getPaperlessDocument(props.id, userData!),
+    enabled: !!userData,
+  });
+
+  if (isPdfUrlLoading ?? isUserDataLoading) {
     return <SkeletonLoader />;
   }
 
@@ -224,6 +194,7 @@ function DocumentViewer(props: { id: number }) {
               Download
               <Download />
             </a>
+            <div id="dialog-container" />
             <OpenExternalLink
               className={buttonVariants({ variant: "default" })}
               href={`${userData.paperlessURL}/documents/${props.id}/details/`}
@@ -256,9 +227,10 @@ function DocumentViewer(props: { id: number }) {
                       } else {
                         toast("Error deleting pdf", {
                           description:
-                            "An error occurred while deleting the recording.",
+                            "An error occurred while deleting the pdf.",
                         });
                       }
+                      router.back();
                     }}
                   >
                     Continue

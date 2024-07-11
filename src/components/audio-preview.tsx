@@ -77,21 +77,6 @@ async function fetchWhishperRecording(searchId: string, whishperURL: string) {
   }
 }
 
-async function downloadWhishperRecording(url: string, name: string) {
-  const response = await fetch(url);
-  if (response.ok) {
-    const blob = await response.blob();
-    const recordingUrl = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.download = name;
-    link.href = recordingUrl;
-    link.click();
-  } else {
-    console.error("Failed to download");
-    return null;
-  }
-}
-
 async function deleteWhishperRecording(url: string) {
   const response = await fetch(url, {
     method: "DELETE",
@@ -263,6 +248,7 @@ function AudioInfo({ id }: AudioInfoProps) {
                               "An error occurred while deleting the recording.",
                           });
                         }
+                        router.back();
                       }}
                     >
                       Continue
