@@ -14,6 +14,18 @@ import OpenInternalLink from "./internal-link";
 import OpenExternalLink from "./external-link";
 import type { UsersTableType } from "@/server/db/schema";
 import { Download } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 
 const queryClient = new QueryClient();
 
@@ -100,34 +112,24 @@ const fetchUserData = async (): Promise<UsersTableType> => {
 async function deleteDocument(documentId: number) {
   const userData = await getUserData();
   if (!userData) {
-    console.error("Error getting user data");
-    return;
+    throw new Error("User data not found");
   }
   const body = {
     documents: [documentId],
     method: "delete",
   };
-  try {
-    const response = await fetch(
-      `${userData.paperlessURL}/api/documents/bulk_edit/ `,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${userData.paperlessToken}`,
-        },
-        body: JSON.stringify(body),
+  const response = await fetch(
+    `${userData.paperlessURL}/api/documents/bulk_edit/ `,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Token ${userData.paperlessToken}`,
       },
-    );
-    if (!response.ok) {
-      console.error("Failed to delete document");
-      return;
-    }
-    console.log("Document deleted successfully");
-  } catch (error) {
-    console.error("Error deleting document:", error);
-    return null;
-  }
+      body: JSON.stringify(body),
+    },
+  );
+  return response;
 }
 
 function DocumentViewer(props: { id: number }) {
@@ -228,9 +230,42 @@ function DocumentViewer(props: { id: number }) {
             >
               Open
             </OpenExternalLink>
-            <Button className="mr-2 w-24" variant="destructive">
-              Delete
-            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger>
+                <Button className="w-24" variant="destructive">
+                  Delete
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete
+                    the recording.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={async () => {
+                      const response = await deleteDocument(props.id);
+                      if (response.ok) {
+                        toast("Pdf deleted", {
+                          description: "The recording has been deleted.",
+                        });
+                      } else {
+                        toast("Error deleting pdf", {
+                          description:
+                            "An error occurred while deleting the recording.",
+                        });
+                      }
+                    }}
+                  >
+                    Continue
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </div>
       </div>
