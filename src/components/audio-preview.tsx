@@ -66,21 +66,18 @@ async function fetchWhishperRecording(searchId: string, whishperURL: string) {
 }
 
 async function downloadWhishperRecording(url: string, name: string) {
-  const [recordingUrl, setRecordingUrl] = useState("");
   const response = await fetch(url);
   if (response.ok) {
     const blob = await response.blob();
-    setRecordingUrl(URL.createObjectURL(blob));
+    const recordingUrl = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.download = name;
+    link.href = recordingUrl;
+    link.click();
   } else {
     console.error("Failed to download");
     return null;
   }
-  const link = document.createElement("a");
-  link.download = name;
-
-  link.href = recordingUrl;
-
-  link.click();
 }
 
 type AudioInfoProps = {
@@ -197,7 +194,16 @@ function AudioInfo({ id }: AudioInfoProps) {
               >
                 Download
               </a>
-
+              <Button
+                onClick={async () => {
+                  await downloadWhishperRecording(
+                    `${userData.whishperURL}/api/video/${recordingData.fileName}`,
+                    recordingData.fileName,
+                  );
+                }}
+              >
+                Download
+              </Button>
               <TooltipProvider delayDuration={50}>
                 <Tooltip>
                   <TooltipTrigger asChild>
