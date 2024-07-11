@@ -8,7 +8,7 @@ import {
 import type { UsersTableType } from "@/server/db/schema";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { ChevronLeft, ExternalLink } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -16,9 +16,9 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useState } from "react";
-import { getWhishperRecordings } from "@/app/whishper/page";
 import OpenExternalLink from "./external-link";
-import { SimpleWhishperTranscription, WhishperRecordingType } from "@/types";
+import type { WhishperRecordingType } from "@/types";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 const queryClient = new QueryClient();
 
@@ -56,11 +56,8 @@ function SkeletonLoader() {
   );
 }
 
-async function fetchWhishperRecording(
-  searchId: string,
-  userData: UsersTableType,
-) {
-  const response = await fetch(`${userData.whishperURL}/api/transcriptions`);
+async function fetchWhishperRecording(searchId: string, whishperURL: string) {
+  const response = await fetch(`${whishperURL}/api/transcriptions`);
   const data = (await response.json()) as WhishperRecordingType[];
   for (const recording of data) {
     if (recording.id === searchId) {
@@ -69,26 +66,65 @@ async function fetchWhishperRecording(
   }
 }
 
-function AudioInfo(props: { id: string }) {
+type AudioInfoProps = {
+  id: string;
+};
+
+function AudioInfo({ id }: AudioInfoProps) {
   const router = useRouter();
   const [isPlaying, setIsPlaying] = useState(false);
 
-  const { data: userData, isLoading: isUserDataLoading } = useQuery({
+  const {
+    data: userData,
+    isLoading: isUserDataLoading,
+    error: userDataError,
+  } = useQuery({
     queryKey: ["userData"],
     queryFn: fetchUserData,
   });
 
-  const { data: recordingData, isLoading: isRecordingDataLoading } = useQuery({
-    queryKey: ["whishperRecording", props.idgt modify -cam "So close"], // Include id in the query key
-    queryFn: () => fetchWhishperRecording(props.id, userData),
-    enabled: !!userData, // Only fetch recording data when userData is available
+  const whishperURL = userData?.whishperURL;
+
+  const {
+    data: recordingData,
+    isLoading: isRecordingDataLoading,
+    error: recordingDataError,
+  } = useQuery({
+    queryKey: ["whishperRecording", id, whishperURL], // Include id in the query key
+    queryFn: () => fetchWhishperRecording(id, whishperURL!),
+    enabled: !!whishperURL, // Only fetch recording data when userData is available
   });
 
-  if (isUserDataLoading ?? isRecordingDataLoading) {
+  if (isUserDataLoading) {
     return <SkeletonLoader />;
   }
-  if (!userData?.whishperURL ?? !recordingData) {
-    return <h1>Failed</h1>;
+
+  if (userDataError ?? !userData) {
+    return (
+      <div className="flex justify-center">
+        <div className="mx-auto max-w-sm rounded-lg bg-slate-700 p-4 shadow-md">
+          <h1 className="w-full text-center text-2xl font-bold">
+            Error loading user data
+          </h1>
+        </div>
+      </div>
+    );
+  }
+
+  if (isRecordingDataLoading) {
+    return <SkeletonLoader />;
+  }
+
+  if (recordingDataError ?? !recordingData) {
+    return (
+      <div className="flex justify-center">
+        <div className="mx-auto max-w-sm rounded-lg bg-slate-700 p-4 shadow-md">
+          <h1 className="w-full text-center text-2xl font-bold">
+            Error loading recording data
+          </h1>
+        </div>
+      </div>
+    );
   }
 
   const decodedName = decodeURIComponent(recordingData.fileName);
@@ -122,48 +158,41 @@ function AudioInfo(props: { id: string }) {
                 onPause={() => setIsPlaying(false)}
               >
                 <source
-                  src={`${userData.whishperURL}/api/video/${props.name}`}
+                  src={`${userData.whishperURL}/api/video/${recordingData.fileName}`}
                   type="audio/mp4"
                 />
               </audio>
             </div>
             <div className="flex w-full flex-shrink-0 justify-center gap-12">
+              <Button className="w-24" aria-disabled="true" tabIndex={-1}>
+                <OpenExternalLink
+                  href={`${userData.whishperURL}/editor/${id}`}
+                  className="text-primary-foreground"
+                >
+                  Open
+                </OpenExternalLink>
+              </Button>
               <TooltipProvider delayDuration={50}>
                 <Tooltip>
-                  <TooltipTrigger
-                    aria-disabled="true"
-                    tabIndex={-1}
-                    className="cursor-not-allowed opacity-50"
-                  >
-                    <Button className="w-24">
-                      <OpenExternalLink href={`${userData.whishperURL}`}>
-                        Open
-                      </OpenExternalLink>
+                  <TooltipTrigger asChild>
+                    <Button
+                      className="w-24 cursor-not-allowed opacity-50"
+                      aria-disabled="true"
+                      tabIndex={-1}
+                    >
+                      Download
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>Comming soon!</TooltipContent>
                 </Tooltip>
-              </TooltipProvider>
-              <TooltipProvider delayDuration={50}>
                 <Tooltip>
-                  <TooltipTrigger
-                    aria-disabled="true"
-                    tabIndex={-1}
-                    className="cursor-not-allowed opacity-50"
-                  >
-                    <Button className="w-24">Download</Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Comming soon!</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-              <TooltipProvider delayDuration={50}>
-                <Tooltip>
-                  <TooltipTrigger
-                    aria-disabled="true"
-                    tabIndex={-1}
-                    className="cursor-not-allowed opacity-50"
-                  >
-                    <Button className="w-24" variant="destructive">
+                  <TooltipTrigger asChild>
+                    <Button
+                      className="w-24 cursor-not-allowed opacity-50"
+                      aria-disabled="true"
+                      tabIndex={-1}
+                      variant="destructive"
+                    >
                       Delete
                     </Button>
                   </TooltipTrigger>
@@ -182,6 +211,7 @@ export default function AudioPreview({ id }: { id: string }) {
   return (
     <QueryClientProvider client={queryClient}>
       <AudioInfo id={id} />
+      <ReactQueryDevtools initialIsOpen={true} />
     </QueryClientProvider>
   );
 }

@@ -3,11 +3,11 @@ import AudioPreview from "@/components/audio-preview";
 export default function FullAudioPage({
   params,
 }: {
-  params: { name: string };
+  params: { id: string };
 }) {
   return (
     <main className="h-full w-full">
-      <AudioPreview name={params.name} />
+      <AudioPreview id={params.id} />
     </main>
   );
 }

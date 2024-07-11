@@ -144,7 +144,7 @@ function DocumentViewer(props: { id: number }) {
   if (!pdfUrl || !userData) {
     return (
       <div className="flex justify-center">
-        <div className="mx-auto max-w-sm rounded-lg bg-black p-4 shadow-md">
+        <div className="mx-auto max-w-sm rounded-lg bg-slate-700 p-4 shadow-md">
           <h1 className="w-full text-center text-2xl font-bold">
             Failed to get document
           </h1>
