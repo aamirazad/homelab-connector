@@ -6,7 +6,7 @@ import {
   QueryClient,
 } from "@tanstack/react-query";
 import type { UsersTableType } from "@/server/db/schema";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import {
@@ -18,7 +18,6 @@ import {
 import { useState } from "react";
 import OpenExternalLink from "./external-link";
 import type { WhishperRecordingType } from "@/types";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 const queryClient = new QueryClient();
 
@@ -64,6 +63,24 @@ async function fetchWhishperRecording(searchId: string, whishperURL: string) {
       return recording;
     }
   }
+}
+
+async function downloadWhishperRecording(url: string, name: string) {
+  const [recordingUrl, setRecordingUrl] = useState("");
+  const response = await fetch(url);
+  if (response.ok) {
+    const blob = await response.blob();
+    setRecordingUrl(URL.createObjectURL(blob));
+  } else {
+    console.error("Failed to download");
+    return null;
+  }
+  const link = document.createElement("a");
+  link.download = name;
+
+  link.href = recordingUrl;
+
+  link.click();
 }
 
 type AudioInfoProps = {
@@ -164,7 +181,7 @@ function AudioInfo({ id }: AudioInfoProps) {
               </audio>
             </div>
             <div className="flex w-full flex-shrink-0 justify-center gap-12">
-              <Button className="w-24" aria-disabled="true" tabIndex={-1}>
+              <Button className="w-24">
                 <OpenExternalLink
                   href={`${userData.whishperURL}/editor/${id}`}
                   className="text-primary-foreground"
@@ -172,19 +189,16 @@ function AudioInfo({ id }: AudioInfoProps) {
                   Open
                 </OpenExternalLink>
               </Button>
+              <a
+                href={`${userData.whishperURL}/api/video/${recordingData.fileName}`}
+                download={recordingData.fileName}
+                className={`w-24 ${buttonVariants({ variant: "default" })}`}
+                target="_blank"
+              >
+                Download
+              </a>
+
               <TooltipProvider delayDuration={50}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      className="w-24 cursor-not-allowed opacity-50"
-                      aria-disabled="true"
-                      tabIndex={-1}
-                    >
-                      Download
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Comming soon!</TooltipContent>
-                </Tooltip>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
@@ -211,7 +225,6 @@ export default function AudioPreview({ id }: { id: string }) {
   return (
     <QueryClientProvider client={queryClient}>
       <AudioInfo id={id} />
-      <ReactQueryDevtools initialIsOpen={true} />
     </QueryClientProvider>
   );
 }
