@@ -23,6 +23,12 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const queryClient = new QueryClient();
 
@@ -203,24 +209,26 @@ function AudioInfo({ id }: AudioInfoProps) {
                   Open
                 </OpenExternalLink>
               </Button>
-              <a
-                href={`${userData.whishperURL}/api/video/${recordingData.fileName}`}
-                download={recordingData.fileName}
-                className={`w-24 ${buttonVariants({ variant: "default" })}`}
-                target="_blank"
-              >
-                Download
-              </a>
-              <Button
-                onClick={async () => {
-                  await downloadWhishperRecording(
-                    `${userData.whishperURL}/api/video/${recordingData.fileName}`,
-                    recordingData.fileName,
-                  );
-                }}
-              >
-                Download
-              </Button>
+              <TooltipProvider delayDuration={0}>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <a
+                      href={`${userData.whishperURL}/api/video/${recordingData.fileName}`}
+                      download={recordingData.fileName}
+                      className={`w-24 ${buttonVariants({ variant: "link" })}`}
+                      target="_blank"
+                    >
+                      Download
+                    </a>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>
+                      To download the audio file, right click and select
+                      &quot;Save as&quot;.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               <AlertDialog>
                 <AlertDialogTrigger>
                   <Button className="w-24" variant="destructive">
