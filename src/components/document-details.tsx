@@ -13,7 +13,6 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import DocumentPreview, { getPaperlessDocument } from "./document-preview";
 import { getUserData } from "@/app/actions";
 import { Button, buttonVariants } from "./ui/button";
 import { useRouter } from "next/navigation";
@@ -25,11 +24,37 @@ import {
 import type { UsersTableType } from "@/server/db/schema";
 import LoadingSpinner from "./loading-spinner";
 import OpenExternalLink from "./external-link";
-import { PaperlessDocumentType } from "@/types";
+import type { PaperlessDocumentType } from "@/types";
 import React from "react";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import BodyMessage from "./body-message";
 
 const queryClient = new QueryClient();
+
+export async function getPaperlessDocument(
+  documentId: number,
+  userData: UsersTableType,
+): Promise<string | null> {
+  try {
+    const url = `${userData.paperlessURL}/api/documents/${documentId}/download/`;
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Token ${userData.paperlessToken}`,
+      },
+    });
+    if (response.ok) {
+      const blob = await response.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      return objectUrl;
+    } else {
+      console.error("Failed to fetch PDF");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error fetching PDF:", error);
+    return null;
+  }
+}
 
 async function deleteDocument(documentId: number) {
   const userData = await getUserData();
@@ -92,16 +117,28 @@ function DocumentDetailsInner(props: { id: number }) {
     queryFn: fetchUserData,
   });
 
-  const { data: documentData, isLoading: isdocumentDataLoading } = useQuery({
+  const { data: pdfUrl, isLoading: isPdfUrlLoading } = useQuery({
     queryKey: ["pdfUrl", props.id, userData], // Include id and paperlessURL in the query key
+    queryFn: async () => {
+      return await getPaperlessDocument(props.id, userData!);
+    },
+    enabled: !!userData,
+  });
+
+  const { data: documentData, isLoading: isdocumentDataLoading } = useQuery({
+    queryKey: ["pdfData", props.id, userData], // Include id and paperlessURL in the query key
     queryFn: async () => {
       return await getPaperlessDocumentData(props.id, userData!);
     },
     enabled: !!userData,
   });
 
-  if (isUserDataLoading ?? isdocumentDataLoading) {
+  if (isUserDataLoading || isdocumentDataLoading || isPdfUrlLoading) {
     return <LoadingSpinner>Loading...</LoadingSpinner>;
+  }
+
+  if (!userData || !documentData) {
+    return <BodyMessage>Error</BodyMessage>;
   }
 
   return (

@@ -9,15 +9,17 @@ import type { AdviceAPIType } from "@/types";
 import OpenInternalLink from "./internal-link";
 import type { UsersTableType } from "@/server/db/schema";
 import { Button } from "./ui/button";
+import BodyMessage from "./body-message";
+import { buttonVariants } from "./ui/button";
 
 const queryClient = new QueryClient();
 
-export async function getPaperlessDocument(
+export async function getPaperlessThumbnail(
   documentId: number,
   userData: UsersTableType,
 ): Promise<string | null> {
   try {
-    const url = `${userData.paperlessURL}/api/documents/${documentId}/download/`;
+    const url = `${userData.paperlessURL}/api/documents/${documentId}/thumb/`;
     const response = await fetch(url, {
       headers: {
         Authorization: `Token ${userData.paperlessToken}`,
@@ -63,12 +65,6 @@ function SkeletonLoader() {
           </div>
         </div>
       </div>
-      {/* Button Skeleton */}
-      <div className="flex flex-shrink-0 animate-pulse flex-col gap-8">
-        {Array.from({ length: 7 }, (_, index) => (
-          <div key={index} className="h-10 w-24 rounded-md bg-gray-400" />
-        ))}
-      </div>
     </div>
   );
 }
@@ -92,7 +88,7 @@ function Preview(props: { id: number }) {
     queryKey: ["pdfUrl", props.id, userData], // Include id and paperlessURL in the query key
     queryFn: async () => {
       console.log("fetching");
-      return await getPaperlessDocument(props.id, userData!);
+      return await getPaperlessThumbnail(props.id, userData!);
     },
     enabled: !!userData,
   });
@@ -102,35 +98,21 @@ function Preview(props: { id: number }) {
   }
 
   if (!pdfUrl || !userData) {
-    return (
-      <div className="flex justify-center">
-        <div className="mx-auto max-w-sm rounded-lg bg-slate-700 p-4 shadow-md">
-          <h1 className="w-full text-center text-2xl font-bold">
-            Failed to get document
-          </h1>
-        </div>
-      </div>
-    );
+    return <BodyMessage>Failed to get document</BodyMessage>;
   }
-  return (
-    <>
-      <object data={pdfUrl} type="application/pdf" width="100%" height="100%">
-        <p>
-          Your web browser doesn&apos;t have a PDF plugin. Instead you can
-          <OpenInternalLink href={pdfUrl}>
-            click here to download the PDF file.
-          </OpenInternalLink>
-        </p>
-      </object>
-      <Button asChild></Button>
-    </>
-  );
+  return <img src={pdfUrl} alt="Document Preview" />;
 }
 
 export default function DocumentPreview(props: { id: number }) {
   return (
     <QueryClientProvider client={queryClient}>
       <Preview id={props.id} />
+      <OpenInternalLink
+        className={`${buttonVariants({ variant: "default" })}`}
+        href={`/paperless/details/${props.id}`}
+      >
+        Open full page
+      </OpenInternalLink>
     </QueryClientProvider>
   );
 }
