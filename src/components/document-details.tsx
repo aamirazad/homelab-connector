@@ -115,6 +115,8 @@ function DocumentDetailsInner(props: { id: number }) {
   const { data: userData, isLoading: isUserDataLoading } = useQuery({
     queryKey: ["userData"],
     queryFn: fetchUserData,
+    staleTime: 24 * 60 * 60 * 1000, // 1 day in milliseconds
+    refetchOnWindowFocus: false,
   });
 
   const { data: pdfUrl, isLoading: isPdfUrlLoading } = useQuery({
@@ -123,6 +125,7 @@ function DocumentDetailsInner(props: { id: number }) {
       return await getPaperlessDocument(props.id, userData!);
     },
     enabled: !!userData,
+    refetchOnWindowFocus: false,
   });
 
   const { data: documentData, isLoading: isdocumentDataLoading } = useQuery({
@@ -131,6 +134,7 @@ function DocumentDetailsInner(props: { id: number }) {
       return await getPaperlessDocumentData(props.id, userData!);
     },
     enabled: !!userData,
+    refetchOnWindowFocus: false,
   });
 
   if (isUserDataLoading || isdocumentDataLoading || isPdfUrlLoading) {
@@ -146,7 +150,6 @@ function DocumentDetailsInner(props: { id: number }) {
       <div className="flex h-4/5 flex-col rounded-xl bg-slate-600/50 md:w-1/2">
         <div className="m-4 flex flex-grow flex-col justify-center gap-8 md:m-8 md:flex-row md:gap-16">
           <div>{documentData?.title}</div>
-          <DocumentPreview id={props.id} />
           <div className="flex flex-col gap-8">
             <Button
               onClick={(e) => {

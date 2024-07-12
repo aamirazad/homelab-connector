@@ -91,6 +91,7 @@ function Preview(props: { id: number }) {
       return await getPaperlessThumbnail(props.id, userData!);
     },
     enabled: !!userData,
+    refetchOnWindowFocus: false,
   });
 
   if (isPdfUrlLoading ?? isUserDataLoading) {
@@ -100,7 +101,7 @@ function Preview(props: { id: number }) {
   if (!pdfUrl || !userData) {
     return <BodyMessage>Failed to get document</BodyMessage>;
   }
-  return <img src={pdfUrl} alt="Document Preview" />;
+  return <img src={pdfUrl} alt="Document Preview" className="size-fit" />;
 }
 
 export default function DocumentPreview(props: { id: number }) {

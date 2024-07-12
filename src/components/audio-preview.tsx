@@ -30,6 +30,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { toast } from "sonner";
+import BodyMessage from "./body-message";
 
 const queryClient = new QueryClient();
 
@@ -123,15 +124,7 @@ function AudioInfo({ id }: AudioInfoProps) {
   }
 
   if (userDataError ?? !userData) {
-    return (
-      <div className="flex justify-center">
-        <div className="mx-auto max-w-sm rounded-lg bg-slate-700 p-4 shadow-md">
-          <h1 className="w-full text-center text-2xl font-bold">
-            Error loading user data
-          </h1>
-        </div>
-      </div>
-    );
+    return <BodyMessage>Error loading user data</BodyMessage>;
   }
 
   if (isRecordingDataLoading) {
@@ -139,15 +132,7 @@ function AudioInfo({ id }: AudioInfoProps) {
   }
 
   if (recordingDataError ?? !recordingData) {
-    return (
-      <div className="flex justify-center">
-        <div className="mx-auto max-w-sm rounded-lg bg-slate-700 p-4 shadow-md">
-          <h1 className="w-full text-center text-2xl font-bold">
-            Error loading recording data
-          </h1>
-        </div>
-      </div>
-    );
+    return <BodyMessage>Error loading recording data</BodyMessage>;
   }
 
   const decodedName = decodeURIComponent(recordingData.fileName);

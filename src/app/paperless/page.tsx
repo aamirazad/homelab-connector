@@ -97,6 +97,8 @@ function DocumentsPage() {
     },
     // This ensures the query does not run if there's no query string
     enabled: !!query,
+    staleTime: 60 * 1000, // 1 minute in milliseconds
+    refetchOnWindowFocus: false,
   });
 
   const userData = useQuery({
@@ -105,6 +107,8 @@ function DocumentsPage() {
       const data = await getUserData();
       return data;
     },
+    staleTime: 24 * 60 * 60 * 1000, // 1 day in milliseconds
+    refetchOnWindowFocus: false,
   });
 
   if (!query) {

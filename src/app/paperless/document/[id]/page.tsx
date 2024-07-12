@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import BodyMessage from "@/components/body-message";
 
 export default function FullPageDocumentPage({
   params,
@@ -11,7 +12,7 @@ export default function FullPageDocumentPage({
   router.replace(`/paperless/details/${params.id}`);
   return (
     <main className="h-full w-full">
-      <h1>Redirecting ...</h1>
+      <BodyMessage>Redirecting ...</BodyMessage>
     </main>
   );
 }
