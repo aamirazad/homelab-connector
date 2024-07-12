@@ -1,4 +1,4 @@
-import DocumentViewer from "@/components/document-viewer";
+import DocumentPreview from "@/components/document-preview";
 
 export default function FullPageDocumentPage({
   params,
@@ -7,7 +7,7 @@ export default function FullPageDocumentPage({
 }) {
   return (
     <main className="h-full w-full">
-      <DocumentViewer id={params.id} />
+      <DocumentPreview id={params.id} />
     </main>
   );
 }

@@ -11,15 +11,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-
-const fetchUserData = async (): Promise<UsersTableType> => {
-  const response = await fetch(`/api/getUserData`);
-  if (!response.ok) {
-    throw new Error("Network error");
-  }
-  const data = (await response.json()) as UsersTableType;
-  return data;
-};
+import DocumentPreview from "./document-preview";
 
 async function deleteDocument(documentId: number) {
   const userData = await getUserData();
@@ -50,7 +42,7 @@ function DocumentDetails(props: { id: number }) {
     <div className="flex h-full w-full min-w-0 justify-center">
       <div className="flex h-4/5 flex-col rounded-xl bg-slate-600/50 md:w-1/2">
         <div className="m-4 flex flex-grow flex-col justify-center gap-8 md:m-8 md:flex-row md:gap-16">
-<DocumentViewer />
+<DocumentPreview />
           <div className="flex flex-col gap-8">
             <Button
               onClick={(e) => {
