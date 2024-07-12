@@ -12,6 +12,16 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import DocumentPreview from "./document-preview";
+import { getUserData } from "@/app/actions";
+import { Button } from "./ui/button";
+import { useRouter } from "next/navigation";
+import {
+  useQuery,
+  QueryClientProvider,
+  QueryClient,
+} from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
 
 async function deleteDocument(documentId: number) {
   const userData = await getUserData();
@@ -36,13 +46,28 @@ async function deleteDocument(documentId: number) {
   return response;
 }
 
-function DocumentDetails(props: { id: number }) {
+export default function DocumentDetails(props: { id: number }) {
+  const router = useRouter();
+
+  const { data: userData, isLoading: isUserDataLoading } = useQuery({
+    queryKey: ["userData"],
+    queryFn: fetchUserData,
+  });
+
+  const { data: pdfUrl, isLoading: isPdfUrlLoading } = useQuery({
+    queryKey: ["pdfUrl", props.id, userData], // Include id and paperlessURL in the query key
+    queryFn: async () => {
+      console.log("fetching");
+      return await getPaperlessDocument(props.id, userData!);
+    },
+    enabled: !!userData,
+  });
 
   return (
     <div className="flex h-full w-full min-w-0 justify-center">
       <div className="flex h-4/5 flex-col rounded-xl bg-slate-600/50 md:w-1/2">
         <div className="m-4 flex flex-grow flex-col justify-center gap-8 md:m-8 md:flex-row md:gap-16">
-<DocumentPreview />
+          <DocumentPreview id={props.id} />
           <div className="flex flex-col gap-8">
             <Button
               onClick={(e) => {
@@ -108,3 +133,5 @@ function DocumentDetails(props: { id: number }) {
         </div>
       </div>
     </div>
+  );
+}

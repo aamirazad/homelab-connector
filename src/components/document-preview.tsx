@@ -12,7 +12,7 @@ import { Button } from "./ui/button";
 
 const queryClient = new QueryClient();
 
-async function getPaperlessDocument(
+export async function getPaperlessDocument(
   documentId: number,
   userData: UsersTableType,
 ): Promise<string | null> {
