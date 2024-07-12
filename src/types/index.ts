@@ -68,6 +68,29 @@ export type PaperlessDocumentsType = {
   }[];
 };
 
+export type PaperlessDocumentType = {
+  id: number;
+  correspondent: number;
+  document_type: number;
+  storage_path: number;
+  title: string;
+  content: string;
+  tags: number[];
+  created: string;
+  created_date: string;
+  modified: string;
+  added: string;
+  deleted_at: string;
+  archive_serial_number: number;
+  original_file_name: string;
+  archived_file_name: string;
+  owner: number;
+  user_can_change: boolean;
+  is_shared_by_requester: boolean;
+  notes: string[];
+  custom_fields: string[];
+};
+
 export type WhishperRecordingType = {
   id: string;
   status: number;
