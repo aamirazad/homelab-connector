@@ -90,21 +90,22 @@ const fetchUserData = async (): Promise<UsersTableType> => {
 
 async function getPaperlessDocumentData(id: number, userData: UsersTableType) {
   try {
-    const url = `${userData.paperlessURL}/api/documents/${id}/`;
+    const url = `${userData.paperlessURL}/api/documents/${id}/&page=1&page_size=10&truncate_content=true`;
     const response = await fetch(url, {
       headers: {
         Authorization: `Token ${userData.paperlessToken}`,
       },
     });
+    console.log(response);
     if (response.ok) {
       const data = (await response.json()) as PaperlessDocumentType[];
       return data[0];
     } else {
-      console.error("Failed to fetch PDF");
+      console.error("Failed to fetch PD dataF");
       return null;
     }
   } catch (error) {
-    console.error("Error fetching PDF:", error);
+    console.error("Error fetching PDF data:", error);
     return null;
   }
 }
@@ -139,9 +140,7 @@ function DocumentDetailsInner(props: { id: number }) {
 
   if (isUserDataLoading || isdocumentDataLoading || isPdfUrlLoading) {
     return <LoadingSpinner>Loading...</LoadingSpinner>;
-  }
-
-  if (!userData || !documentData) {
+  } else if (!userData || !documentData || !pdfUrl) {
     return <BodyMessage>Error</BodyMessage>;
   }
 

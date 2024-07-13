@@ -8,7 +8,6 @@ import {
 import type { AdviceAPIType } from "@/types";
 import OpenInternalLink from "./internal-link";
 import type { UsersTableType } from "@/server/db/schema";
-import { Button } from "./ui/button";
 import BodyMessage from "./body-message";
 import { buttonVariants } from "./ui/button";
 
@@ -82,6 +81,8 @@ function Preview(props: { id: number }) {
   const { data: userData, isLoading: isUserDataLoading } = useQuery({
     queryKey: ["userData"],
     queryFn: fetchUserData,
+    staleTime: 24 * 60 * 60 * 1000, // 1 day in milliseconds
+    refetchOnWindowFocus: false,
   });
 
   const { data: pdfUrl, isLoading: isPdfUrlLoading } = useQuery({
@@ -96,12 +97,11 @@ function Preview(props: { id: number }) {
 
   if (isPdfUrlLoading ?? isUserDataLoading) {
     return <SkeletonLoader />;
-  }
-
-  if (!pdfUrl || !userData) {
+  } else if (!pdfUrl || !userData) {
     return <BodyMessage>Failed to get document</BodyMessage>;
   }
-  return <img src={pdfUrl} alt="Document Preview" className="size-fit" />;
+
+  return <img src={pdfUrl} alt="Document Preview" className="h-full" />;
 }
 
 export default function DocumentPreview(props: { id: number }) {
