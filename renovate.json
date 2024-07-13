@@ -1,4 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended", "every sunday"]
+  "extends": ["config:recommended"],
+  "timezone": "America/New_York",
+  "schedule": ["after 9pm on Sunday"]
 }
