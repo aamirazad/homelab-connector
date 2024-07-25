@@ -90,7 +90,7 @@ const fetchUserData = async (): Promise<UsersTableType> => {
 
 async function getPaperlessDocumentData(id: number, userData: UsersTableType) {
   try {
-    const url = `${userData.paperlessURL}/api/documents/${id}/&page=1&page_size=10&truncate_content=true`;
+    const url = `${userData.paperlessURL}/api/documents/${id}/?truncate_content=true`;
     const response = await fetch(url, {
       headers: {
         Authorization: `Token ${userData.paperlessToken}`,
@@ -98,8 +98,8 @@ async function getPaperlessDocumentData(id: number, userData: UsersTableType) {
     });
     console.log(response);
     if (response.ok) {
-      const data = (await response.json()) as PaperlessDocumentType[];
-      return data[0];
+      const data = (await response.json()) as PaperlessDocumentType;
+      return data;
     } else {
       console.error("Failed to fetch PD dataF");
       return null;
@@ -121,18 +121,22 @@ function DocumentDetailsInner(props: { id: number }) {
   });
 
   const { data: pdfUrl, isLoading: isPdfUrlLoading } = useQuery({
-    queryKey: ["pdfUrl", props.id, userData], // Include id and paperlessURL in the query key
+    queryKey: ["pdfUrl", props.id, userData], // Include id and userData in the query key
     queryFn: async () => {
-      return await getPaperlessDocument(props.id, userData!);
+      const result = await getPaperlessDocument(props.id, userData!);
+      console.log("Fetched PDF URL:", result);
+      return result;
     },
     enabled: !!userData,
     refetchOnWindowFocus: false,
   });
 
   const { data: documentData, isLoading: isdocumentDataLoading } = useQuery({
-    queryKey: ["pdfData", props.id, userData], // Include id and paperlessURL in the query key
+    queryKey: ["documentData", props.id, userData], // Include id and userData in the query key
     queryFn: async () => {
-      return await getPaperlessDocumentData(props.id, userData!);
+      const result = await getPaperlessDocumentData(props.id, userData!);
+      console.log("Fetched Document Data:", result);
+      return result;
     },
     enabled: !!userData,
     refetchOnWindowFocus: false,
@@ -143,12 +147,19 @@ function DocumentDetailsInner(props: { id: number }) {
   } else if (!userData || !documentData || !pdfUrl) {
     return <BodyMessage>Error</BodyMessage>;
   }
-
   return (
     <div className="flex h-full w-full min-w-0 justify-center">
       <div className="flex h-4/5 flex-col rounded-xl bg-slate-600/50 md:w-1/2">
         <div className="m-4 flex flex-grow flex-col justify-center gap-8 md:m-8 md:flex-row md:gap-16">
-          <div>{documentData?.title}</div>
+          <div>
+            {documentData?.title}
+            <object
+              data={pdfUrl}
+              type="application/pdf"
+              width="100%"
+              height="100%"
+            />
+          </div>
           <div className="flex flex-col gap-8">
             <Button
               onClick={(e) => {
@@ -170,10 +181,10 @@ function DocumentDetailsInner(props: { id: number }) {
               Open
             </OpenExternalLink>
             <AlertDialog>
-              <AlertDialogTrigger>
-                <Button className="w-24" variant="destructive">
-                  Delete
-                </Button>
+              <AlertDialogTrigger
+                className={`${buttonVariants({ variant: "destructive" })} w-24`}
+              >
+                Delete
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>

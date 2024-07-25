@@ -108,12 +108,12 @@ export default function DocumentPreview(props: { id: number }) {
   return (
     <QueryClientProvider client={queryClient}>
       <Preview id={props.id} />
-      <OpenInternalLink
+      <a
         className={`${buttonVariants({ variant: "default" })}`}
         href={`/paperless/details/${props.id}`}
       >
         Open full page
-      </OpenInternalLink>
+      </a>
     </QueryClientProvider>
   );
 }
