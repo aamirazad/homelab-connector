@@ -97,11 +97,13 @@ function Preview(props: { id: number }) {
 
   if (isPdfUrlLoading ?? isUserDataLoading) {
     return <SkeletonLoader />;
-  } else if (!pdfUrl || !userData) {
+  }
+  
+  if (!pdfUrl || !userData) {
     return <BodyMessage>Failed to get document</BodyMessage>;
   }
 
-  return <img src={pdfUrl} alt="Document Preview" className="h-full" />;
+  return <img src={pdfUrl} alt="Document Preview"/>;
 }
 
 export default function DocumentPreview(props: { id: number }) {

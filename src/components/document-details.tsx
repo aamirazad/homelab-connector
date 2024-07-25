@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { getUserData } from "@/app/actions";
-import { Button, buttonVariants } from "./ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import {
   useQuery,
@@ -26,8 +26,7 @@ import LoadingSpinner from "./loading-spinner";
 import OpenExternalLink from "./external-link";
 import type { PaperlessDocumentType } from "@/types";
 import React from "react";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import BodyMessage from "./body-message";
+import BodyMessage from "@/components/body-message";
 
 const queryClient = new QueryClient();
 
@@ -150,17 +149,16 @@ function DocumentDetailsInner(props: { id: number }) {
   return (
     <div className="flex h-full w-full min-w-0 justify-center">
       <div className="flex h-4/5 flex-col rounded-xl bg-slate-600/50 md:w-1/2">
-        <div className="m-4 flex flex-grow flex-col justify-center gap-8 md:m-8 md:flex-row md:gap-16">
-          <div>
-            {documentData?.title}
+        <div className="m-4 flex flex-grow flex-col justify-center gap-8 md:flex-row md:gap-16">
+          <div className="w-full">
+            <h1 className="mb-2 text-xl font-bold">{documentData?.title}</h1>
             <object
               data={pdfUrl}
               type="application/pdf"
-              width="100%"
-              height="100%"
+              className="w-full h-full"
             />
           </div>
-          <div className="flex flex-col gap-8">
+          <div className="flex w-36 flex-col gap-8">
             <Button
               onClick={(e) => {
                 e.preventDefault();
@@ -169,11 +167,10 @@ function DocumentDetailsInner(props: { id: number }) {
             >
               Back
             </Button>
-            <a>
+            {/* <a className={buttonVariants({ variant: "default" })}>
               Download
               <Download />
-            </a>
-            <div id="dialog-container" />
+            </a> */}
             <OpenExternalLink
               className={buttonVariants({ variant: "default" })}
               href={`${userData.paperlessURL}/documents/${props.id}/details/`}
@@ -228,7 +225,6 @@ export default function DocumentDetails(props: { id: number }) {
   return (
     <QueryClientProvider client={queryClient}>
       <DocumentDetailsInner {...props} />
-      <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
 }

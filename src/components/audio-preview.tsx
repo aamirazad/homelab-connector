@@ -10,7 +10,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import { useState } from "react";
-import OpenExternalLink from "./external-link";
+import OpenExternalLink from "@/components/external-link";
 import type { WhishperRecordingType } from "@/types";
 import {
   AlertDialog,
@@ -30,7 +30,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { toast } from "sonner";
-import BodyMessage from "./body-message";
+import BodyMessage from "@/components/body-message";
 
 const queryClient = new QueryClient();
 
