@@ -6,10 +6,11 @@ import {
   QueryClient,
 } from "@tanstack/react-query";
 import type { AdviceAPIType } from "@/types";
-import OpenInternalLink from "./internal-link";
 import type { UsersTableType } from "@/server/db/schema";
-import BodyMessage from "./body-message";
-import { buttonVariants } from "./ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { ChevronLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
 const queryClient = new QueryClient();
 
@@ -98,24 +99,29 @@ function Preview(props: { id: number }) {
   if (isPdfUrlLoading ?? isUserDataLoading) {
     return <SkeletonLoader />;
   }
-  
-  if (!pdfUrl || !userData) {
-    return <BodyMessage>Failed to get document</BodyMessage>;
-  }
 
-  return <img src={pdfUrl} alt="Document Preview"/>;
+  return <img src={pdfUrl} alt="Document Preview" />;
 }
 
 export default function DocumentPreview(props: { id: number }) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const query = searchParams.get("query");
+
   return (
     <QueryClientProvider client={queryClient}>
       <Preview id={props.id} />
-      <a
-        className={`${buttonVariants({ variant: "default" })}`}
-        href={`/paperless/details/${props.id}`}
-      >
-        Open full page
-      </a>
+      <div className="flex flex-col items-center gap-8">
+        <Button size="icon" className="bg-white" onClick={() => router.back()}>
+          <ChevronLeft className="h-4 w-4" color="black" />
+        </Button>
+        <a
+          className={`${buttonVariants({ variant: "default" })}`}
+          href={`/paperless/details/${props.id}?query=${query}`}
+        >
+          Open full page
+        </a>
+      </div>
     </QueryClientProvider>
   );
 }

@@ -15,7 +15,7 @@ import {
 import { toast } from "sonner";
 import { getUserData } from "@/app/actions";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   useQuery,
   QueryClientProvider,
@@ -27,6 +27,7 @@ import OpenExternalLink from "./external-link";
 import type { PaperlessDocumentType } from "@/types";
 import React from "react";
 import BodyMessage from "@/components/body-message";
+import Link from "next/link";
 
 const queryClient = new QueryClient();
 
@@ -111,6 +112,8 @@ async function getPaperlessDocumentData(id: number, userData: UsersTableType) {
 
 function DocumentDetailsInner(props: { id: number }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const query = searchParams.get("query");
 
   const { data: userData, isLoading: isUserDataLoading } = useQuery({
     queryKey: ["userData"],
@@ -155,18 +158,16 @@ function DocumentDetailsInner(props: { id: number }) {
             <object
               data={pdfUrl}
               type="application/pdf"
-              className="w-full h-full"
+              className="h-full w-full"
             />
           </div>
           <div className="flex w-36 flex-col gap-8">
-            <Button
-              onClick={(e) => {
-                e.preventDefault();
-                router.back();
-              }}
+            <Link
+              href={`/paperless?query=${query}`}
+              className={`${buttonVariants({ variant: "default" })}`}
             >
               Back
-            </Button>
+            </Link>
             {/* <a className={buttonVariants({ variant: "default" })}>
               Download
               <Download />
@@ -198,7 +199,7 @@ function DocumentDetailsInner(props: { id: number }) {
                       const response = await deleteDocument(props.id);
                       if (response.ok) {
                         toast("Pdf deleted", {
-                          description: "The recording has been deleted.",
+                          description: "The pdf has been deleted.",
                         });
                       } else {
                         toast("Error deleting pdf", {
@@ -206,7 +207,7 @@ function DocumentDetailsInner(props: { id: number }) {
                             "An error occurred while deleting the pdf.",
                         });
                       }
-                      router.back();
+                      router.push(`/paperless?query=${query}`);
                     }}
                   >
                     Continue
