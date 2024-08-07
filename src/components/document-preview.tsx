@@ -99,7 +99,6 @@ export default function DocumentPreview(props: { id: number }) {
         <div
           onClick={() =>
             router.replace(`/paperless/details/${props.id}?query=${query}`)
-            router.refresh()
           }
         >
           testing
