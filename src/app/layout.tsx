@@ -6,6 +6,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { ThemeProvider } from "@/components/theme-provider";
 import { cn } from "@/lib/utils";
 import { dark } from "@clerk/themes";
+import { CSPostHogProvider } from "@/app/_analytics/provider";
 
 export const metadata = {
   title: "Homelab Connector",
@@ -26,27 +27,29 @@ export default function RootLayout({
         baseTheme: dark,
       }}
     >
-      <html
-        suppressHydrationWarning
-        lang="en"
-        className={cn(
-          "min-h-screen bg-background font-sans antialiased",
-          GeistSans.variable,
-        )}
-      >
-        <body className="h-screen">
-          <ThemeProvider attribute="class" defaultTheme="dark">
-            <div className="flex h-full flex-col gap-12 md:gap-0">
-              <TopNav />
-              <div className="flex h-full flex-col items-center p-4 px-6">
-                {children}
+      <CSPostHogProvider>
+        <html
+          suppressHydrationWarning
+          lang="en"
+          className={cn(
+            "min-h-screen bg-background font-sans antialiased",
+            GeistSans.variable,
+          )}
+        >
+          <body className="h-screen">
+            <ThemeProvider attribute="class" defaultTheme="dark">
+              <div className="flex h-full flex-col gap-12 md:gap-0">
+                <TopNav />
+                <div className="flex h-full flex-col items-center p-4 px-6">
+                  {children}
+                </div>
               </div>
-            </div>
-            {modal}
-            <div id="modal-root" />
-          </ThemeProvider>
-        </body>
-      </html>
+              {modal}
+              <div id="modal-root" />
+            </ThemeProvider>
+          </body>
+        </html>
+      </CSPostHogProvider>
     </ClerkProvider>
   );
 }
