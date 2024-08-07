@@ -6,21 +6,35 @@ import {
   QueryClient,
 } from "@tanstack/react-query";
 import type { UsersTableType } from "@/server/db/schema";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { ChevronLeft, ExternalLink } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
+import { useState } from "react";
+import OpenExternalLink from "./external-link";
+import type { WhishperRecordingType } from "@/types";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useState } from "react";
+import { toast } from "sonner";
 
 const queryClient = new QueryClient();
 
 const fetchUserData = async (): Promise<UsersTableType> => {
-  const response = await fetch(`/api/getUserData`);
+  const response = await fetch("/api/getUserData");
   if (!response.ok) {
     throw new Error("Network error");
   }
@@ -53,29 +67,92 @@ function SkeletonLoader() {
   );
 }
 
-function AudioInfo(props: { name: string }) {
+async function fetchWhishperRecording(searchId: string, whishperURL: string) {
+  const response = await fetch(`${whishperURL}/api/transcriptions`);
+  const data = (await response.json()) as WhishperRecordingType[];
+  for (const recording of data) {
+    if (recording.id === searchId) {
+      return recording;
+    }
+  }
+}
+
+async function deleteWhishperRecording(url: string) {
+  const response = await fetch(url, {
+    method: "DELETE",
+  });
+
+  if (!response.ok) {
+    throw new Error("Network error");
+  }
+
+  return response;
+}
+
+type AudioInfoProps = {
+  id: string;
+};
+
+function AudioInfo({ id }: AudioInfoProps) {
   const router = useRouter();
   const [isPlaying, setIsPlaying] = useState(false);
 
   const {
     data: userData,
     isLoading: isUserDataLoading,
-    error,
+    error: userDataError,
   } = useQuery({
     queryKey: ["userData"],
     queryFn: fetchUserData,
   });
 
-  const decodedName = decodeURIComponent(props.name);
-  const frontPart = decodedName.split("_WHSHPR_")[1] ?? decodedName;
-  const formattedName = frontPart.replace(".m4a", "") ?? decodedName;
+  const whishperURL = userData?.whishperURL;
+
+  const {
+    data: recordingData,
+    isLoading: isRecordingDataLoading,
+    error: recordingDataError,
+  } = useQuery({
+    queryKey: ["whishperRecording", id, whishperURL], // Include id in the query key
+    queryFn: () => fetchWhishperRecording(id, whishperURL!),
+    enabled: !!whishperURL, // Only fetch recording data when userData is available
+  });
 
   if (isUserDataLoading) {
     return <SkeletonLoader />;
   }
-  if (!userData?.whishperURL ?? error) {
-    return <h1>Failed to get whishper url</h1>;
+
+  if (userDataError ?? !userData) {
+    return (
+      <div className="flex justify-center">
+        <div className="mx-auto max-w-sm rounded-lg bg-slate-700 p-4 shadow-md">
+          <h1 className="w-full text-center text-2xl font-bold">
+            Error loading user data
+          </h1>
+        </div>
+      </div>
+    );
   }
+
+  if (isRecordingDataLoading) {
+    return <SkeletonLoader />;
+  }
+
+  if (recordingDataError ?? !recordingData) {
+    return (
+      <div className="flex justify-center">
+        <div className="mx-auto max-w-sm rounded-lg bg-slate-700 p-4 shadow-md">
+          <h1 className="w-full text-center text-2xl font-bold">
+            Error loading recording data
+          </h1>
+        </div>
+      </div>
+    );
+  }
+
+  const decodedName = decodeURIComponent(recordingData.fileName);
+  const frontPart = decodedName.split("_WHSHPR_")[1] ?? decodedName;
+  const formattedName = frontPart.replace(".m4a", "") ?? decodedName;
 
   return (
     <div className="flex w-full justify-center">
@@ -104,52 +181,81 @@ function AudioInfo(props: { name: string }) {
                 onPause={() => setIsPlaying(false)}
               >
                 <source
-                  src={`${userData.whishperURL}/api/video/${props.name}`}
+                  src={`${userData.whishperURL}/api/video/${recordingData.fileName}`}
                   type="audio/mp4"
                 />
               </audio>
             </div>
             <div className="flex w-full flex-shrink-0 justify-center gap-12">
-              <TooltipProvider delayDuration={50}>
+              <Button className="w-24">
+                <OpenExternalLink
+                  href={`${userData.whishperURL}/editor/${id}`}
+                  className="text-primary-foreground"
+                >
+                  Open
+                </OpenExternalLink>
+              </Button>
+              <TooltipProvider delayDuration={0}>
                 <Tooltip>
-                  <TooltipTrigger
-                    aria-disabled="true"
-                    tabIndex={-1}
-                    className="cursor-not-allowed opacity-50"
-                  >
-                    <Button className="w-24">
-                      <ExternalLink /> Open
-                    </Button>
+                  <TooltipTrigger>
+                    <a
+                      href={`${userData.whishperURL}/api/video/${recordingData.fileName}`}
+                      download={recordingData.fileName}
+                      className={`w-24 ${buttonVariants({ variant: "link" })}`}
+                      target="_blank"
+                    >
+                      Download
+                    </a>
                   </TooltipTrigger>
-                  <TooltipContent>Comming soon!</TooltipContent>
+                  <TooltipContent>
+                    <p>
+                      To download the audio file, right click and select
+                      &quot;Save as&quot;.
+                    </p>
+                  </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
-              <TooltipProvider delayDuration={50}>
-                <Tooltip>
-                  <TooltipTrigger
-                    aria-disabled="true"
-                    tabIndex={-1}
-                    className="cursor-not-allowed opacity-50"
-                  >
-                    <Button className="w-24">Download</Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Comming soon!</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-              <TooltipProvider delayDuration={50}>
-                <Tooltip>
-                  <TooltipTrigger
-                    aria-disabled="true"
-                    tabIndex={-1}
-                    className="cursor-not-allowed opacity-50"
-                  >
-                    <Button className="w-24" variant="destructive">
-                      Delete
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Comming soon!</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              <AlertDialog>
+                <AlertDialogTrigger>
+                  <Button className="w-24" variant="destructive">
+                    Delete
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>
+                      Are you absolutely sure?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This will permanently delete
+                      the recording.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={async () => {
+                        const response = await deleteWhishperRecording(
+                          `${userData.whishperURL}/api/transcriptions/${id}`,
+                        );
+                        if (response.ok) {
+                          toast("Recording deleted", {
+                            description: "The recording has been deleted.",
+                          });
+                        } else {
+                          toast("Error deleting recording", {
+                            description:
+                              "An error occurred while deleting the recording.",
+                          });
+                        }
+                        router.back();
+                      }}
+                    >
+                      Continue
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           </div>
         </div>
@@ -158,10 +264,10 @@ function AudioInfo(props: { name: string }) {
   );
 }
 
-export default function AudioPreview({ name }: { name: string }) {
+export default function AudioPreview({ id }: { id: string }) {
   return (
     <QueryClientProvider client={queryClient}>
-      <AudioInfo name={name} />
+      <AudioInfo id={id} />
     </QueryClientProvider>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Button } from "./ui/button";
+import { Button, buttonVariants } from "./ui/button";
 import { useRouter } from "next/navigation";
 import { getUserData } from "@/app/actions";
 import {
@@ -11,17 +11,28 @@ import {
 } from "@tanstack/react-query";
 import type { AdviceAPIType } from "@/types";
 import OpenInternalLink from "./internal-link";
+import OpenExternalLink from "./external-link";
+import type { UsersTableType } from "@/server/db/schema";
+import { Download } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 
 const queryClient = new QueryClient();
 
 async function getPaperlessDocument(
   documentId: number,
+  userData: UsersTableType,
 ): Promise<string | null> {
-  const userData = await getUserData();
-  if (!userData) {
-    console.error("Error getting user data");
-    return null;
-  }
   try {
     const url = `${userData.paperlessURL}/api/documents/${documentId}/download/`;
     const response = await fetch(url, {
@@ -85,49 +96,60 @@ function SkeletonLoader() {
   );
 }
 
+const fetchUserData = async (): Promise<UsersTableType> => {
+  const response = await fetch(`/api/getUserData`);
+  if (!response.ok) {
+    throw new Error("Network error");
+  }
+  const data = (await response.json()) as UsersTableType;
+  return data;
+};
+
+async function deleteDocument(documentId: number) {
+  const userData = await getUserData();
+  if (!userData) {
+    throw new Error("User data not found");
+  }
+  const body = {
+    documents: [documentId],
+    method: "delete",
+  };
+  const response = await fetch(
+    `${userData.paperlessURL}/api/documents/bulk_edit/ `,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Token ${userData.paperlessToken}`,
+      },
+      body: JSON.stringify(body),
+    },
+  );
+  return response;
+}
+
 function DocumentViewer(props: { id: number }) {
   const router = useRouter();
 
-  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const fetchDataCalledRef = useRef(false);
+  const { data: userData, isLoading: isUserDataLoading } = useQuery({
+    queryKey: ["userData"],
+    queryFn: fetchUserData,
+  });
 
-  useEffect(() => {
-    if (!fetchDataCalledRef.current) {
-      const fetchData = async () => {
-        setLoading(true);
+  const { data: pdfUrl, isLoading: isPdfUrlLoading } = useQuery({
+    queryKey: ["pdfUrl", props.id, userData], // Include id and paperlessURL in the query key
+    queryFn: () => getPaperlessDocument(props.id, userData!),
+    enabled: !!userData,
+  });
 
-        try {
-          const objectUrl = await getPaperlessDocument(props.id);
-          if (objectUrl) {
-            setPdfUrl(objectUrl);
-          } else {
-            setPdfUrl(null);
-          }
-        } catch (error) {
-          console.error("An error occurred:", error);
-          setPdfUrl(null);
-        } finally {
-          setLoading(false);
-        }
-      };
-
-      fetchData().catch((error) => {
-        console.error("An error occurred:", error);
-      });
-
-      fetchDataCalledRef.current = true; // Mark as fetched
-    }
-  }, [props.id]); // Include props.id in the dependency array if refetch is needed on id change
-
-  if (loading) {
+  if (isPdfUrlLoading ?? isUserDataLoading) {
     return <SkeletonLoader />;
   }
 
-  if (!pdfUrl) {
+  if (!pdfUrl || !userData) {
     return (
       <div className="flex justify-center">
-        <div className="mx-auto max-w-sm rounded-lg bg-black p-4 shadow-md">
+        <div className="mx-auto max-w-sm rounded-lg bg-slate-700 p-4 shadow-md">
           <h1 className="w-full text-center text-2xl font-bold">
             Failed to get document
           </h1>
@@ -155,7 +177,7 @@ function DocumentViewer(props: { id: number }) {
               </p>
             </object>
           </div>
-          <div className="flex flex-shrink-0 flex-col">
+          <div className="flex flex-shrink-0 flex-col gap-8">
             <Button
               onClick={(e) => {
                 e.preventDefault();
@@ -164,6 +186,58 @@ function DocumentViewer(props: { id: number }) {
             >
               Back
             </Button>
+            <a
+              href={pdfUrl}
+              download={pdfUrl}
+              className={`${buttonVariants({ variant: "default" })}`}
+            >
+              Download
+              <Download />
+            </a>
+            <div id="dialog-container" />
+            <OpenExternalLink
+              className={buttonVariants({ variant: "default" })}
+              href={`${userData.paperlessURL}/documents/${props.id}/details/`}
+            >
+              Open
+            </OpenExternalLink>
+            <AlertDialog>
+              <AlertDialogTrigger>
+                <Button className="w-24" variant="destructive">
+                  Delete
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete
+                    the recording.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={async () => {
+                      const response = await deleteDocument(props.id);
+                      if (response.ok) {
+                        toast("Pdf deleted", {
+                          description: "The recording has been deleted.",
+                        });
+                      } else {
+                        toast("Error deleting pdf", {
+                          description:
+                            "An error occurred while deleting the pdf.",
+                        });
+                      }
+                      router.back();
+                    }}
+                  >
+                    Continue
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </div>
       </div>

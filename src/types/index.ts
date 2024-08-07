@@ -95,7 +95,20 @@ export type WhishperRecordingType = {
     }[];
     text: string;
   };
-  translations: [];
+  translations: Translation[];
+};
+
+type Translation = {
+  sourceLanguage: string;
+  targetLanguage: string;
+  text: string;
+  segments: [];
+};
+
+export type SimpleWhishperTranscription = {
+  id: string;
+  duration: number;
+  name: string;
 };
 
 export type AdviceAPIType = {

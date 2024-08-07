@@ -4,11 +4,11 @@ import AudioPreview from "@/components/audio-preview";
 export default function ModalAudioPreview({
   params,
 }: {
-  params: { name: string };
+  params: { id: string };
 }) {
   return (
     <Modal>
-      <AudioPreview name={params.name} />
+      <AudioPreview id={params.id} />
     </Modal>
   );
 }

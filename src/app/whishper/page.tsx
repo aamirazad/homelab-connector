@@ -46,7 +46,7 @@ import type { WhishperRecordingType } from "@/types";
 
 const queryClient = new QueryClient();
 
-export async function getWhishperRecordings(
+async function getWhishperRecordings(
   query: string,
 ): Promise<WhishperRecordingType[] | null> {
   const userData = await getUserData();
@@ -224,7 +224,7 @@ function DataTable<TData extends WhishperRecordingType>({
       header: "Name",
       cell: ({ getValue, row }) => (
         <OpenInternalLink
-          href={`/whishper/recording/${row.original.fileName}?query=${query}`}
+          href={`/whishper/recording/${row.original.id}?query=${query}`}
         >
           {getValue() as string}
         </OpenInternalLink>
