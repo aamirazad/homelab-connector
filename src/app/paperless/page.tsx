@@ -50,7 +50,6 @@ async function getPaperlessDocuments(query: string) {
   return data;
 }
 
-
 function DocumentsSearch() {
   const formSchema = z.object({
     query: z.string().min(3).max(256),
@@ -163,21 +162,26 @@ function DocumentsPage() {
   }
 
   return (
-    <>
-      <h1 className="text-2xl font-bold">Search Results</h1>
-      <ul className="list-disc">
-        {paperlessDocumentMap.map((document, index) => (
-          <li className="underline" key={index}>
-            <Link
-              className="underline hover:text-slate-300"
-              href={`/paperless/document/${document.id}?query=${query}`}
-            >
-              {document.title}
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </>
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {paperlessDocumentMap.map((document, index) => (
+        <div
+          key={index}
+          className="rounded-lg border p-4 shadow transition-shadow duration-300 hover:shadow-lg"
+        >
+          <img
+            src={`${userData.data?.paperlessURL}/api/documents/${document.id}/thumb/`}
+            alt={document.title}
+            className="h-32 w-full rounded object-cover"
+          />
+          <Link
+            className="mt-2 block text-lg font-semibold underline hover:text-slate-300"
+            href={`/paperless/document/${document.id}?query=${query}`}
+          >
+            {document.title}
+          </Link>
+        </div>
+      ))}
+    </div>
   );
 }
 
@@ -200,6 +204,9 @@ export default function PaperlessPage() {
             </div>
             <div className="w-full">
               <QueryClientProvider client={queryClient}>
+                <h1 className="mb-4 text-center text-2xl font-bold">
+                  Search Results
+                </h1>
                 <DocumentsPage />
               </QueryClientProvider>
             </div>
