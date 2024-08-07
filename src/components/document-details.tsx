@@ -1,6 +1,5 @@
 "use client";
 
-import { Download } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,7 +13,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { getUserData } from "@/app/actions";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   useQuery,
@@ -96,7 +95,6 @@ async function getPaperlessDocumentData(id: number, userData: UsersTableType) {
         Authorization: `Token ${userData.paperlessToken}`,
       },
     });
-    console.log(response);
     if (response.ok) {
       const data = (await response.json()) as PaperlessDocumentType;
       return data;
@@ -126,7 +124,6 @@ function DocumentDetailsInner(props: { id: number }) {
     queryKey: ["pdfUrl", props.id, userData], // Include id and userData in the query key
     queryFn: async () => {
       const result = await getPaperlessDocument(props.id, userData!);
-      console.log("Fetched PDF URL:", result);
       return result;
     },
     enabled: !!userData,
@@ -137,7 +134,6 @@ function DocumentDetailsInner(props: { id: number }) {
     queryKey: ["documentData", props.id, userData], // Include id and userData in the query key
     queryFn: async () => {
       const result = await getPaperlessDocumentData(props.id, userData!);
-      console.log("Fetched Document Data:", result);
       return result;
     },
     enabled: !!userData,
@@ -153,14 +149,17 @@ function DocumentDetailsInner(props: { id: number }) {
     <div className="flex h-full w-full min-w-0 justify-center">
       <div className="flex h-4/5 flex-col rounded-xl bg-slate-600/50 md:w-1/2">
         <div className="m-4 flex flex-grow flex-col justify-center gap-8 md:flex-row md:gap-16">
-          <div className="w-full">
+          <div className="flex h-full w-full flex-col">
             <h1 className="mb-2 text-xl font-bold">{documentData?.title}</h1>
-            <object
-              data={pdfUrl}
-              type="application/pdf"
-              className="h-full w-full"
-            />
+            <div className="flex-grow overflow-hidden">
+              <object
+                data={pdfUrl}
+                type="application/pdf"
+                className="h-full max-h-full w-full max-w-full"
+              />
+            </div>
           </div>
+
           <div className="flex w-36 flex-col gap-8">
             <Link
               href={`/paperless?query=${query}`}
@@ -169,9 +168,9 @@ function DocumentDetailsInner(props: { id: number }) {
               Back
             </Link>
             {/* <a className={buttonVariants({ variant: "default" })}>
-              Download
-              <Download />
-            </a> */}
+          Download
+          <Download />
+        </a> */}
             <OpenExternalLink
               className={buttonVariants({ variant: "default" })}
               href={`${userData.paperlessURL}/documents/${props.id}/details/`}
@@ -189,7 +188,7 @@ function DocumentDetailsInner(props: { id: number }) {
                   <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                   <AlertDialogDescription>
                     This action cannot be undone. This will permanently delete
-                    the recording.
+                    the pdf.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
