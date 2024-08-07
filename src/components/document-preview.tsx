@@ -5,7 +5,6 @@ import {
   QueryClientProvider,
   QueryClient,
 } from "@tanstack/react-query";
-import type { AdviceAPIType } from "@/types";
 import type { UsersTableType } from "@/server/db/schema";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
@@ -40,30 +39,11 @@ export async function getPaperlessThumbnail(
 }
 
 function SkeletonLoader() {
-  const { data: advice, isLoading } = useQuery({
-    queryKey: ["advice"],
-    queryFn: async () => {
-      const response = await fetch("https://api.adviceslip.com/advice");
-      return (await response.json()) as AdviceAPIType;
-    },
-  });
-
   return (
-    <div className="m-4 flex h-full flex-grow flex-col justify-center gap-8 md:m-8 md:flex-row md:gap-16">
-      {/* PDF Skeleton */}
-      <div className="relative flex h-full flex-shrink flex-grow items-center justify-center rounded-lg">
+    <div className="m-4 flex h-full flex-grow flex-col justify-center gap-8 bg-gray-200 md:m-8 md:flex-row md:gap-16">
+      <div className="relative flex h-full w-full flex-shrink flex-grow items-center justify-center rounded-lg">
         {/* Pulsing Background */}
-        <div className="absolute inset-0 animate-pulse rounded-lg bg-gray-400" />
-        {/* Text Overlay */}
-        <div className="z-10 flex items-center justify-center">
-          <div className="text-center text-black">
-            {isLoading
-              ? "Loading advice..."
-              : advice?.slip.advice === null
-                ? "Unable to fetch advice"
-                : advice?.slip.advice}
-          </div>
-        </div>
+        <div className="absolute inset-0 h-full w-full animate-pulse rounded-lg bg-gray-300" />
       </div>
     </div>
   );
