@@ -10,6 +10,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 
 const queryClient = new QueryClient();
 
@@ -95,12 +96,20 @@ export default function DocumentPreview(props: { id: number }) {
         <Button size="icon" className="bg-white" onClick={() => router.back()}>
           <ChevronLeft className="h-4 w-4" color="black" />
         </Button>
-        <a
+        <div
+          onClick={() =>
+            router.replace(`/paperless/details/${props.id}?query=${query}`)
+            router.refresh()
+          }
+        >
+          testing
+        </div>
+        <Link
           className={`${buttonVariants({ variant: "default" })}`}
           href={`/paperless/details/${props.id}?query=${query}`}
         >
           Open full page
-        </a>
+        </Link>
       </div>
     </QueryClientProvider>
   );
