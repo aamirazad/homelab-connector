@@ -22,11 +22,34 @@ import {
   QueryClient,
 } from "@tanstack/react-query";
 import LoadingSpinner from "@/components/loading-spinner";
-import { getPaperlessDocuments, getUserData } from "@/app/actions";
+import { getUserData } from "@/app/actions";
 import Link from "next/link";
 import OpenInternalLink from "@/components/internal-link";
+import type { PaperlessDocumentsType } from "@/types";
 
 const queryClient = new QueryClient();
+
+async function getPaperlessDocuments(query: string) {
+  const userData = await getUserData();
+
+  if (!query || query == "null" || query.length < 3 || !userData) return null;
+
+  const response = await fetch(
+    `${userData.paperlessURL}/api/documents/?query=${query}&page=1&page_size=10&truncate_content=true`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Token ${userData.paperlessToken}`,
+      },
+    },
+  );
+
+  const data = (await response.json()) as PaperlessDocumentsType;
+
+  return data;
+}
+
 
 function DocumentsSearch() {
   const formSchema = z.object({
@@ -97,6 +120,8 @@ function DocumentsPage() {
     },
     // This ensures the query does not run if there's no query string
     enabled: !!query,
+    staleTime: 60 * 1000, // 1 minute in milliseconds
+    refetchOnWindowFocus: false,
   });
 
   const userData = useQuery({
@@ -105,6 +130,8 @@ function DocumentsPage() {
       const data = await getUserData();
       return data;
     },
+    staleTime: 24 * 60 * 60 * 1000, // 1 day in milliseconds
+    refetchOnWindowFocus: false,
   });
 
   if (!query) {
