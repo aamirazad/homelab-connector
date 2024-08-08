@@ -12,6 +12,23 @@ export function Modal({ children }: { children: React.ReactNode }) {
     if (!dialogRef.current?.open) {
       dialogRef.current?.showModal();
     }
+
+    const closeModal = () => {
+      if (dialogRef.current?.open) {
+        dialogRef.current.close();
+      }
+    };
+
+    const handleRouteChange = () => {
+      closeModal();
+    };
+
+    // Listen for route changes
+    window.addEventListener("popstate", handleRouteChange);
+
+    return () => {
+      window.removeEventListener("popstate", handleRouteChange);
+    };
   }, []);
 
   function onDismiss() {

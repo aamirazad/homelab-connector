@@ -165,7 +165,7 @@ function DocumentDetailsInner(props: { id: number }) {
               href={`/paperless?query=${query}`}
               className={`${buttonVariants({ variant: "default" })}`}
             >
-              Back
+              Back to search
             </Link>
             {/* <a className={buttonVariants({ variant: "default" })}>
           Download
