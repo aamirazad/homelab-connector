@@ -26,6 +26,7 @@ import { getUserData } from "@/app/actions";
 import Link from "next/link";
 import OpenInternalLink from "@/components/internal-link";
 import type { PaperlessDocumentsType } from "@/types";
+import { UsersTableType } from "@/server/db/schema";
 
 const queryClient = new QueryClient();
 
@@ -48,6 +49,31 @@ async function getPaperlessDocuments(query: string) {
   const data = (await response.json()) as PaperlessDocumentsType;
 
   return data;
+}
+
+export async function getPaperlessThumbnail(
+  documentId: number,
+  userData: UsersTableType,
+): Promise<string | null> {
+  try {
+    const url = `${userData.paperlessURL}/api/documents/${documentId}/thumb/`;
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Token ${userData.paperlessToken}`,
+      },
+    });
+    if (response.ok) {
+      const blob = await response.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      return objectUrl;
+    } else {
+      console.error("Failed to fetch PDF");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error fetching PDF:", error);
+    return null;
+  }
 }
 
 function DocumentsSearch() {
