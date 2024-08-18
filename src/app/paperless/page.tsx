@@ -26,7 +26,8 @@ import { getUserData } from "@/app/actions";
 import Link from "next/link";
 import OpenInternalLink from "@/components/internal-link";
 import type { PaperlessDocumentsType } from "@/types";
-import { UsersTableType } from "@/server/db/schema";
+import type { UsersTableType } from "@/server/db/schema";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 const queryClient = new QueryClient();
 
@@ -134,7 +135,11 @@ function DocumentsPage() {
   const searchParams = useSearchParams();
   const query = searchParams.get("query");
 
-  const PaperlessDocuments = useQuery({
+  const {
+    data: PaperlessDocuments,
+    isLoading: isLoadingDocuments,
+    error: documentsError,
+  } = useQuery({
     queryKey: ["key", query],
     queryFn: async () => {
       if (!query) {
@@ -143,13 +148,16 @@ function DocumentsPage() {
       const response = await getPaperlessDocuments(query);
       return response;
     },
-    // This ensures the query does not run if there's no query string
     enabled: !!query,
     staleTime: 60 * 1000, // 1 minute in milliseconds
     refetchOnWindowFocus: false,
   });
 
-  const userData = useQuery({
+  const {
+    data: userData,
+    isLoading: isLoadingUserData,
+    error: userDataError,
+  } = useQuery({
     queryKey: ["userData"],
     queryFn: async () => {
       const data = await getUserData();
@@ -159,20 +167,37 @@ function DocumentsPage() {
     refetchOnWindowFocus: false,
   });
 
+  const documentIds = PaperlessDocuments.results.map((document) => document.id);
+
+  const { data: imageUrls, isLoading: isLoadingImages } = useQuery({
+    queryKey: ["imageUrls", documentIds, userData],
+    queryFn: async () => {
+      const imageUrls = new Map<number, string | null>();
+      if (documentIds && userData) {
+        for (const id of documentIds) {
+          const url = await getPaperlessThumbnail(id, userData);
+          imageUrls.set(id, url);
+        }
+      }
+      return imageUrls;
+    },
+    enabled: !!PaperlessDocuments?.results,
+  });
+
   if (!query) {
     return <h1 className="text-2xl font-bold">Start Searching!</h1>;
   }
 
-  if (PaperlessDocuments.isLoading || userData.isLoading) {
+  if (isLoadingDocuments || isLoadingUserData || isLoadingImages) {
     return <LoadingSpinner>Loading...</LoadingSpinner>;
-  } else if (!userData.data?.paperlessURL) {
+  } else if (userDataError || !userData?.paperlessURL) {
     return (
       <h1 className="text-2xl font-bold">
         You need to set your paperless url in
         <OpenInternalLink href="/settings">settings</OpenInternalLink>
       </h1>
     );
-  } else if (!PaperlessDocuments.data || PaperlessDocuments.error) {
+  } else if (documentsError || !PaperlessDocuments) {
     return (
       <h1 className="text-2xl font-bold">
         Connection failed! Check that the paperless url/token is set correctly
@@ -181,9 +206,9 @@ function DocumentsPage() {
     );
   }
 
-  const paperlessDocumentMap = PaperlessDocuments.data.results;
+  const paperlessDocumentMap = PaperlessDocuments.results;
 
-  if (!paperlessDocumentMap ?? paperlessDocumentMap.length === 0) {
+  if (paperlessDocumentMap.length === 0) {
     return <h1 className="text-2xl font-bold">No results!</h1>;
   }
 
@@ -195,7 +220,7 @@ function DocumentsPage() {
           className="rounded-lg border p-4 shadow transition-shadow duration-300 hover:shadow-lg"
         >
           <img
-            src={`${userData.data?.paperlessURL}/api/documents/${document.id}/thumb/`}
+            src={imageUrls?.get(document.id) || ""}
             alt={document.title}
             className="h-32 w-full rounded object-cover"
           />
@@ -234,6 +259,7 @@ export default function PaperlessPage() {
                   Search Results
                 </h1>
                 <DocumentsPage />
+                <ReactQueryDevtools initialIsOpen={false} />
               </QueryClientProvider>
             </div>
           </div>
