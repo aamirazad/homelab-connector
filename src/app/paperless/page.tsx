@@ -27,7 +27,7 @@ import Link from "next/link";
 import OpenInternalLink from "@/components/internal-link";
 import type { PaperlessDocumentsType } from "@/types";
 import type { UsersTableType } from "@/server/db/schema";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import Image from "next/image";
 
 const queryClient = new QueryClient();
 
@@ -223,15 +223,17 @@ function DocumentsPage() {
             key={index}
             className="rounded-lg border p-4 shadow transition-shadow duration-300 hover:shadow-lg"
           >
-            <img
-              src={imageUrls.get(document.id) || ""}
-              alt={document.title}
-              className="h-32 w-full rounded object-cover"
-            />
             <Link
               className="mt-2 block text-lg font-semibold underline hover:text-slate-300"
-              href={`/paperless/document/${document.id}?query=${query}`}
+              href={`/paperless/details/${document.id}?query=${query}`}
             >
+              <Image
+                src={imageUrls.get(document.id) ?? ""}
+                alt={document.title}
+                width={40}
+                height={128}
+                className="h-32 w-full rounded object-cover mb-2"
+              />
               {document.title}
             </Link>
           </div>
@@ -261,7 +263,6 @@ export default function PaperlessPage() {
             <div className="w-full">
               <QueryClientProvider client={queryClient}>
                 <DocumentsPage />
-                <ReactQueryDevtools initialIsOpen={false} />
               </QueryClientProvider>
             </div>
           </div>
