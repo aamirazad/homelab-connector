@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   useQuery,
   QueryClientProvider,
@@ -167,28 +167,30 @@ function DocumentsPage() {
     refetchOnWindowFocus: false,
   });
 
-  const documentIds = PaperlessDocuments.results.map((document) => document.id);
+  const [imageUrls, setImageUrls] = useState(new Map<number, string | null>());
 
-  const { data: imageUrls, isLoading: isLoadingImages } = useQuery({
-    queryKey: ["imageUrls", documentIds, userData],
-    queryFn: async () => {
-      const imageUrls = new Map<number, string | null>();
-      if (documentIds && userData) {
-        for (const id of documentIds) {
-          const url = await getPaperlessThumbnail(id, userData);
-          imageUrls.set(id, url);
+  useEffect(() => {
+    const fetchImageUrls = async () => {
+      const newImageUrls = new Map<number, string | null>();
+      if (PaperlessDocuments?.results && userData) {
+        for (const document of PaperlessDocuments.results) {
+          const url = await getPaperlessThumbnail(document.id, userData);
+          newImageUrls.set(document.id, url);
         }
       }
-      return imageUrls;
-    },
-    enabled: !!PaperlessDocuments?.results,
-  });
+      setImageUrls(newImageUrls);
+    };
+
+    void fetchImageUrls();
+  }, [PaperlessDocuments, userData]);
 
   if (!query) {
-    return <h1 className="text-2xl font-bold">Start Searching!</h1>;
+    return (
+      <h1 className="mb-4 text-center text-2xl font-bold">Start searching</h1>
+    );
   }
 
-  if (isLoadingDocuments || isLoadingUserData || isLoadingImages) {
+  if (isLoadingDocuments || isLoadingUserData) {
     return <LoadingSpinner>Loading...</LoadingSpinner>;
   } else if (userDataError || !userData?.paperlessURL) {
     return (
@@ -209,30 +211,33 @@ function DocumentsPage() {
   const paperlessDocumentMap = PaperlessDocuments.results;
 
   if (paperlessDocumentMap.length === 0) {
-    return <h1 className="text-2xl font-bold">No results!</h1>;
+    return <h1 className="mb-4 text-center text-2xl font-bold">No results</h1>;
   }
 
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-      {paperlessDocumentMap.map((document, index) => (
-        <div
-          key={index}
-          className="rounded-lg border p-4 shadow transition-shadow duration-300 hover:shadow-lg"
-        >
-          <img
-            src={imageUrls?.get(document.id) || ""}
-            alt={document.title}
-            className="h-32 w-full rounded object-cover"
-          />
-          <Link
-            className="mt-2 block text-lg font-semibold underline hover:text-slate-300"
-            href={`/paperless/document/${document.id}?query=${query}`}
+    <>
+      <h1 className="mb-4 text-center text-2xl font-bold">Search Results</h1>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {paperlessDocumentMap.map((document, index) => (
+          <div
+            key={index}
+            className="rounded-lg border p-4 shadow transition-shadow duration-300 hover:shadow-lg"
           >
-            {document.title}
-          </Link>
-        </div>
-      ))}
-    </div>
+            <img
+              src={imageUrls.get(document.id) || ""}
+              alt={document.title}
+              className="h-32 w-full rounded object-cover"
+            />
+            <Link
+              className="mt-2 block text-lg font-semibold underline hover:text-slate-300"
+              href={`/paperless/document/${document.id}?query=${query}`}
+            >
+              {document.title}
+            </Link>
+          </div>
+        ))}
+      </div>
+    </>
   );
 }
 
@@ -255,9 +260,6 @@ export default function PaperlessPage() {
             </div>
             <div className="w-full">
               <QueryClientProvider client={queryClient}>
-                <h1 className="mb-4 text-center text-2xl font-bold">
-                  Search Results
-                </h1>
                 <DocumentsPage />
                 <ReactQueryDevtools initialIsOpen={false} />
               </QueryClientProvider>
