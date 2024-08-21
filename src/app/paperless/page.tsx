@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   useQuery,
   QueryClientProvider,
@@ -26,6 +26,8 @@ import { getUserData } from "@/app/actions";
 import Link from "next/link";
 import OpenInternalLink from "@/components/internal-link";
 import type { PaperlessDocumentsType } from "@/types";
+import type { UsersTableType } from "@/server/db/schema";
+import Image from "next/image";
 
 const queryClient = new QueryClient();
 
@@ -50,6 +52,30 @@ async function getPaperlessDocuments(query: string) {
   return data;
 }
 
+export async function getPaperlessThumbnail(
+  documentId: number,
+  userData: UsersTableType,
+): Promise<string | null> {
+  try {
+    const url = `${userData.paperlessURL}/api/documents/${documentId}/thumb/`;
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Token ${userData.paperlessToken}`,
+      },
+    });
+    if (response.ok) {
+      const blob = await response.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      return objectUrl;
+    } else {
+      console.error("Failed to fetch PDF");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error fetching PDF:", error);
+    return null;
+  }
+}
 
 function DocumentsSearch() {
   const formSchema = z.object({
@@ -109,7 +135,11 @@ function DocumentsPage() {
   const searchParams = useSearchParams();
   const query = searchParams.get("query");
 
-  const PaperlessDocuments = useQuery({
+  const {
+    data: PaperlessDocuments,
+    isLoading: isLoadingDocuments,
+    error: documentsError,
+  } = useQuery({
     queryKey: ["key", query],
     queryFn: async () => {
       if (!query) {
@@ -118,13 +148,16 @@ function DocumentsPage() {
       const response = await getPaperlessDocuments(query);
       return response;
     },
-    // This ensures the query does not run if there's no query string
     enabled: !!query,
     staleTime: 60 * 1000, // 1 minute in milliseconds
     refetchOnWindowFocus: false,
   });
 
-  const userData = useQuery({
+  const {
+    data: userData,
+    isLoading: isLoadingUserData,
+    error: userDataError,
+  } = useQuery({
     queryKey: ["userData"],
     queryFn: async () => {
       const data = await getUserData();
@@ -134,20 +167,39 @@ function DocumentsPage() {
     refetchOnWindowFocus: false,
   });
 
+  const [imageUrls, setImageUrls] = useState(new Map<number, string | null>());
+
+  useEffect(() => {
+    const fetchImageUrls = async () => {
+      const newImageUrls = new Map<number, string | null>();
+      if (PaperlessDocuments?.results && userData) {
+        for (const document of PaperlessDocuments.results) {
+          const url = await getPaperlessThumbnail(document.id, userData);
+          newImageUrls.set(document.id, url);
+        }
+      }
+      setImageUrls(newImageUrls);
+    };
+
+    void fetchImageUrls();
+  }, [PaperlessDocuments, userData]);
+
   if (!query) {
-    return <h1 className="text-2xl font-bold">Start Searching!</h1>;
+    return (
+      <h1 className="mb-4 text-center text-2xl font-bold">Start searching</h1>
+    );
   }
 
-  if (PaperlessDocuments.isLoading || userData.isLoading) {
+  if (isLoadingDocuments || isLoadingUserData) {
     return <LoadingSpinner>Loading...</LoadingSpinner>;
-  } else if (!userData.data?.paperlessURL) {
+  } else if (userDataError || !userData?.paperlessURL) {
     return (
       <h1 className="text-2xl font-bold">
         You need to set your paperless url in
         <OpenInternalLink href="/settings">settings</OpenInternalLink>
       </h1>
     );
-  } else if (!PaperlessDocuments.data || PaperlessDocuments.error) {
+  } else if (documentsError || !PaperlessDocuments) {
     return (
       <h1 className="text-2xl font-bold">
         Connection failed! Check that the paperless url/token is set correctly
@@ -156,27 +208,37 @@ function DocumentsPage() {
     );
   }
 
-  const paperlessDocumentMap = PaperlessDocuments.data.results;
+  const paperlessDocumentMap = PaperlessDocuments.results;
 
-  if (!paperlessDocumentMap ?? paperlessDocumentMap.length === 0) {
-    return <h1 className="text-2xl font-bold">No results!</h1>;
+  if (paperlessDocumentMap.length === 0) {
+    return <h1 className="mb-4 text-center text-2xl font-bold">No results</h1>;
   }
 
   return (
     <>
-      <h1 className="text-2xl font-bold">Search Results</h1>
-      <ul className="list-disc">
+      <h1 className="mb-4 text-center text-2xl font-bold">Search Results</h1>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {paperlessDocumentMap.map((document, index) => (
-          <li className="underline" key={index}>
+          <div
+            key={index}
+            className="rounded-lg border p-4 shadow transition-shadow duration-300 hover:shadow-lg"
+          >
             <Link
-              className="underline hover:text-slate-300"
+              className="mt-2 block text-lg font-semibold underline hover:text-slate-300"
               href={`/paperless/document/${document.id}?query=${query}`}
             >
+              <Image
+                src={imageUrls.get(document.id) ?? ""}
+                alt={document.title}
+                width={40}
+                height={128}
+                className="h-32 w-full rounded object-cover mb-2"
+              />
               {document.title}
             </Link>
-          </li>
+          </div>
         ))}
-      </ul>
+      </div>
     </>
   );
 }

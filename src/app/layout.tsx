@@ -6,7 +6,6 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { ThemeProvider } from "@/components/theme-provider";
 import { cn } from "@/lib/utils";
 import { dark } from "@clerk/themes";
-import { CSPostHogProvider } from "@/app/_analytics/provider";
 
 export const metadata = {
   title: "Homelab Connector",
@@ -27,7 +26,6 @@ export default function RootLayout({
         baseTheme: dark,
       }}
     >
-      <CSPostHogProvider>
         <html
           suppressHydrationWarning
           lang="en"
@@ -49,7 +47,6 @@ export default function RootLayout({
             </ThemeProvider>
           </body>
         </html>
-      </CSPostHogProvider>
     </ClerkProvider>
   );
 }
