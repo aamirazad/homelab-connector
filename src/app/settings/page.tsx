@@ -33,10 +33,10 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import BodyMessage from "@/components/body-message";
 
 const queryClient = new QueryClient();
 
@@ -68,6 +68,7 @@ function PaperlessCard({ setActiveTab, userData }: FormProps) {
       await setUserProperty("paperlessToken", values.PaperlessToken);
       // Operation succeeded, show success toast
       toast("Your paperless preferences was saved");
+      void queryClient.invalidateQueries({ queryKey: ["userData"] });
       // Optionally, move to a new tab or take another action to indicate success
     } catch {
       // Operation failed, show error toast
@@ -171,6 +172,7 @@ function WhishperURL({ setActiveTab, userData }: FormProps) {
       await setUserProperty("whishperURL", values.URL);
       // Operation succeeded, show success toast
       toast("Your whishper URL preferences was saved");
+      void queryClient.invalidateQueries({ queryKey: ["userData"] });
       // Optionally, move to a new tab or take another action to indicate success
     } catch {
       // Operation failed, show error toast
@@ -263,13 +265,14 @@ export function Forms() {
       setActiveTab={setActiveTab}
       userData={userData}
     />,
+    <BodyMessage key="done">All done</BodyMessage>,
   ];
   return (
     <>
       {formElements[activeTab]}
       <ProgressIndicator
         activeTab={activeTab}
-        totalTabs={formElements.length}
+        totalTabs={formElements.length - 1}
         setActiveTab={setActiveTab}
       />
     </>
