@@ -1,4 +1,5 @@
 import { getUserData } from "@/app/actions";
+import ky from "ky";
 
 export async function DELETE(req: Request) {
   const url = new URL(req.url);
@@ -13,15 +14,12 @@ export async function DELETE(req: Request) {
   if (!userData) {
     return new Response("Unauthorized", { status: 401 });
   }
-
-  const response = await fetch(
+  
+  const response = await ky.delete(
     `${userData.whishperURL}/api/transcriptions/${id}`,
-    {
-      method: "DELETE",
-    },
   );
 
-  if (!response.ok) {
+  if (!(response.ok)) {
     throw new Error("Network error");
   }
 

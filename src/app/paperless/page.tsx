@@ -28,6 +28,7 @@ import OpenInternalLink from "@/components/internal-link";
 import type { PaperlessDocumentsType } from "@/types";
 import type { UsersTableType } from "@/server/db/schema";
 import Image from "next/image";
+import ky from "ky";
 
 const queryClient = new QueryClient();
 
@@ -36,18 +37,17 @@ async function getPaperlessDocuments(query: string) {
 
   if (!query || query == "null" || query.length < 3 || !userData) return null;
 
-  const response = await fetch(
-    `${userData.paperlessURL}/api/documents/?query=${query}&page=1&page_size=10&truncate_content=true`,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Token ${userData.paperlessToken}`,
+  const data = await ky
+    .get(
+      `${userData.paperlessURL}/api/documents/?query=${query}&page=1&page_size=10&truncate_content=true`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${userData.paperlessToken}`,
+        },
       },
-    },
-  );
-
-  const data = (await response.json()) as PaperlessDocumentsType;
+    )
+    .json<PaperlessDocumentsType>();
 
   return data;
 }
@@ -58,19 +58,15 @@ export async function getPaperlessThumbnail(
 ): Promise<string | null> {
   try {
     const url = `${userData.paperlessURL}/api/documents/${documentId}/thumb/`;
-    const response = await fetch(url, {
-      headers: {
-        Authorization: `Token ${userData.paperlessToken}`,
-      },
-    });
-    if (response.ok) {
-      const blob = await response.blob();
-      const objectUrl = URL.createObjectURL(blob);
-      return objectUrl;
-    } else {
-      console.error("Failed to fetch PDF");
-      return null;
-    }
+    const blob = await ky
+      .get(url, {
+        headers: {
+          Authorization: `Token ${userData.paperlessToken}`,
+        },
+      })
+      .blob();
+    const objectUrl = URL.createObjectURL(blob);
+    return objectUrl;
   } catch (error) {
     console.error("Error fetching PDF:", error);
     return null;
@@ -232,7 +228,7 @@ function DocumentsPage() {
                 alt={document.title}
                 width={40}
                 height={128}
-                className="h-32 w-full rounded object-cover mb-2"
+                className="mb-2 h-32 w-full rounded object-cover"
               />
               {document.title}
             </Link>

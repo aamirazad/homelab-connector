@@ -31,17 +31,13 @@ import {
 } from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import BodyMessage from "@/components/body-message";
+import ky from "ky";
 
 const queryClient = new QueryClient();
 
-const fetchUserData = async (): Promise<UsersTableType> => {
-  const response = await fetch("/api/getUserData");
-  if (!response.ok) {
-    throw new Error("Network error");
-  }
-  const data = (await response.json()) as UsersTableType;
-  return data;
-};
+async function fetchUserData(): Promise<UsersTableType> {
+  return await ky.get("/api/getUserData").json<UsersTableType>();
+}
 
 function SkeletonLoader() {
   return (
@@ -68,26 +64,14 @@ function SkeletonLoader() {
   );
 }
 
-async function fetchWhishperRecording(searchId: string, whishperURL: string) {
-  const response = await fetch(`${whishperURL}/api/transcriptions`);
-  const data = (await response.json()) as WhishperRecordingType[];
-  for (const recording of data) {
-    if (recording.id === searchId) {
-      return recording;
-    }
-  }
-}
-
-async function deleteWhishperRecording(url: string) {
-  const response = await fetch(url, {
-    method: "DELETE",
-  });
-
-  if (!response.ok) {
-    throw new Error("Network error");
-  }
-
-  return response;
+async function fetchWhishperRecording(
+  searchId: string,
+  whishperURL: string,
+): Promise<WhishperRecordingType | undefined> {
+  const data = await ky
+    .get(`${whishperURL}/api/transcriptions`)
+    .json<WhishperRecordingType[]>();
+  return data.find((recording) => recording.id === searchId);
 }
 
 type AudioInfoProps = {
@@ -220,7 +204,7 @@ function AudioInfo({ id }: AudioInfoProps) {
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
                     <AlertDialogAction
                       onClick={async () => {
-                        const response = await deleteWhishperRecording(
+                        const response = await ky.delete(
                           `${userData.whishperURL}/api/transcriptions/${id}`,
                         );
                         if (response.ok) {
