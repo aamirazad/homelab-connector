@@ -225,7 +225,7 @@ function DocumentsPage() {
           >
             <Link
               className="mt-2 block text-lg font-semibold underline hover:text-slate-300"
-              href={`/paperless/details/${document.id}?query=${query}`}
+              href={`/paperless/document/${document.id}?query=${query}`}
             >
               <Image
                 src={imageUrls.get(document.id) ?? ""}
