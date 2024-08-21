@@ -27,6 +27,7 @@ import BodyMessage from "@/components/body-message";
 import Link from "next/link";
 import LoadingSpinner from "@/components/loading-spinner";
 import OpenExternalLink from "@/components/external-link";
+import ky from "ky";
 
 const queryClient = new QueryClient();
 
@@ -36,19 +37,15 @@ export async function getPaperlessDocument(
 ): Promise<string | null> {
   try {
     const url = `${userData.paperlessURL}/api/documents/${documentId}/download/`;
-    const response = await fetch(url, {
-      headers: {
-        Authorization: `Token ${userData.paperlessToken}`,
-      },
-    });
-    if (response.ok) {
-      const blob = await response.blob();
-      const objectUrl = URL.createObjectURL(blob);
-      return objectUrl;
-    } else {
-      console.error("Failed to fetch PDF");
-      return null;
-    }
+    const blob = await ky
+      .get(url, {
+        headers: {
+          Authorization: `Token ${userData.paperlessToken}`,
+        },
+      })
+      .blob();
+    const objectUrl = URL.createObjectURL(blob);
+    return objectUrl;
   } catch (error) {
     console.error("Error fetching PDF:", error);
     return null;
@@ -64,44 +61,36 @@ async function deleteDocument(documentId: number) {
     documents: [documentId],
     method: "delete",
   };
-  const response = await fetch(
-    `${userData.paperlessURL}/api/documents/bulk_edit/ `,
+  const response = await ky.post(
+    `${userData.paperlessURL}/api/documents/bulk_edit/`,
     {
-      method: "POST",
+      json: body,
       headers: {
-        "Content-Type": "application/json",
         Authorization: `Token ${userData.paperlessToken}`,
       },
-      body: JSON.stringify(body),
     },
   );
   return response;
 }
 
-const fetchUserData = async (): Promise<UsersTableType> => {
-  const response = await fetch(`/api/getUserData`);
-  if (!response.ok) {
-    throw new Error("Network error");
-  }
-  const data = (await response.json()) as UsersTableType;
-  return data;
-};
+async function fetchUserData(): Promise<UsersTableType> {
+  return await ky.get("/api/getUserData").json<UsersTableType>();
+}
 
-async function getPaperlessDocumentData(id: number, userData: UsersTableType) {
+async function getPaperlessDocumentData(
+  id: number,
+  userData: UsersTableType,
+): Promise<PaperlessDocumentType | null> {
   try {
     const url = `${userData.paperlessURL}/api/documents/${id}/?truncate_content=true`;
-    const response = await fetch(url, {
-      headers: {
-        Authorization: `Token ${userData.paperlessToken}`,
-      },
-    });
-    if (response.ok) {
-      const data = (await response.json()) as PaperlessDocumentType;
-      return data;
-    } else {
-      console.error("Failed to fetch PD dataF");
-      return null;
-    }
+    const data = await ky
+      .get(url, {
+        headers: {
+          Authorization: `Token ${userData.paperlessToken}`,
+        },
+      })
+      .json<PaperlessDocumentType>();
+    return data;
   } catch (error) {
     console.error("Error fetching PDF data:", error);
     return null;

@@ -3,7 +3,6 @@
 import { db } from "@/server/db";
 import type { UsersTableType } from "@/server/db/schema";
 import { users } from "@/server/db/schema";
-import type { PaperlessDocumentsType } from "@/types";
 import { auth } from "@clerk/nextjs/server";
 
 /*

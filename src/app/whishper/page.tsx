@@ -43,6 +43,7 @@ import OpenExternalLink from "@/components/external-link";
 import type { UsersTableType } from "@/server/db/schema";
 import { BadgeCheck, Badge, BadgeAlert } from "lucide-react";
 import type { WhishperRecordingType } from "@/types";
+import ky from "ky";
 
 const queryClient = new QueryClient();
 
@@ -53,9 +54,10 @@ async function getWhishperRecordings(
 
   if (!query || query == "null" || query.length < 3 || !userData) return null;
 
-  const response = await fetch(`${userData.whishperURL}/api/transcriptions`);
+  const data = await ky
+    .get(`${userData.whishperURL}/api/transcriptions`)
+    .json<WhishperRecordingType[]>();
 
-  const data = (await response.json()) as WhishperRecordingType[];
   const lowerCaseQuery = query.toLowerCase();
   const filteredAndScored = data
     .filter(
@@ -187,7 +189,7 @@ function RecordingsList() {
 
   const WhishperRecordingsMap = WhishperRecordings.data;
 
-  if (!WhishperRecordingsMap ?? WhishperRecordingsMap.length === 0) {
+  if (WhishperRecordingsMap.length === 0) {
     return <h1 className="text-2xl font-bold">No results!</h1>;
   }
 
