@@ -2,6 +2,7 @@
 
 ![GitHub deployments](https://img.shields.io/github/deployments/aamirazad/homelab-connector/Production?label=build&logo=vercel)
 ![GitHub License](https://img.shields.io/github/license/aamirazad/homelab-connector)
+[![wakatime](https://wakatime.com/badge/user/a74de5a2-6029-42fc-af5a-6c68022b44ae/project/232c8974-8691-43e4-a304-03c7c8722fb5.svg)](https://wakatime.com/badge/user/a74de5a2-6029-42fc-af5a-6c68022b44ae/project/232c8974-8691-43e4-a304-03c7c8722fb5)
 
 ## About
 
