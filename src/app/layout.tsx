@@ -6,6 +6,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { ThemeProvider } from "@/components/theme-provider";
 import { cn } from "@/lib/utils";
 import { dark } from "@clerk/themes";
+import Script from "next/script";
 
 export const metadata = {
   title: "Homelab Connector",
@@ -34,6 +35,7 @@ export default function RootLayout({
             GeistSans.variable,
           )}
         >
+          <Script defer src="https://cloud.umami.is/script.js" data-website-id="5cf4c224-24ad-414e-b94c-c04a285bf21d" />
           <body className="h-screen">
             <ThemeProvider attribute="class" defaultTheme="dark">
               <div className="flex h-full flex-col gap-12 md:gap-0">
