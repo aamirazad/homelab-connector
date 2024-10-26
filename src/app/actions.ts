@@ -17,7 +17,7 @@ export async function setUserProperty<K extends keyof UsersTableType>(
   propertyName: K,
   value: UsersTableType[K],
 ) {
-  const { userId } = auth();
+  const { userId } = await auth();
 
   if (!userId) {
     return null;
@@ -37,7 +37,7 @@ export async function setUserProperty<K extends keyof UsersTableType>(
 }
 
 export async function getUserData() {
-  const { userId } = auth();
+  const { userId } = await auth();
 
   if (!userId) return null;
 

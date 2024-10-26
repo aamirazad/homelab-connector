@@ -4,8 +4,9 @@ import OpenInternalLink from "@/components/internal-link";
 import LoadingSpinner from "@/components/loading-spinner";
 import { RedirectToSignIn, SignedIn, SignedOut } from "@clerk/nextjs";
 import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
-export default function SignIn() {
+function SignInContent() {
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect");
 
@@ -25,5 +26,13 @@ export default function SignIn() {
         </div>
       </SignedIn>
     </main>
+  );
+}
+
+export default function SignIn() {
+  return (
+    <Suspense fallback={<LoadingSpinner>Loading...</LoadingSpinner>}>
+      <SignInContent />
+    </Suspense>
   );
 }
