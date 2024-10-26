@@ -22,7 +22,7 @@ import {
 } from "@tanstack/react-query";
 import type { UsersTableType } from "@/server/db/schema";
 import type { PaperlessDocumentType } from "@/types";
-import React from "react";
+import React, { use } from "react";
 import BodyMessage from "@/components/body-message";
 import Link from "next/link";
 import LoadingSpinner from "@/components/loading-spinner";
@@ -206,11 +206,12 @@ function DocumentDetailsInner(props: { id: number }) {
   );
 }
 
-export default function DocumentDetails({
-  params,
-}: {
-  params: { id: number };
-}) {
+export default function DocumentDetails(
+  props: {
+    params: Promise<{ id: number }>;
+  }
+) {
+  const params = use(props.params);
   return (
     <QueryClientProvider client={queryClient}>
       <DocumentDetailsInner {...params} />
