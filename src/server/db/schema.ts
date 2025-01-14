@@ -10,7 +10,7 @@ import { pgTableCreator, serial, varchar } from "drizzle-orm/pg-core";
  * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
  */
 export const createTable = pgTableCreator(
-  (name) => `homelab-connector_${name}`,
+  (name) => `homelab_${name}`,
 );
 
 export const users = createTable("users", {
