@@ -8,5 +8,5 @@ export default {
   dbCredentials: {
     url: env.POSTGRES_URL,
   },
-  tablesFilter: ["homelab-connector_*"],
+  tablesFilter: ["homelab_*"],
 } satisfies Config;
